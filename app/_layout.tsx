@@ -53,9 +53,12 @@ function RootLayoutNav() {
     <TamaguiProvider config={config} defaultTheme={colorScheme as any}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="index" />
+          <Stack.Screen name="index" options={{ title: "Log In / Sign up" }} />
           <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Create Bill" }}
+          />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>

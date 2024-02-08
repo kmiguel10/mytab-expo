@@ -1,16 +1,25 @@
 import { Button, StyleSheet, View } from "react-native";
 import { Text } from "tamagui";
 
-import { Link } from "expo-router";
+import { supabase } from "@/lib/supabase";
+
+import { Link, Redirect, useLocalSearchParams } from "expo-router";
+
+const signOutUser = async () => {
+  await supabase.auth.signOut();
+  console.log("USER SIGNED OUT");
+  // <Redirect href="/(homepage)/home" />;
+};
 
 export default function TabTwoScreen() {
+  const { id } = useLocalSearchParams();
   return (
     <View style={styles.container}>
-      <Text>Tab Two</Text>
+      <Text>Tab Two: {id}</Text>
       {/* <EditScreenInfo path="app/(tabs)/two.tsx" /> */}
       <Text>This will show all profile info and log out button</Text>
       <Link href={"/"} replace asChild>
-        <Button title="Return to Home / Logout" />
+        <Button title="Return to Home / Logout" onPress={signOutUser} />
       </Link>
     </View>
   );

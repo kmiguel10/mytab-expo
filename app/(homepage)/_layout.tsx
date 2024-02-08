@@ -1,8 +1,12 @@
-import { Link, Tabs } from "expo-router";
+import { useRoute } from "@react-navigation/native";
+import { Link, Tabs, useRouter } from "expo-router";
 import { Pressable } from "react-native";
 import { Text } from "tamagui";
 
 export default function TabLayout() {
+  const route = useRoute();
+  const router = useRouter();
+  const { id } = route.params as { id: string };
   return (
     <Tabs
       screenOptions={{
@@ -10,14 +14,20 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="[id]"
+        initialParams={{ id }}
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <Text>Hello!</Text>,
+          title: "Homepage",
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link
+              href={{
+                pathname: "/modal",
+                params: { id },
+              }}
+              asChild
+            >
               <Pressable>
-                <Text>Hello!</Text>
+                <Text>Create Bill</Text>
               </Pressable>
             </Link>
           ),
@@ -25,6 +35,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="profile"
+        initialParams={{ id }}
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => <Text>Hello!</Text>,
