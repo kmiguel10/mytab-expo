@@ -1,98 +1,23 @@
 // import { Text, View } from "@/components/Themed";
-import { ListItem, ScrollView, YStack } from "tamagui";
+import { ListItem, ScrollView, XStack, YStack } from "tamagui";
 
 import { User } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Button, H1, Paragraph, Separator, Text, View } from "tamagui";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-
-// const testUser: User = {
-//   userId: 0,
-//   name: "Bob",
-//   bills: [
-//     {
-//       billId: 1,
-//       members: [
-//         { memberId: 1, memberName: "Alice" },
-//         { memberId: 2, memberName: "Eli" },
-//       ],
-//     },
-//     {
-//       billId: 2,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 3,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 4,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 5,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 6,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 7,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 8,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//     {
-//       billId: 9,
-//       members: [
-//         { memberId: 3, memberName: "Jason" },
-//         { memberId: 4, memberName: "Travis" },
-//         { memberId: 5, memberName: "Kylie" },
-//       ],
-//     },
-//   ],
-// };
+import JoinBill from "@/components/my-bill/join-bill";
 
 export default function Home() {
   const [bills, setBills] = useState<any[]>([]);
-  // const route = useRoute();
-  // const { id } = route.params as { id: string };
+
   const { id } = useLocalSearchParams();
 
   const getBills = async () => {
-    let { data: billsData, error } = await supabase.from("bills").select("*");
+    let { data: billsData, error } = await supabase
+      .from("bills")
+      .select("*")
+      .eq("ownerid", id);
 
     if (billsData) {
       setBills(billsData); // Set the bills state with the retrieved data
@@ -100,6 +25,7 @@ export default function Home() {
     } else {
       // Handle the case where billsData is null
       // For example, you can set an empty array as the default value
+      console.log("Error", error);
       setBills([]);
     }
   };
@@ -124,16 +50,21 @@ export default function Home() {
         This will show a table with: Username, List of Bills, create bill button
         (separate component)
       </Paragraph>
+      <JoinBill />
 
       <ScrollView>
         <YStack>
           {bills.map((item, index) => (
             <ListItem key={index}>
-              <Link href={`/(bill)/mybill/${item.billid}`} asChild>
-                <Button>
-                  <Text>{item.name}</Text>
-                </Button>
-              </Link>
+              <XStack>
+                {item.ownerid === id ? <Text>owner</Text> : <Text>Member</Text>}
+
+                <Link href={`/(bill)/mybill/${item.billid}`} asChild>
+                  <Button>
+                    <Text>{item.name}</Text>
+                  </Button>
+                </Link>
+              </XStack>
             </ListItem>
           ))}
         </YStack>

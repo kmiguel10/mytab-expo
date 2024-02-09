@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 import React from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Button, Paragraph } from "tamagui";
 import { useRoute } from "@react-navigation/native";
 
@@ -15,7 +15,10 @@ const Page = () => {
         Will receive an id from Homepage and use it to create a GET() request to
         receive lists of transactions and members for that BillId
       </Paragraph>
-      <Button>Create Txn</Button>
+      <Paragraph>Fetch created transactions</Paragraph>
+      <Link href={"/(modals)/create-transaction"} asChild>
+        <Button>Create Txn</Button>
+      </Link>
     </View>
   );
 };

@@ -11,7 +11,7 @@ const Layout = () => {
     <Tabs>
       <Tabs.Screen
         name="mybill"
-        options={{ tabBarLabel: "My Bill" }}
+        options={{ tabBarLabel: "My Bill", title: "Bill" }}
         initialParams={{ id: id }}
       ></Tabs.Screen>
       <Tabs.Screen

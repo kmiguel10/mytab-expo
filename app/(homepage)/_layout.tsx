@@ -21,7 +21,7 @@ export default function TabLayout() {
           headerRight: () => (
             <Link
               href={{
-                pathname: "/modal",
+                pathname: "/(modals)/create-bill",
                 params: { id },
               }}
               asChild

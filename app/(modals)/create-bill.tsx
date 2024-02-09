@@ -1,7 +1,17 @@
 import { supabase } from "@/lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Button, Form, H4, Input, Spinner, XStack, YStack } from "tamagui";
+import {
+  Button,
+  Form,
+  H2,
+  H4,
+  Input,
+  Spinner,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 
 const testBill = {};
 
@@ -43,33 +53,32 @@ const ModalScreen = () => {
       borderColor="$borderColor"
       padding="$8"
     >
-      <H4>{status[0].toUpperCase() + status.slice(1)}</H4>
-
-      <Form.Trigger asChild disabled={status !== "off"}>
-        <YStack
-          width={200}
-          minHeight={250}
-          overflow="hidden"
-          space="$2"
-          margin="$3"
-          padding="$2"
-        >
-          <XStack alignItems="center" space="$2">
-            <Input
-              flex={1}
-              size={3}
-              placeholder="Name of Bill"
-              value={name}
-              onChangeText={setName}
-            />
+      <YStack>
+        <XStack>
+          <H4>{status[0].toUpperCase() + status.slice(1)}</H4>
+        </XStack>
+        <XStack>
+          <Text>Bill owner: {id}</Text>
+        </XStack>
+        <XStack alignItems="center" space="$2">
+          <Input
+            flex={1}
+            size={3}
+            placeholder="Name of Bill"
+            value={name}
+            onChangeText={setName}
+          />
+        </XStack>
+        <XStack>
+          <Form.Trigger asChild disabled={status !== "off"}>
             <Button
               icon={status === "submitting" ? () => <Spinner /> : undefined}
             >
               Submit
             </Button>
-          </XStack>
-        </YStack>
-      </Form.Trigger>
+          </Form.Trigger>
+        </XStack>
+      </YStack>
     </Form>
   );
 };
