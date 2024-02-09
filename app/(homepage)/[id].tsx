@@ -15,9 +15,9 @@ export default function Home() {
 
   const getBills = async () => {
     let { data: billsData, error } = await supabase
-      .from("bills")
+      .from("members")
       .select("*")
-      .eq("ownerid", id);
+      .eq("userid", id);
 
     if (billsData) {
       setBills(billsData); // Set the bills state with the retrieved data
