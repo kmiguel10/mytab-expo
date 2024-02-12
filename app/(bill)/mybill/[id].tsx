@@ -6,7 +6,7 @@ import { useRoute } from "@react-navigation/native";
 import { supabase } from "@/lib/supabase";
 
 const Page = () => {
-  const { id } = useLocalSearchParams();
+  const { id, userId } = useLocalSearchParams();
   // const route = useRoute();
   // const { id } = route.params as { id: string };
 
@@ -34,9 +34,10 @@ const Page = () => {
 
   return (
     <YStack>
-      <XStack>
+      <YStack>
         <Text>Viewing Bill: {id}</Text>
-      </XStack>
+        <Text>User: {userId}</Text>
+      </YStack>
       <XStack>
         <Paragraph>
           Will receive an id from Homepage and use it to create a GET() request
@@ -51,7 +52,14 @@ const Page = () => {
         <Paragraph>Fetch created transactions</Paragraph>
       </XStack>
       <XStack>
-        <Link href={"/(modals)/create-transaction"} asChild>
+        <Link
+          // href={`/(modals)/create-transaction?id=${id}`}
+          href={{
+            pathname: `/(modals)/create-transaction`,
+            params: { billId: id, userId: userId },
+          }}
+          asChild
+        >
           <Button>Create Txn</Button>
         </Link>
       </XStack>

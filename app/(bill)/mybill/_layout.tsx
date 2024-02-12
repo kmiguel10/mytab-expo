@@ -16,7 +16,7 @@ const BillLayout = () => {
     //   ></Tabs.Screen>
     // </Tabs>
     <Stack>
-      <Stack.Screen name="[id]" options={{ title: "Create Bill" }} />
+      <Stack.Screen name="[id]" options={{ title: "My Bill" }} />
     </Stack>
     // <View>
     //   <Text>Test</Text>

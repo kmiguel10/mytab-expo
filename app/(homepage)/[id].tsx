@@ -39,7 +39,7 @@ export default function Home() {
     <View>
       <H1>HOME</H1>
       <Paragraph>Welcome: {id}</Paragraph>
-      <Text>User:{id}</Text>
+
       <Paragraph>
         Based on the user id, will do a GET() request to get all Bills
         associated with the userId
@@ -59,7 +59,14 @@ export default function Home() {
               <XStack>
                 {item.ownerid === id ? <Text>owner</Text> : <Text>Member</Text>}
 
-                <Link href={`/(bill)/mybill/${item.billid}`} asChild>
+                <Link
+                  // href={`/(bill)/mybill/${item.billid}`}
+                  href={{
+                    pathname: `/(bill)/mybill/${item.billid}`,
+                    params: { id: item.billId, userId: id },
+                  }}
+                  asChild
+                >
                   <Button>
                     <Text>{item.name}</Text>
                   </Button>
