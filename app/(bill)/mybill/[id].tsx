@@ -1,9 +1,17 @@
 import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { Button, Paragraph, Separator, XStack, YStack } from "tamagui";
+import {
+  Button,
+  Paragraph,
+  PortalProvider,
+  Separator,
+  XStack,
+  YStack,
+} from "tamagui";
 import { useRoute } from "@react-navigation/native";
 import { supabase } from "@/lib/supabase";
+import { CreateTransaction } from "@/components/create-transaction/create-transaction";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
@@ -17,19 +25,19 @@ const Page = () => {
     let { data, error } = await supabase
       .from("members")
       .select("userid")
-      .eq("billid", id);
+      .eq("billid", Number(id));
 
     if (data) {
       setMembers(data);
-      console.log("Data: ", data);
+      console.log("Data MyBill: ", data);
     } else {
-      console.log("Members Error: ", error);
+      console.log("Members Error MyBill: ", error);
       setMembers([]);
     }
   };
   useEffect(() => {
     if (id) getMembers();
-    console.log("Members: ", members);
+    console.log("Members MyBill: ", members);
   }, [id]);
 
   return (
@@ -37,6 +45,7 @@ const Page = () => {
       <YStack>
         <Text>Viewing Bill: {id}</Text>
         <Text>User: {userId}</Text>
+        <Text>List of Members: {JSON.stringify(members)}</Text>
       </YStack>
       <XStack>
         <Paragraph>
@@ -52,7 +61,7 @@ const Page = () => {
         <Paragraph>Fetch created transactions</Paragraph>
       </XStack>
       <XStack>
-        <Link
+        {/* <Link
           // href={`/(modals)/create-transaction?id=${id}`}
           href={{
             pathname: `/(modals)/create-transaction`,
@@ -61,7 +70,8 @@ const Page = () => {
           asChild
         >
           <Button>Create Txn</Button>
-        </Link>
+        </Link> */}
+        <CreateTransaction billId={id} userId={userId} members={members} />
       </XStack>
     </YStack>
   );

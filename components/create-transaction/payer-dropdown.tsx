@@ -18,7 +18,7 @@ import { LinearGradient } from "@tamagui/linear-gradient";
 // import { LinearGradient } from "tamagui/linear-gradient";
 
 const PayerDropdown = ({ dropdownValues }: { dropdownValues: any[] }) => {
-  const [val, setVal] = useState("test");
+  const [val, setVal] = useState("owner");
   return (
     <Select defaultValue="test" value={val} onValueChange={setVal}>
       <Select.Trigger>
@@ -52,11 +52,13 @@ const PayerDropdown = ({ dropdownValues }: { dropdownValues: any[] }) => {
         </Sheet>
       </Adapt>
 
-      <Select.Content zIndex={9999}>
+      <Select.Content zIndex={200000}>
         <Select.ScrollUpButton
           alignItems="center"
           justifyContent="center"
           position="relative"
+          width="100%"
+          height="$3"
         >
           <YStack zIndex={10}>
             <ChevronUp size={2} />
@@ -76,15 +78,15 @@ const PayerDropdown = ({ dropdownValues }: { dropdownValues: any[] }) => {
               return (
                 <Select.Item index={i} key={i} value={item.userid}>
                   <Select.ItemText>{item.userid}</Select.ItemText>
-                  {/* <Select.ItemIndicator marginLeft="auto">
+                  <Select.ItemIndicator marginLeft="auto">
                     <Check size={16} />
-                  </Select.ItemIndicator> */}
+                  </Select.ItemIndicator>
                 </Select.Item>
               );
             })}
           </Select.Group>
         </Select.Viewport>
-        {/* <Select.ScrollDownButton /> */}
+        <Select.ScrollDownButton />
 
         <Select.ScrollDownButton
           alignItems="center"

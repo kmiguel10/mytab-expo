@@ -64,14 +64,14 @@ function RootLayoutNav() {
             name="(modals)/create-bill"
             options={{ presentation: "modal", title: "Create Bill" }}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="(modals)/create-transaction"
             options={{
               headerTitle: "Create Transaction",
               presentation: "modal",
               title: "Create Transaction",
             }}
-          />
+          /> */}
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
