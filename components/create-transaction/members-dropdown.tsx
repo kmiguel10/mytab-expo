@@ -20,23 +20,46 @@ interface Member {
 
 interface MembersDropdownProps extends SelectProps {
   members: any[];
+  onPayerChange: (selectedPayer: string) => void;
 }
 
 export default function MembersDropdown({
   members,
+  onPayerChange,
   ...props
 }: MembersDropdownProps) {
-  const [val, setVal] = useState("apple");
+  const [payer, setPayer] = useState("");
+
+  //Handles selection of payer
+  //   const handlePayerSelect = (selectedUser: string) => {
+  //     setPayer(selectedUser);
+  //     onPayerChange(payer);
+  //     console.log("Selected User", selectedUser);
+  //     console.log("Payer: ", payer);
+  //   };
+  const handlePayerSelect = (selectedUserId: string) => {
+    // Find the member with the selected user id
+    const selectedMember = members.find(
+      (member) => member.userid === selectedUserId
+    );
+    if (selectedMember) {
+      // Update the payer using the callback function
+      setPayer(selectedMember.userid);
+      onPayerChange(selectedMember.userid);
+    }
+    console.log("Payer:", payer);
+    console.log("Selectedmember:", selectedMember.userid);
+  };
 
   return (
     <Select
-      value={val}
-      onValueChange={setVal}
+      value={payer}
+      onValueChange={handlePayerSelect}
       disablePreventBodyScroll
       {...props}
     >
       <Select.Trigger width={220}>
-        <Select.Value placeholder="Something" />
+        <Select.Value placeholder="Select Payer" />
       </Select.Trigger>
 
       <Adapt when="sm" platform="touch">
@@ -84,14 +107,7 @@ export default function MembersDropdown({
           />
         </Select.ScrollUpButton>
 
-        <Select.Viewport
-          // to do animations:
-          // animation="quick"
-          // animateOnly={['transform', 'opacity']}
-          // enterStyle={{ o: 0, y: -10 }}
-          // exitStyle={{ o: 0, y: 10 }}
-          minWidth={200}
-        >
+        <Select.Viewport minWidth={200}>
           <Select.Group>
             <Select.Label>Members</Select.Label>
             {/* for longer lists memoizing these is useful */}
@@ -99,7 +115,11 @@ export default function MembersDropdown({
               () =>
                 members.map((item, i) => {
                   return (
-                    <Select.Item index={i} key={i} value={item.userd}>
+                    <Select.Item
+                      index={i}
+                      key={item.userid}
+                      value={item.userid}
+                    >
                       <Select.ItemText>{item.userid}</Select.ItemText>
                       <Select.ItemIndicator marginLeft="auto">
                         {/* <Check size={16} /> */}

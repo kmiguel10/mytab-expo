@@ -13,6 +13,7 @@ import {
   TooltipSimple,
   Unspaced,
   XStack,
+  YStack,
 } from "tamagui";
 import { SelectDemoItem } from "./SelectDemo";
 import { useEffect, useState } from "react";
@@ -35,6 +36,28 @@ export const CreateTransaction: React.FC<CreateTransaction> = ({
   userId,
   members,
 }) => {
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [payer, setPayer] = useState("");
+  const [submittedBy, setSubmittedBy] = useState("");
+
+  const handlePayerChange = (selectedPayer: string) => {
+    setPayer(selectedPayer);
+  };
+
+  const handleAmountChange = (text: string) => {
+    // Remove non-numeric characters except for the decimal point
+    const numericValue = text.replace(/[^\d.]/g, "");
+
+    // Format the numeric value to a dollar format
+    const formattedAmount = parseFloat(numericValue).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    setAmount(formattedAmount);
+  };
+
   return (
     <Dialog modal>
       <Dialog.Trigger asChild>
@@ -79,34 +102,68 @@ export const CreateTransaction: React.FC<CreateTransaction> = ({
           gap="$4"
         >
           <Dialog.Title>Create Transaction</Dialog.Title>
-
           <Dialog.Description>
             Make changes to your profile here. Click save when you're done.
           </Dialog.Description>
-
           <Fieldset gap="$4" horizontal>
             <Label width={160} justifyContent="flex-end" htmlFor="name">
               Name
             </Label>
 
-            <Input flex={1} id="name" defaultValue="Nate Wienert" />
+            <Input
+              flex={1}
+              id="name"
+              placeholder="Transaction Name"
+              defaultValue=""
+              value={name}
+              onChangeText={setName}
+            />
           </Fieldset>
-
           <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="username">
+            <Label width={160} justifyContent="flex-end" htmlFor="amout">
+              Amount
+            </Label>
+
+            <Input
+              flex={1}
+              id="amount"
+              placeholder="Enter a number"
+              defaultValue=""
+              keyboardType="numeric"
+              value={amount}
+              onChangeText={handleAmountChange}
+            />
+          </Fieldset>
+          <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="payer">
               <TooltipSimple
                 label="Pick your favorite"
                 placement="bottom-start"
               >
-                <Paragraph>Members</Paragraph>
+                <Paragraph>Payer</Paragraph>
               </TooltipSimple>
             </Label>
 
-            <MembersDropdown members={members} />
+            <MembersDropdown
+              members={members}
+              onPayerChange={handlePayerChange}
+            />
           </Fieldset>
-          <XStack>
-            <Text>Members: {JSON.stringify(members)}</Text>
-          </XStack>
+
+          <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="name">
+              Submitted By
+            </Label>
+
+            <Input
+              flex={1}
+              id="submittedBy"
+              defaultValue=""
+              value={userId}
+              disabled={true}
+            />
+          </Fieldset>
+
           <XStack alignSelf="flex-end" gap="$4">
             {/* <DialogInstance /> */}
             <Dialog.Close displayWhenAdapted asChild>
@@ -125,6 +182,14 @@ export const CreateTransaction: React.FC<CreateTransaction> = ({
               />
             </Dialog.Close>
           </Unspaced>
+          <YStack>
+            <Text>Txn name: {name}</Text>
+            <Text>Amount: {amount}</Text>
+            <Text>Payer: {payer}</Text>
+            <Text>BillId: {billId}</Text>
+            <Text>Submitted By: {userId}</Text>
+            <Text>Members: {JSON.stringify(members)}</Text>
+          </YStack>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
