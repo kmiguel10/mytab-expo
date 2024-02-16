@@ -16,4 +16,19 @@ type User = {
   bills: Bill[];
 };
 
-export type { Member, Bill, User };
+type MemberSplitAmount = {
+  memberId: string; // UUID of the member
+  amount: number; // Amount corresponding to the member
+};
+
+type Transaction = {
+  billid: number;
+  submittedbyid: string | null;
+  payerid: string | null;
+  amount: string;
+  name: string;
+  split: MemberSplitAmount[];
+  isdeleted: boolean;
+};
+
+export type { Member, Bill, User, Transaction, MemberSplitAmount };

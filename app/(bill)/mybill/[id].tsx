@@ -55,22 +55,9 @@ const Page = () => {
       </XStack>
       <Separator />
       <XStack>
-        <Paragraph>Display List of Members</Paragraph>
-      </XStack>
-      <XStack>
         <Paragraph>Fetch created transactions</Paragraph>
       </XStack>
       <XStack>
-        {/* <Link
-          // href={`/(modals)/create-transaction?id=${id}`}
-          href={{
-            pathname: `/(modals)/create-transaction`,
-            params: { billId: id, userId: userId },
-          }}
-          asChild
-        >
-          <Button>Create Txn</Button>
-        </Link> */}
         <CreateTransaction billId={id} userId={userId} members={members} />
       </XStack>
     </YStack>
