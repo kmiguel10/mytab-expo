@@ -16,6 +16,7 @@ import {
   YStack,
   Switch,
   Separator,
+  ScrollView,
 } from "tamagui";
 import { SelectDemoItem } from "./SelectDemo";
 import { useEffect, useState } from "react";
@@ -184,118 +185,124 @@ export const CreateTransaction: React.FC<CreateTransaction> = ({
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Create Transaction</Dialog.Title>
-          <Dialog.Description>
-            Make changes to your profile here. Click save when you're done.
-          </Dialog.Description>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Name
-            </Label>
-
-            <Input
-              flex={1}
-              id="name"
-              placeholder="Transaction Name"
-              defaultValue=""
-              value={transaction.name}
-              onChangeText={handleNameChange}
-            />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amout">
-              Amount
-            </Label>
-
-            <Input
-              flex={1}
-              id="amount"
-              placeholder="Enter a number"
-              defaultValue=""
-              keyboardType="numeric"
-              value={transaction.amount.toString()}
-              onChangeText={handleAmountChange}
-            />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amout">
-              Split
-            </Label>
-            <XStack width={200} alignItems="center" gap="$4">
-              <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
-                Even
+          <ScrollView>
+            <Dialog.Title>Create Transaction</Dialog.Title>
+            <Dialog.Description>
+              Make changes to your profile here. Click save when you're done.
+            </Dialog.Description>
+            <Fieldset gap="$4" horizontal>
+              <Label width={160} justifyContent="flex-end" htmlFor="name">
+                Name
               </Label>
-              <Separator minHeight={20} vertical />
-              <Switch>
-                <Switch.Thumb animation="quick" />
-              </Switch>
-            </XStack>
-          </Fieldset>
-          <Fieldset>
-            <CustomSplit />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
 
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submittedBy"
-              defaultValue=""
-              value={userId}
-              disabled={true}
-            />
-          </Fieldset>
-
-          <XStack alignSelf="flex-end" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button aria-label="Close">Cancel</Button>
-            </Dialog.Close>
-            {/* <DialogInstance /> */}
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button aria-label="Close" onPress={onCreateTxn}>
-                Create
-              </Button>
-            </Dialog.Close>
-          </XStack>
-          <Unspaced>
-            <Dialog.Close asChild>
-              <Button
-                position="absolute"
-                top="$3"
-                right="$3"
-                size="$2"
-                circular
-                icon={X}
+              <Input
+                flex={1}
+                id="name"
+                placeholder="Transaction Name"
+                defaultValue=""
+                value={transaction.name}
+                onChangeText={handleNameChange}
               />
-            </Dialog.Close>
-          </Unspaced>
-          <YStack>
-            <Text>Txn name: {transaction.name}</Text>
-            <Text>Amount: {transaction.amount}</Text>
-            <Text>Payer: {transaction.payerid}</Text>
-            <Text>SubmittedBy: {transaction.submittedbyid}</Text>
-            <Text>Split: {JSON.stringify(transaction.split)}</Text>
-            <Text>Submitted By: {transaction.submittedbyid}</Text>
-            <Text>Members: {JSON.stringify(members)}</Text>
-          </YStack>
+            </Fieldset>
+            <Fieldset gap="$4" horizontal>
+              <Label width={160} justifyContent="flex-end" htmlFor="amout">
+                Amount
+              </Label>
+
+              <Input
+                flex={1}
+                id="amount"
+                placeholder="Enter a number"
+                defaultValue=""
+                keyboardType="numeric"
+                value={transaction.amount.toString()}
+                onChangeText={handleAmountChange}
+              />
+            </Fieldset>
+            <Fieldset gap="$4" horizontal>
+              <Label width={160} justifyContent="flex-end" htmlFor="amout">
+                Split
+              </Label>
+              <XStack width={200} alignItems="center" gap="$4">
+                <Label
+                  paddingRight="$0"
+                  minWidth={90}
+                  justifyContent="flex-end"
+                >
+                  Even
+                </Label>
+                <Separator minHeight={20} vertical />
+                <Switch>
+                  <Switch.Thumb animation="quick" />
+                </Switch>
+              </XStack>
+            </Fieldset>
+            {/* <Fieldset>
+              <CustomSplit />
+            </Fieldset> */}
+            <Fieldset gap="$4" horizontal>
+              <Label width={160} justifyContent="flex-end" htmlFor="payer">
+                <TooltipSimple
+                  label="Pick your favorite"
+                  placement="bottom-start"
+                >
+                  <Paragraph>Payer</Paragraph>
+                </TooltipSimple>
+              </Label>
+
+              <MembersDropdown
+                members={members}
+                onPayerChange={handlePayerChange}
+              />
+            </Fieldset>
+
+            <Fieldset gap="$4" horizontal>
+              <Label width={160} justifyContent="flex-end" htmlFor="name">
+                Submitted By
+              </Label>
+
+              <Input
+                flex={1}
+                id="submittedBy"
+                defaultValue=""
+                value={userId}
+                disabled={true}
+              />
+            </Fieldset>
+
+            <XStack alignSelf="flex-end" gap="$4">
+              <Dialog.Close displayWhenAdapted asChild>
+                <Button aria-label="Close">Cancel</Button>
+              </Dialog.Close>
+              {/* <DialogInstance /> */}
+              <Dialog.Close displayWhenAdapted asChild>
+                <Button aria-label="Close" onPress={onCreateTxn}>
+                  Create
+                </Button>
+              </Dialog.Close>
+            </XStack>
+            <Unspaced>
+              <Dialog.Close asChild>
+                <Button
+                  position="absolute"
+                  top="$3"
+                  right="$3"
+                  size="$2"
+                  circular
+                  icon={X}
+                />
+              </Dialog.Close>
+            </Unspaced>
+            <YStack>
+              <Text>Txn name: {transaction.name}</Text>
+              <Text>Amount: {transaction.amount}</Text>
+              <Text>Payer: {transaction.payerid}</Text>
+              <Text>SubmittedBy: {transaction.submittedbyid}</Text>
+              <Text>Split: {JSON.stringify(transaction.split)}</Text>
+              <Text>Submitted By: {transaction.submittedbyid}</Text>
+              <Text>Members: {JSON.stringify(members)}</Text>
+            </YStack>
+          </ScrollView>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
