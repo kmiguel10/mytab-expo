@@ -21,6 +21,12 @@ type MemberSplitAmount = {
   amount: number; // Amount corresponding to the member
 };
 
+type SelectedMemberSplitAmount = {
+  isIncluded: boolean;
+  memberId: string; // UUID of the member
+  amount: number; // Amount corresponding to the member
+};
+
 type Transaction = {
   billid: number;
   submittedbyid: string | null;
@@ -31,4 +37,11 @@ type Transaction = {
   isdeleted: boolean;
 };
 
-export type { Member, Bill, User, Transaction, MemberSplitAmount };
+export type {
+  Member,
+  Bill,
+  User,
+  Transaction,
+  MemberSplitAmount,
+  SelectedMemberSplitAmount,
+};

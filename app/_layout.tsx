@@ -56,6 +56,10 @@ function RootLayoutNav() {
           <Stack.Screen name="index" options={{ title: "Log In / Sign up" }} />
           <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
           <Stack.Screen name="(bill)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="pages/create-transaction"
+            options={{ title: "Create Transaction" }}
+          />
           {/* <Stack.Screen
             name="(bill)/mybill/[id]"
             options={{ headerShown: false }}
@@ -64,6 +68,7 @@ function RootLayoutNav() {
             name="(modals)/create-bill"
             options={{ presentation: "modal", title: "Create Bill" }}
           />
+
           {/* <Stack.Screen
             name="(modals)/create-transaction"
             options={{

@@ -60,6 +60,22 @@ const Page = () => {
       <XStack>
         <CreateTransaction billId={id} userId={userId} members={members} />
       </XStack>
+      <XStack>
+        <Link
+          // href="/pages/create-transaction"
+          href={{
+            pathname: "/pages/create-transaction",
+            params: {
+              billId: id,
+              userId: userId.toString(),
+              members: members,
+            },
+          }}
+          asChild
+        >
+          <Button>Create Txn</Button>
+        </Link>
+      </XStack>
     </YStack>
   );
 };
