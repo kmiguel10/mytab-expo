@@ -1,40 +1,26 @@
-// import { Text, View } from "@/components/Themed";
 import { ListItem, ScrollView, XStack, YStack } from "tamagui";
 
-import { User } from "@/types/global";
-import { Link, useLocalSearchParams } from "expo-router";
-import { Button, H1, Paragraph, Separator, Text, View } from "tamagui";
-import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
 import JoinBill from "@/components/my-bill/join-bill";
+import { getBills } from "@/lib/api";
+import { Link, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { Button, H1, Paragraph, Separator, Text, View } from "tamagui";
 
 export default function Home() {
   const [bills, setBills] = useState<any[]>([]);
-
   const { id } = useLocalSearchParams();
 
-  const getBills = async () => {
-    let { data: billsData, error } = await supabase
-      .from("members")
-      .select("*")
-      .eq("userid", id);
-
-    if (billsData) {
-      setBills(billsData); // Set the bills state with the retrieved data
-      console.log("Bills: ", billsData);
-    } else {
-      // Handle the case where billsData is null
-      // For example, you can set an empty array as the default value
-      console.log("Error", error);
-      setBills([]);
-    }
-  };
-
   useEffect(() => {
-    if (id) getBills();
+    async function fetchBills() {
+      if (id) {
+        const billsData = await getBills(id.toString());
+        setBills(billsData);
+      }
+    }
+
+    fetchBills();
   }, [id]);
 
-  //get bills based on id
   return (
     <View>
       <H1>HOME</H1>
@@ -60,7 +46,6 @@ export default function Home() {
                 {item.ownerid === id ? <Text>owner</Text> : <Text>Member</Text>}
 
                 <Link
-                  // href={`/(bill)/mybill/${item.billid}`}
                   href={{
                     pathname: `/(bill)/mybill/${item.billid}`,
                     params: { id: item.billId, userId: id },
