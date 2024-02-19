@@ -1,4 +1,5 @@
 import { X } from "@tamagui/lucide-icons";
+import { Check as CheckIcon } from "@tamagui/lucide-icons";
 
 import {
   Adapt,
@@ -14,6 +15,8 @@ import {
   XStack,
   Text,
   ListItem,
+  Checkbox,
+  CheckboxContext,
 } from "tamagui";
 import { SelectDemoItem } from "./SelectDemo";
 import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
@@ -24,6 +27,7 @@ interface Props {
   onSaveSplits: (selectedMembers: SelectedMemberSplitAmount[]) => void;
   amount: string;
   setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
+  includedMembers: SelectedMemberSplitAmount[];
 }
 
 const CustomSplit: React.FC<Props> = ({
@@ -31,23 +35,28 @@ const CustomSplit: React.FC<Props> = ({
   amount,
   onSaveSplits,
   setIsEven,
+  includedMembers,
 }) => {
   const [selectedMembers, setSelectedMembers] =
     useState<SelectedMemberSplitAmount[]>();
   //set up the list item...
 
   const initializeSelectedSplits = () => {
-    const newSelectedSplits: SelectedMemberSplitAmount[] = memberSplits.map(
-      (member) => ({
-        isIncluded: true,
-        memberId: member.memberId,
-        amount: 0,
-      })
+    // const newSelectedSplits: SelectedMemberSplitAmount[] = memberSplits.map(
+    //   (member) => ({
+    //     isIncluded: true,
+    //     memberId: member.memberId,
+    //     amount: 0,
+    //   })
+    // );
+
+    // setSelectedMembers(newSelectedSplits);
+    setSelectedMembers(includedMembers);
+
+    console.log(
+      "Selected members (custom split): ",
+      JSON.stringify(selectedMembers)
     );
-
-    setSelectedMembers(newSelectedSplits);
-
-    console.log("Selected members: ", JSON.stringify(newSelectedSplits));
   };
 
   const handleAmountChange = (memberId: string, newAmount: string) => {
@@ -69,6 +78,16 @@ const CustomSplit: React.FC<Props> = ({
       onSaveSplits(selectedMembers);
       setIsEven(false);
     }
+  };
+
+  const handleCheckboxChange = (memberId: string) => {
+    setSelectedMembers((prevSelectedMembers) =>
+      prevSelectedMembers?.map((member) =>
+        member.memberId === memberId
+          ? { ...member, isIncluded: !member.isIncluded }
+          : member
+      )
+    );
   };
 
   //on save assign those checked to the transactions.split on the parent component
@@ -128,21 +147,32 @@ const CustomSplit: React.FC<Props> = ({
           </Dialog.Description>
           {selectedMembers?.map((selectedMembers, index) => (
             // <Text key={index}>{JSON.stringify(selectedMembers)}</Text>
-            <Fieldset gap="$4" horizontal>
+            <Fieldset gap="$1" horizontal key={index}>
               {/* <Text key={index}>{JSON.stringify(selectedMembers)}</Text> */}
-              <Label width={160} justifyContent="flex-end" htmlFor="name">
-                {selectedMembers.memberId}
-              </Label>
-
-              <Input
-                flex={1}
-                id={`amount-${selectedMembers.memberId}`}
-                value={selectedMembers.amount?.toString()}
-                onChangeText={(newAmount: string) =>
-                  handleAmountChange(selectedMembers.memberId, newAmount)
-                }
-                defaultValue={selectedMembers.amount?.toString()}
-              />
+              <XStack>
+                <Checkbox
+                  checked={selectedMembers.isIncluded}
+                  onCheckedChange={() =>
+                    handleCheckboxChange(selectedMembers.memberId)
+                  }
+                >
+                  <Checkbox.Indicator>
+                    <Text>X</Text>
+                  </Checkbox.Indicator>
+                </Checkbox>
+                <Label width={160} justifyContent="flex-end" htmlFor="name">
+                  {selectedMembers.memberId}
+                </Label>
+                <Input
+                  flex={1}
+                  id={`amount-${selectedMembers.memberId}`}
+                  value={selectedMembers.amount?.toString()}
+                  onChangeText={(newAmount: string) =>
+                    handleAmountChange(selectedMembers.memberId, newAmount)
+                  }
+                  defaultValue={selectedMembers.amount?.toString()}
+                />
+              </XStack>
             </Fieldset>
           ))}
           {/* <Fieldset gap="$4" horizontal>

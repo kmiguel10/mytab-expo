@@ -50,6 +50,9 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
 
   const { billId, userId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
+  const [includedMembers, setIncludedMembers] = useState<
+    SelectedMemberSplitAmount[]
+  >([]);
   const [isEven, setIsEven] = useState(true);
 
   const handleNameChange = (txnName: string) => {
@@ -134,6 +137,20 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     console.log("Splits", JSON.stringify(transaction.split));
   };
 
+  const initiateIncludedMembers = () => {
+    const newSelectedSplits: SelectedMemberSplitAmount[] = members.map(
+      (member) => ({
+        isIncluded: true,
+        memberId: member.userid,
+        amount: 0,
+      })
+    );
+
+    setIncludedMembers(newSelectedSplits);
+
+    console.log("Parent Selected members: ", JSON.stringify(newSelectedSplits));
+  };
+
   useEffect(() => {
     const fetchDataAndInitializeSplits = async () => {
       if (billId) {
@@ -156,7 +173,12 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     );
 
     // Create an array containing memberId and amount for each included member
-    const split = includedMembers.map((member) => ({
+    // const split = includedMembers.map((member) => ({
+    //   memberId: member.memberId,
+    //   amount: member.amount,
+    // }));
+    const split = selectedMembers.map((member) => ({
+      isIncluded: member.isIncluded,
       memberId: member.memberId,
       amount: member.amount,
     }));
@@ -165,11 +187,15 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
       ...prevTransaction,
       split: split,
     }));
+
+    setIncludedMembers(split);
   };
 
   useEffect(() => {
     if (members.length > 0) {
+      console.log("RESET MEMBERS");
       initializeSplits();
+      initiateIncludedMembers();
     }
   }, [members, transaction.amount]);
 
@@ -233,6 +259,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
             amount={transaction.amount}
             onSaveSplits={handleSaveSplits}
             setIsEven={setIsEven}
+            includedMembers={includedMembers}
           />
         </Fieldset>
         <Fieldset gap="$4" horizontal>
@@ -274,6 +301,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         <Text>Split: {JSON.stringify(transaction.split)}</Text>
         <Text>Submitted By: {transaction.submittedbyid}</Text>
         <Text>Members: {JSON.stringify(members)}</Text>
+        <Text>Included Members: {JSON.stringify(includedMembers)}</Text>
       </YStack>
     </ScrollView>
   );
