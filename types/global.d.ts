@@ -37,6 +37,15 @@ type Transaction = {
   isdeleted: boolean;
 };
 
+type BillData = {
+  memberid: string;
+  userid: string;
+  billid: number;
+  billcode: string;
+  ownerid: string;
+  name: string;
+};
+
 export type {
   Member,
   Bill,
@@ -44,4 +53,5 @@ export type {
   Transaction,
   MemberSplitAmount,
   SelectedMemberSplitAmount,
+  BillData,
 };
