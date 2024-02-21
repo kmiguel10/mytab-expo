@@ -27,15 +27,15 @@ type SelectedMemberSplitAmount = {
   amount: number; // Amount corresponding to the member
 };
 
-type Transaction = {
-  billid: number;
-  submittedbyid: string | null;
-  payerid: string | null;
-  amount: string;
-  name: string;
-  split: MemberSplitAmount[];
-  isdeleted: boolean;
-};
+// type Transaction = {
+//   billid: number;
+//   submittedbyid: string | null;
+//   payerid: string | null;
+//   amount: string;
+//   name: string;
+//   split: Split[];
+//   isdeleted: boolean;
+// };
 
 type BillData = {
   memberid: string;
@@ -44,6 +44,34 @@ type BillData = {
   billcode: string;
   ownerid: string;
   name: string;
+  createdAt: Date;
+  isDeleted: boolean;
+  isSettled: boolean;
+  amount: number;
+};
+
+type Member = {
+  amount: number;
+  memberId: string;
+};
+
+type Split = {
+  amount: number;
+  memberId: string;
+  isIncluded?: boolean;
+};
+
+type Transaction = {
+  id: string;
+  billid: number;
+  submittedbyid: string;
+  payerid: string | null;
+  createdat: string;
+  amount: number;
+  name: string;
+  notes: string | null;
+  split: Split[];
+  isdeleted: boolean;
 };
 
 export type {

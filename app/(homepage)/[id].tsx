@@ -1,12 +1,12 @@
-import { ListItem, ScrollView, XStack, YStack } from "tamagui";
+import { Avatar, ListItem, ScrollView, XStack, YStack } from "tamagui";
 
+import BillCard from "@/components/homepage/bill-card";
 import JoinBill from "@/components/my-bill/join-bill";
-import { getBills } from "@/lib/api";
+import { getBillsForUserId } from "@/lib/api";
+import { BillData } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, H1, Paragraph, Separator, Text, View } from "tamagui";
-import BillCard from "@/components/homepage/bill-card";
-import { BillData } from "@/types/global";
+import { Separator, View } from "tamagui";
 
 export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchBills() {
       if (id) {
-        const billsData = await getBills(id.toString());
+        const billsData = await getBillsForUserId(id.toString());
         setBills(billsData);
       }
     }
@@ -25,7 +25,19 @@ export default function Home() {
 
   return (
     <View>
-      <H1>User Avatar</H1>
+      {/* <ToastViewport /> */}
+      {/* <ToastDemo /> */}
+      <XStack alignItems="center" flexWrap="wrap" alignContent="space-between">
+        <Avatar circular size="$6">
+          <Avatar.Image
+            accessibilityLabel="Nate Wienert"
+            src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+          />
+          <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+        </Avatar>
+        <JoinBill />
+      </XStack>
+
       {/* <Paragraph>Welcome: {id}</Paragraph>
       <Paragraph>
         Based on the user id, will do a GET() request to get all Bills
@@ -37,7 +49,6 @@ export default function Home() {
         This will show a table with: Username, List of Bills, create bill button
         (separate component)
       </Paragraph> */}
-      <JoinBill />
 
       <ScrollView>
         {bills.map((item, index) => (

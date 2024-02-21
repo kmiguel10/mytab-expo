@@ -17,8 +17,14 @@ export const getMembers = async (billId: number) => {
   }
 };
 
-export const getBills = async (userId: string) => {
+/**
+ * Gets all of the bills in which the user is a member of
+ * @param userId - of the current user
+ * @returns bills where user is a member
+ */
+export const getBillsForUserId = async (userId: string) => {
   try {
+    console.log("Getbills userId", userId);
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
@@ -31,6 +37,24 @@ export const getBills = async (userId: string) => {
     return billsData;
   } catch (error) {
     console.error("Error fetching bills:", error);
+    return [];
+  }
+};
+
+export const getTransactions = async (billId: string) => {
+  try {
+    const { data: transactions, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("billid", billId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log("Transactions: ", JSON.stringify(transactions));
+    return transactions;
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
     return [];
   }
 };

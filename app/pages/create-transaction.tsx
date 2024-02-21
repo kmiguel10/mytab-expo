@@ -8,7 +8,7 @@ import {
   SelectedMemberSplitAmount,
   Transaction,
 } from "@/types/global";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Text } from "react-native";
 import {
@@ -47,6 +47,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     split: [],
     isdeleted: false,
   });
+  const router = useRouter();
 
   const { billId, userId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
@@ -102,6 +103,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     if (error) {
       console.log("Transaction: ", transaction);
       console.error("Error inserting data:", error.message, error.details);
+      router.replace(`/(bill)/mybill/${billId}`);
     } else {
       console.log("Data inserted successfully:", data);
     }
