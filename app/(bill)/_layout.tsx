@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { Tabs } from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -38,6 +38,9 @@ const Layout = () => {
         initialParams={{ id: id }}
       ></Tabs.Screen>
     </Tabs>
+    // <Stack>
+    //   <Stack.Screen name="/(bill)/mybill/" options={{ headerShown: false }} />
+    // </Stack>
   );
 };
 

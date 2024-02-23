@@ -66,10 +66,10 @@ function RootLayoutNav() {
               name="pages/create-transaction"
               options={{ title: "Create Transaction" }}
             />
-            {/* <Stack.Screen
-            name="(bill)/mybill/[id]"
-            options={{ headerShown: false }}
-          /> */}
+            <Stack.Screen
+              name="/(bill)/mybill/"
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="(modals)/create-bill"
               options={{

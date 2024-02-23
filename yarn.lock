@@ -10424,6 +10424,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-helmet-async: "npm:~2.0.4"
     react-native: "npm:0.73.4"
+    react-native-chart-kit: "npm:^6.12.0"
     react-native-elements: "npm:^3.4.3"
     react-native-safe-area-context: "npm:4.8.2"
     react-native-screens: "npm:~3.29.0"
@@ -10981,6 +10982,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"paths-js@npm:^0.4.10":
+  version: 0.4.11
+  resolution: "paths-js@npm:0.4.11"
+  checksum: b3872c8d6bcd863c5003fff0bfb00f5a4ad6a905d99cc021b806fc116ac0cbcfec0eab1381822763993a48fe92a10b2d64ee302cb1fc3ebda71d6b03ee0f2855
+  languageName: node
+  linkType: hard
+
 "performant-array-to-tree@npm:^1.11.0":
   version: 1.11.0
   resolution: "performant-array-to-tree@npm:1.11.0"
@@ -11056,6 +11064,13 @@ __metadata:
   version: 3.4.0
   resolution: "pngjs@npm:3.4.0"
   checksum: 0e9227a413ce4b4f5ebae4465b366efc9ca545c74304f3cc30ba2075159eb12f01a6a821c4f61f2b048bd85356abbe6d2109df7052a9030ef4d7a42d99760af6
+  languageName: node
+  linkType: hard
+
+"point-in-polygon@npm:^1.0.1":
+  version: 1.1.0
+  resolution: "point-in-polygon@npm:1.1.0"
+  checksum: 67a6374f0b79bc872bde8e375d7d5ea011a1419c5f4320dfb7705801cd3a8fcaee8bff385465e075b2ce863bbc86ccd74c63345d9f326981cd0807642bc5199c
   languageName: node
   linkType: hard
 
@@ -11400,6 +11415,21 @@ __metadata:
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 73b36281e58eeb27c9cc6031301b6ae19ecdc9f18ae2d518bdb39b0ac564e65c5779405d623f1df9abf378a13858b79442480244bd579968afc1faf9a2ce5e05
+  languageName: node
+  linkType: hard
+
+"react-native-chart-kit@npm:^6.12.0":
+  version: 6.12.0
+  resolution: "react-native-chart-kit@npm:6.12.0"
+  dependencies:
+    lodash: "npm:^4.17.13"
+    paths-js: "npm:^0.4.10"
+    point-in-polygon: "npm:^1.0.1"
+  peerDependencies:
+    react: "> 16.7.0"
+    react-native: ">= 0.50.0"
+    react-native-svg: "> 6.4.1"
+  checksum: a3ed6c3d6e131dae26f7ab3639233c54d1b37fba99a6c07df7a4503b0661887c56ba0a55263728f4948b4725c0b496c6f622f3c198a0d4308c017e2f52fc1f71
   languageName: node
   linkType: hard
 

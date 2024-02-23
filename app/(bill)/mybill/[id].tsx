@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -18,10 +18,12 @@ import {
 import { useRoute } from "@react-navigation/native";
 import { supabase } from "@/lib/supabase";
 import { CreateTransaction } from "@/components/create-transaction/create-transaction";
-import { getMembers, getTransactions } from "@/lib/api";
+import { getBillSummaryInfo, getMembers, getTransactions } from "@/lib/api";
 import { Transaction } from "@/types/global";
 import MembersView from "@/components/my-bill/members-view";
 import TransactionInfoCard from "@/components/my-bill/transaction-info-card";
+import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
+import Summary from "@/components/my-bill/summary/summary";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
@@ -31,6 +33,20 @@ const Page = () => {
 
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [summaryInfo, setSummaryInfo] = useState<any[]>([]);
+  const windowHeight = Dimensions.get("window").height;
+
+  /** fetch summary info */
+  useEffect(() => {
+    async function fetchSummaryInfo() {
+      if (id) {
+        const data = await getBillSummaryInfo(Number(id));
+        setSummaryInfo(data);
+      }
+    }
+    fetchSummaryInfo();
+    console.log("Summary Info: ", JSON.stringify(summaryInfo));
+  }, [id]);
 
   /**Fetch members of the bill */
   useEffect(() => {
@@ -56,7 +72,23 @@ const Page = () => {
   }, [userId]);
 
   return (
-    <YStack>
+    <View>
+      <HeaderInfo totalPaid={100} txnCount={10} height={windowHeight * 0.2} />
+      <XStack>
+        <Link
+          href={{
+            pathname: "/pages/create-transaction",
+            params: {
+              billId: id,
+              userId: userId.toString(),
+              members: members,
+            },
+          }}
+          asChild
+        >
+          <Button>Create Txn</Button>
+        </Link>
+      </XStack>
       <Tabs
         defaultValue="tab1"
         orientation="horizontal"
@@ -66,29 +98,27 @@ const Page = () => {
         borderWidth="$0.25"
         overflow="hidden"
         borderColor="$borderColor"
+        height={windowHeight * 0.8}
       >
         <Tabs.List
-          separator={<Separator vertical />}
           disablePassBorderRadius="bottom"
           aria-label="Manage your account"
         >
           <Tabs.Tab flex={1} value="tab1">
-            <SizableText fontFamily="$body">Info</SizableText>
+            <SizableText fontFamily="$body">Transactions</SizableText>
           </Tabs.Tab>
           <Tabs.Tab flex={1} value="tab2">
             <SizableText fontFamily="$body">Summary</SizableText>
           </Tabs.Tab>
+
+          <Tabs.Tab flex={1} value="tab3">
+            <SizableText fontFamily="$body">MyTab</SizableText>
+          </Tabs.Tab>
+          <XStack flex={2} />
         </Tabs.List>
         <Separator />
-        {/* <TabsContent value="tab1">
-          <H5>Info</H5>
-        </TabsContent>
-
-        <TabsContent value="tab2">
-          <H5>Summary</H5>
-        </TabsContent> */}
         <Tabs.Content value="tab1">
-          <ScrollView height="75%">
+          <ScrollView>
             <YStack>
               <YStack>
                 <Text>Viewing Bill: {id}</Text>
@@ -98,46 +128,17 @@ const Page = () => {
               <XStack>
                 <TransactionInfoCard transactions={transactions} />
               </XStack>
-              {/* <XStack>
-                <CreateTransaction
-                  billId={id}
-                  userId={userId}
-                  members={members}
-                />
-              </XStack> */}
-              <XStack>
-                <Link
-                  // href="/pages/create-transaction"
-                  href={{
-                    pathname: "/pages/create-transaction",
-                    params: {
-                      billId: id,
-                      userId: userId.toString(),
-                      members: members,
-                    },
-                  }}
-                  asChild
-                >
-                  <Button>Create Txn</Button>
-                </Link>
-              </XStack>
             </YStack>
           </ScrollView>
           <ScrollView horizontal height="25%">
-            {/* <XStack>
-              <Paragraph>Place member avatars here:</Paragraph>
-              {members?.map((member, index) => (
-                <Text key={index}>{member.userid}</Text>
-              ))}
-            </XStack> */}
             <MembersView members={members} />
           </ScrollView>
         </Tabs.Content>
         <Tabs.Content value="tab2">
-          <Text>Summary Info</Text>
+          <Summary summaryInfo={summaryInfo} />
         </Tabs.Content>
       </Tabs>
-    </YStack>
+    </View>
   );
 };
 
