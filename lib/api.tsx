@@ -17,6 +17,23 @@ export const getMembers = async (billId: number) => {
   }
 };
 
+export const getBillInfo = async (billId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("bills")
+      .select("*")
+      .eq("billid", billId);
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log(`Get member info ${billId}: `, JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("Error fetching bill: ", error);
+    return [];
+  }
+};
+
 /**
  * Gets all of the bills in which the user is a member of
  * @param userId - of the current user
@@ -58,26 +75,6 @@ export const getTransactions = async (billId: string) => {
     return [];
   }
 };
-
-// export const getBillSummaryInfo = async (billId: number) => {
-//   try {
-//     console.log("billId: ", billId);
-//     const { data, error } = await supabase
-//       .from("members")
-//       .select("userid") // Include any other fields you need in the select statement
-//       .eq("billid", billId);
-
-//     if (error) {
-//       throw new Error(error.message);
-//     }
-
-//     console.log("getBillSummaryInfo", data);
-//     return data;
-//   } catch (error) {
-//     console.error("Error fetching bill summary info:", error);
-//     return [];
-//   }
-// };
 
 export const getBillSummaryInfo = async (billId: number) => {
   try {

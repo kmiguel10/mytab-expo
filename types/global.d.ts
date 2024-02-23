@@ -74,6 +74,23 @@ type Transaction = {
   isdeleted: boolean;
 };
 
+type BillInfo = {
+  billid: number;
+  ownerid: string;
+  name: string;
+  billcode: string;
+  isdeleted: boolean;
+  createdat: string;
+  issettled: boolean;
+  amount: number;
+};
+
+type SummaryInfo = {
+  amountPaid: number;
+  txnCount: number;
+  userid: string;
+};
+
 export type {
   Member,
   Bill,
@@ -82,4 +99,6 @@ export type {
   MemberSplitAmount,
   SelectedMemberSplitAmount,
   BillData,
+  BillInfo,
+  SummaryInfo,
 };

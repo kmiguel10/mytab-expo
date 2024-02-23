@@ -1,24 +1,44 @@
-import { View, Text } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import React from "react";
 import { Card, CardProps, H2, H4, H5, XStack, YStack } from "tamagui";
+import { BillInfo } from "@/types/global";
+import MembersView from "../transactions/members-view";
 
 interface Props extends CardProps {
-  totalPaid: number;
-  txnCount: number;
+  summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
+  billInfo: BillInfo[];
+  members: any[];
 }
 
-const HeaderInfo: React.FC<Props> = ({ totalPaid, txnCount, ...props }) => {
+const HeaderInfo: React.FC<Props> = ({
+  summaryInfo,
+  billInfo,
+  members,
+  ...props
+}) => {
+  const windowWidth = Dimensions.get("window").width;
+  // Calculate total paid amount and total transaction count
+  const totalPaid = summaryInfo.reduce(
+    (total, info) => total + info.amountPaid,
+    0
+  );
+  const txnCount = summaryInfo.reduce(
+    (total, info) => total + info.txnCount,
+    0
+  );
   return (
     <XStack alignContent="space-between" alignItems="center">
-      <YStack>
-        <Text>
-          <H2>Test Bill</H2>
-        </Text>
-        <Text>
-          <H2>Members</H2>
-        </Text>
+      <YStack width={windowWidth * 0.5}>
+        <YStack>
+          <H2>{billInfo[0]?.name}</H2>
+          <Text>Bill Name</Text>
+        </YStack>
+        <YStack>
+          <MembersView members={members} />
+          <Text>Members</Text>
+        </YStack>
       </YStack>
-      <YStack>
+      <YStack width={windowWidth * 0.5}>
         <H4>{totalPaid}</H4>
         <Text>Total Amount</Text>
         <H4>{txnCount}</H4>

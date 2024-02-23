@@ -11,36 +11,44 @@ const Layout = () => {
   const route = useRoute();
   const { id } = route.params as { id: string };
   return (
-    <Tabs>
-      <Tabs.Screen
+    // <Tabs>
+    //   <Tabs.Screen
+    //     name="mybill"
+    //     options={{
+    //       title: "Bill",
+    //       headerShown: true,
+    //       tabBarShowLabel: true,
+    //       tabBarIcon: () => (
+    //         <Ionicons name="list-circle-sharp" size={32} color="black" />
+    //       ),
+    //       headerLeft: () => <Text onPress={() => router.back()}>Home</Text>,
+    //     }}
+    //     initialParams={{ id: id }}
+    //   ></Tabs.Screen>
+    //   <Tabs.Screen
+    //     name="mytab"
+    //     options={{
+    //       tabBarLabel: "My Tab",
+    //       headerShown: true,
+    //       tabBarShowLabel: true,
+    //       tabBarIcon: () => (
+    //         <FontAwesome6 name="money-bill-transfer" size={30} color="black" />
+    //       ),
+    //     }}
+    //     initialParams={{ id: id }}
+    //   ></Tabs.Screen>
+    // </Tabs>
+    <Stack>
+      <Stack.Screen
         name="mybill"
         options={{
           title: "Bill",
           headerShown: true,
-          tabBarShowLabel: true,
-          tabBarIcon: () => (
-            <Ionicons name="list-circle-sharp" size={32} color="black" />
-          ),
           headerLeft: () => <Text onPress={() => router.back()}>Home</Text>,
         }}
         initialParams={{ id: id }}
-      ></Tabs.Screen>
-      <Tabs.Screen
-        name="mytab"
-        options={{
-          tabBarLabel: "My Tab",
-          headerShown: true,
-          tabBarShowLabel: true,
-          tabBarIcon: () => (
-            <FontAwesome6 name="money-bill-transfer" size={30} color="black" />
-          ),
-        }}
-        initialParams={{ id: id }}
-      ></Tabs.Screen>
-    </Tabs>
-    // <Stack>
-    //   <Stack.Screen name="/(bill)/mybill/" options={{ headerShown: false }} />
-    // </Stack>
+      />
+    </Stack>
   );
 };
 

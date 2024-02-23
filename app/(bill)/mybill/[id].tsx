@@ -1,39 +1,25 @@
-import { View, Text, Dimensions } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Button,
-  H5,
-  Paragraph,
-  PortalProvider,
-  ScrollView,
-  Separator,
-  SizableText,
-  Tabs,
-  TabsContentProps,
-  XStack,
-  YStack,
-  useWindowDimensions,
-} from "tamagui";
-import { useRoute } from "@react-navigation/native";
-import { supabase } from "@/lib/supabase";
-import { CreateTransaction } from "@/components/create-transaction/create-transaction";
-import { getBillSummaryInfo, getMembers, getTransactions } from "@/lib/api";
-import { Transaction } from "@/types/global";
-import MembersView from "@/components/my-bill/members-view";
-import TransactionInfoCard from "@/components/my-bill/transaction-info-card";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
-import Summary from "@/components/my-bill/summary/summary";
+import BillTabs from "@/components/my-bill/transactions/bill-tabs";
+import {
+  getBillInfo,
+  getBillSummaryInfo,
+  getMembers,
+  getTransactions,
+} from "@/lib/api";
+import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
+import { Link, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Dimensions, View } from "react-native";
+import { Button, XStack, useWindowDimensions } from "tamagui";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
   const { height } = useWindowDimensions();
-  // const route = useRoute();
-  // const { id } = route.params as { id: string };
 
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [summaryInfo, setSummaryInfo] = useState<any[]>([]);
+  const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
+  const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const windowHeight = Dimensions.get("window").height;
 
   /** fetch summary info */
@@ -71,10 +57,32 @@ const Page = () => {
     fetchTransactions();
   }, [userId]);
 
+  //Fetch bill info
+  useEffect(() => {
+    async function fetchBillInfo() {
+      if (id) {
+        const data: BillInfo[] | null = await getBillInfo(Number(id));
+        setBillInfo(data);
+      }
+    }
+    fetchBillInfo();
+  }, [id]);
+
   return (
     <View>
-      <HeaderInfo totalPaid={100} txnCount={10} height={windowHeight * 0.2} />
-      <XStack>
+      <XStack height={windowHeight * 0.15}>
+        <HeaderInfo
+          members={members}
+          summaryInfo={summaryInfo}
+          billInfo={billInfo}
+        />
+      </XStack>
+      <XStack height={windowHeight * 0.62}>
+        <BillTabs transactions={transactions} summaryInfo={summaryInfo} />
+      </XStack>
+
+      <XStack alignContent="flex-end">
+        <XStack flex={1} />
         <Link
           href={{
             pathname: "/pages/create-transaction",
@@ -89,78 +97,8 @@ const Page = () => {
           <Button>Create Txn</Button>
         </Link>
       </XStack>
-      <Tabs
-        defaultValue="tab1"
-        orientation="horizontal"
-        flexDirection="column"
-        width={400}
-        borderRadius="$4"
-        borderWidth="$0.25"
-        overflow="hidden"
-        borderColor="$borderColor"
-        height={windowHeight * 0.8}
-      >
-        <Tabs.List
-          disablePassBorderRadius="bottom"
-          aria-label="Manage your account"
-        >
-          <Tabs.Tab flex={1} value="tab1">
-            <SizableText fontFamily="$body">Transactions</SizableText>
-          </Tabs.Tab>
-          <Tabs.Tab flex={1} value="tab2">
-            <SizableText fontFamily="$body">Summary</SizableText>
-          </Tabs.Tab>
-
-          <Tabs.Tab flex={1} value="tab3">
-            <SizableText fontFamily="$body">MyTab</SizableText>
-          </Tabs.Tab>
-          <XStack flex={2} />
-        </Tabs.List>
-        <Separator />
-        <Tabs.Content value="tab1">
-          <ScrollView>
-            <YStack>
-              <YStack>
-                <Text>Viewing Bill: {id}</Text>
-                <Text>User: {userId}</Text>
-              </YStack>
-              <Separator />
-              <XStack>
-                <TransactionInfoCard transactions={transactions} />
-              </XStack>
-            </YStack>
-          </ScrollView>
-          <ScrollView horizontal height="25%">
-            <MembersView members={members} />
-          </ScrollView>
-        </Tabs.Content>
-        <Tabs.Content value="tab2">
-          <Summary summaryInfo={summaryInfo} />
-        </Tabs.Content>
-      </Tabs>
     </View>
   );
 };
 
 export default Page;
-
-const TabsContent = (props: TabsContentProps) => {
-  return (
-    <Tabs.Content
-      backgroundColor="$background"
-      key="tab3"
-      padding="$2"
-      alignItems="center"
-      justifyContent="center"
-      flex={1}
-      borderColor="$background"
-      borderRadius="$2"
-      borderTopLeftRadius={0}
-      borderTopRightRadius={0}
-      borderWidth="$2"
-      {...props}
-    >
-      {props.children}
-    </Tabs.Content>
-  );
-};

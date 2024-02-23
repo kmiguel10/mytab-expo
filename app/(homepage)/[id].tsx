@@ -1,7 +1,7 @@
 import { Avatar, ListItem, ScrollView, XStack, YStack } from "tamagui";
 
 import BillCard from "@/components/homepage/bill-card";
-import JoinBill from "@/components/my-bill/join-bill";
+import JoinBill from "@/components/my-bill/transactions/join-bill";
 import { getBillsForUserId } from "@/lib/api";
 import { BillData } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
@@ -19,7 +19,6 @@ export default function Home() {
         setBills(billsData);
       }
     }
-
     fetchBills();
   }, [id]);
 
