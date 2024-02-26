@@ -6,7 +6,7 @@ import { getBillsForUserId } from "@/lib/api";
 import { BillData } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Separator, View } from "tamagui";
+import { Separator, View, Text } from "tamagui";
 
 export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
@@ -35,6 +35,9 @@ export default function Home() {
           <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
         </Avatar>
         <JoinBill />
+      </XStack>
+      <XStack>
+        <Text>User id: {id}</Text>
       </XStack>
 
       {/* <Paragraph>Welcome: {id}</Paragraph>

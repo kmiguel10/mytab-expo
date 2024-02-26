@@ -68,7 +68,7 @@ export const getTransactions = async (billId: string) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Transactions: ", JSON.stringify(transactions));
+    // console.log("Transactions: ", JSON.stringify(transactions));
     return transactions;
   } catch (error) {
     console.error("Error fetching transactions:", error);
@@ -119,6 +119,27 @@ export const getBillSummaryInfo = async (billId: number) => {
     return summaryInfo;
   } catch (error) {
     console.error("Error fetching bill summary info:", error);
+    return [];
+  }
+};
+
+export const getMyTabInfo = async (userId: string, billId: number) => {
+  try {
+    console.log("userId: ", userId);
+    console.log("billId: ", billId);
+    let { data: bill_settlements, error } = await supabase
+      .from("bill_settlements")
+      .select("*")
+      .eq("billid", billId)
+      .or(`debtor.eq.${userId},payer.eq.${userId}`);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log("MyTabInfo: ", JSON.stringify(bill_settlements));
+    return bill_settlements;
+  } catch (error) {
+    console.error("There is an error fetching MyTabInfo: ", error);
     return [];
   }
 };

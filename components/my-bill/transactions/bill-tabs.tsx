@@ -12,13 +12,21 @@ import {
 import TransactionInfoCard from "./transaction-info-card";
 import Summary from "../summary/summary";
 import { SummaryInfo, Transaction } from "@/types/global";
+import MyTab from "../my-tab/MyTab";
 
 interface Props {
   transactions: Transaction[];
   summaryInfo: SummaryInfo[];
+  billId: number;
+  userId: string;
 }
 
-const BillTabs: React.FC<Props> = ({ transactions, summaryInfo }) => {
+const BillTabs: React.FC<Props> = ({
+  transactions,
+  summaryInfo,
+  billId,
+  userId,
+}) => {
   return (
     <Tabs
       defaultValue="tab1"
@@ -63,7 +71,7 @@ const BillTabs: React.FC<Props> = ({ transactions, summaryInfo }) => {
         <Summary summaryInfo={summaryInfo} />
       </Tabs.Content>
       <Tabs.Content value="tab3">
-        <Text>Test</Text>
+        <MyTab userId={userId} billId={billId} />
       </Tabs.Content>
     </Tabs>
   );

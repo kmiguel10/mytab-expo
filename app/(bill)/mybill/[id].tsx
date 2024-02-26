@@ -4,6 +4,7 @@ import {
   getBillInfo,
   getBillSummaryInfo,
   getMembers,
+  getMyTabInfo,
   getTransactions,
 } from "@/lib/api";
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
@@ -20,6 +21,7 @@ const Page = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
+  const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const windowHeight = Dimensions.get("window").height;
 
   /** fetch summary info */
@@ -68,6 +70,16 @@ const Page = () => {
     fetchBillInfo();
   }, [id]);
 
+  useEffect(() => {
+    async function fetchMyTabInfo() {
+      if (userId) {
+        const data = await getMyTabInfo(userId.toString(), Number(id));
+        setMyTabInfo(data);
+      }
+    }
+    fetchMyTabInfo();
+  }, [userId, id]);
+
   return (
     <View>
       <XStack height={windowHeight * 0.15}>
@@ -77,8 +89,14 @@ const Page = () => {
           billInfo={billInfo}
         />
       </XStack>
+
       <XStack height={windowHeight * 0.62}>
-        <BillTabs transactions={transactions} summaryInfo={summaryInfo} />
+        <BillTabs
+          transactions={transactions}
+          summaryInfo={summaryInfo}
+          billId={Number(id)}
+          userId={userId?.toString()}
+        />
       </XStack>
 
       <XStack alignContent="flex-end">
@@ -88,7 +106,7 @@ const Page = () => {
             pathname: "/pages/create-transaction",
             params: {
               billId: id,
-              userId: userId.toString(),
+              userId: userId?.toString(),
               members: members,
             },
           }}
