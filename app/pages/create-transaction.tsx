@@ -40,7 +40,7 @@ interface CreateTransaction {
 export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
-    submittedbyid: null,
+    submittedbyid: "",
     payerid: null,
     amount: "",
     name: "", // Initialize with an empty string
@@ -103,9 +103,13 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     if (error) {
       console.log("Transaction: ", transaction);
       console.error("Error inserting data:", error.message, error.details);
-      router.replace(`/(bill)/mybill/${billId}`);
     } else {
       console.log("Data inserted successfully:", data);
+      // router.replace(`/(bill)/mybill/${billId}`);
+      router.replace({
+        pathname: `/(bill)/mybill/${billId}`,
+        params: { userId: _userId }, // Add userId to params
+      });
     }
   };
 
@@ -118,7 +122,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   const initializeSplits = () => {
-    let amountNum = parseInt(transaction.amount);
+    let amountNum = transaction.amount;
     const splitEvenAmount = (_amount: number) => {
       return _amount / members.length;
     };
@@ -252,13 +256,13 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         </Fieldset>
         <SplitView
           memberSplits={transaction.split}
-          amount={transaction.amount}
+          amount={transaction.amount.toString()}
           isEven={isEven}
         />
         <Fieldset>
           <CustomSplit
             memberSplits={transaction.split}
-            amount={transaction.amount}
+            amount={transaction.amount.toString()}
             onSaveSplits={handleSaveSplits}
             setIsEven={setIsEven}
             includedMembers={includedMembers}

@@ -91,6 +91,22 @@ type SummaryInfo = {
   userid: string;
 };
 
+type MyTabInfo = {
+  billid: number;
+  debtor: string;
+  id: number;
+  issettled: boolean;
+  owed_amount: number;
+  payer: string;
+};
+
+type SettleCardInfo = {
+  member: string;
+  owed: number;
+  debt: number;
+  settleAmount: number;
+};
+
 export type {
   Member,
   Bill,
@@ -101,4 +117,6 @@ export type {
   BillData,
   BillInfo,
   SummaryInfo,
+  MyTabInfo,
+  SettleCardInfo,
 };
