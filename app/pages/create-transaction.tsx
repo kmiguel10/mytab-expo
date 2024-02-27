@@ -42,8 +42,9 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     billid: 0,
     submittedbyid: "",
     payerid: null,
-    amount: "",
-    name: "", // Initialize with an empty string
+    amount: 0,
+    name: "",
+    notes: null,
     split: [],
     isdeleted: false,
   });
@@ -73,22 +74,33 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     }));
   };
 
+  // const handleAmountChange = (amount: string) => {
+  //   // Remove non-numeric characters except for the decimal point
+  //   const numericValue = amount.replace(/[^\d.]/g, "");
+
+  //   // Format the numeric value to a dollar format
+  //   const formattedAmount = parseFloat(numericValue).toLocaleString("en-US", {
+  //     style: "currency",
+  //     currency: "USD",
+  //   });
+
+  //   setTransaction((prevTransaction) => ({
+  //     ...prevTransaction,
+  //     amount: amount, // Update the payer property of the transaction object with the new value
+  //   }));
+
+  //   // setAmount(formattedAmount);
+  // };
+
   const handleAmountChange = (amount: string) => {
-    // Remove non-numeric characters except for the decimal point
-    const numericValue = amount.replace(/[^\d.]/g, "");
+    // Convert amount to a number
+    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
 
-    // Format the numeric value to a dollar format
-    const formattedAmount = parseFloat(numericValue).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
+    // Update transaction state
     setTransaction((prevTransaction) => ({
       ...prevTransaction,
-      amount: amount, // Update the payer property of the transaction object with the new value
+      amount: numericValue, // Ensure amount is a number
     }));
-
-    // setAmount(formattedAmount);
   };
 
   const onCreateTxn = async () => {
