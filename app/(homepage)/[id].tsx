@@ -1,4 +1,4 @@
-import { Avatar, ListItem, ScrollView, XStack, YStack } from "tamagui";
+import { Avatar, Button, ListItem, ScrollView, XStack, YStack } from "tamagui";
 
 import BillCard from "@/components/homepage/bill-card";
 import JoinBill from "@/components/my-bill/transactions/join-bill";
@@ -14,6 +14,8 @@ export default function Home() {
   const { id } = useLocalSearchParams();
   const windowHeight = Dimensions.get("window").height;
 
+  const onPressCreate = () => {};
+
   useEffect(() => {
     async function fetchBills() {
       if (id) {
@@ -26,8 +28,6 @@ export default function Home() {
 
   return (
     <View backgroundColor={"white"}>
-      {/* <ToastViewport /> */}
-      {/* <ToastDemo /> */}
       <XStack
         justifyContent="space-between"
         borderRadius="$2"
@@ -43,20 +43,18 @@ export default function Home() {
         </Avatar>
         <Text>User id: {id.slice(0, 5)}</Text>
         <JoinBill />
+        <Link
+          href={{
+            pathname: "/(modals)/create-bill",
+            params: {
+              id,
+            },
+          }}
+          asChild
+        >
+          <Button>Create Txn</Button>
+        </Link>
       </XStack>
-
-      {/* <Paragraph>Welcome: {id}</Paragraph>
-      <Paragraph>
-        Based on the user id, will do a GET() request to get all Bills
-        associated with the userId
-      </Paragraph> */}
-
-      {/* <Separator marginVertical={15} /> */}
-      {/* <Paragraph>
-        This will show a table with: Username, List of Bills, create bill button
-        (separate component)
-      </Paragraph> */}
-
       <ScrollView backgroundColor={"white"} height={windowHeight * 0.65}>
         {bills.map((item, index) => (
           <XStack key={index} backgroundColor="white" justifyContent="center">
@@ -78,9 +76,6 @@ export default function Home() {
                 bill={item}
                 membership={item.ownerid === id ? "Owner" : "Member"}
               />
-              {/* <Button>
-                  <Text>{item.name}</Text>
-                </Button> */}
             </Link>
           </XStack>
         ))}
