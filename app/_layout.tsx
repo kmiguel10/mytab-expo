@@ -5,13 +5,14 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { SplashScreen, Stack } from "expo-router";
+import { SplashScreen, Stack, useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
-import { TamaguiProvider } from "tamagui";
+import { Button, TamaguiProvider } from "tamagui";
 
 import { config } from "../tamagui.config";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
+import { ToastProvider } from "@tamagui/toast";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -48,23 +49,39 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
   return (
     <TamaguiProvider config={config} defaultTheme={colorScheme as any}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ title: "Log In / Sign up" }} />
-          <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
-          <Stack.Screen name="(bill)" options={{ headerShown: false }} />
-          {/* <Stack.Screen
-            name="(bill)/mybill/[id]"
-            options={{ headerShown: false }}
-          /> */}
-          <Stack.Screen
-            name="(modals)/create-bill"
-            options={{ presentation: "modal", title: "Create Bill" }}
-          />
-          {/* <Stack.Screen
+        <ToastProvider>
+          <Stack>
+            <Stack.Screen
+              name="index"
+              options={{ title: "Log In / Sign up" }}
+            />
+            <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
+            <Stack.Screen name="(bill)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="pages/create-transaction"
+              options={{ title: "Create Transaction" }}
+            />
+            {/* <Stack.Screen
+              name="/(bill)/mybill/"
+              options={{ headerShown: false }}
+            /> */}
+            <Stack.Screen
+              name="(modals)/create-bill"
+              options={{
+                presentation: "modal",
+                title: "Create Bill",
+                // headerLeft: () => (
+                //   <Button onPress={() => router.back()}>Home</Button>
+                // ),
+              }}
+            />
+
+            {/* <Stack.Screen
             name="(modals)/create-transaction"
             options={{
               headerTitle: "Create Transaction",
@@ -72,7 +89,8 @@ function RootLayoutNav() {
               title: "Create Transaction",
             }}
           /> */}
-        </Stack>
+          </Stack>
+        </ToastProvider>
       </ThemeProvider>
     </TamaguiProvider>
   );

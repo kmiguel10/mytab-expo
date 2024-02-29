@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -12,10 +12,10 @@ import {
   XStack,
   YStack,
 } from "tamagui";
-
-const testBill = {};
+import { useRouter } from "expo-router";
 
 const ModalScreen = () => {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const [status, setStatus] = useState<"off" | "submitting" | "submitted">(
     "off"
@@ -24,7 +24,6 @@ const ModalScreen = () => {
 
   const CreateBill = async () => {
     console.log("User id: ", id);
-    setStatus("submitting");
 
     const { data, error } = await supabase
       .from("bills")
@@ -33,11 +32,21 @@ const ModalScreen = () => {
 
     console.log("DATA", data);
     console.log("Error", error);
+    if (data) {
+      console.log("Navigate to homepage");
+      router.replace(`/(homepage)/${id}`);
+    } else {
+      console.error("Error creating bill: ", error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    router.back();
   };
 
   useEffect(() => {
     if (status === "submitting") {
-      const timer = setTimeout(() => setStatus("off"), 2000);
+      const timer = setTimeout(() => setStatus("off"));
       return () => {
         clearTimeout(timer);
       };
@@ -55,7 +64,7 @@ const ModalScreen = () => {
     >
       <YStack>
         <XStack>
-          <H4>{status[0].toUpperCase() + status.slice(1)}</H4>
+          <H4>Create Bill</H4>
         </XStack>
         <XStack>
           <Text>Bill owner: {id}</Text>
@@ -69,7 +78,7 @@ const ModalScreen = () => {
             onChangeText={setName}
           />
         </XStack>
-        <XStack>
+        <XStack alignContent="space-between">
           <Form.Trigger asChild disabled={status !== "off"}>
             <Button
               icon={status === "submitting" ? () => <Spinner /> : undefined}
@@ -77,7 +86,9 @@ const ModalScreen = () => {
               Submit
             </Button>
           </Form.Trigger>
+          <Button onPress={handleCloseModal}>Cancel</Button>
         </XStack>
+        <XStack></XStack>
       </YStack>
     </Form>
   );

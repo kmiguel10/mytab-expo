@@ -1,66 +1,121 @@
-import { View, Text } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
+import BillTabs from "@/components/my-bill/transactions/bill-tabs";
 import {
-  Button,
-  Paragraph,
-  PortalProvider,
-  Separator,
-  XStack,
-  YStack,
-} from "tamagui";
-import { useRoute } from "@react-navigation/native";
-import { supabase } from "@/lib/supabase";
-import { CreateTransaction } from "@/components/create-transaction/create-transaction";
+  getBillInfo,
+  getBillSummaryInfo,
+  getMembers,
+  getMyTabInfo,
+  getTransactions,
+} from "@/lib/api";
+import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
+import { Link, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Dimensions } from "react-native";
+import { Button, XStack, useWindowDimensions, View } from "tamagui";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
-  // const route = useRoute();
-  // const { id } = route.params as { id: string };
+  const { height } = useWindowDimensions();
 
   const [members, setMembers] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
+  const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
+  const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
+  const windowHeight = Dimensions.get("window").height;
 
-  /**Fetch members of the bill */
-  const getMembers = async () => {
-    let { data, error } = await supabase
-      .from("members")
-      .select("userid")
-      .eq("billid", Number(id));
-
-    if (data) {
-      setMembers(data);
-      console.log("Data MyBill: ", data);
-    } else {
-      console.log("Members Error MyBill: ", error);
-      setMembers([]);
-    }
-  };
+  /** fetch summary info */
   useEffect(() => {
-    if (id) getMembers();
-    console.log("Members MyBill: ", members);
+    async function fetchSummaryInfo() {
+      if (id) {
+        const data = await getBillSummaryInfo(Number(id));
+        setSummaryInfo(data);
+      }
+    }
+    fetchSummaryInfo();
+    console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id]);
 
+  /**Fetch members of the bill */
+  useEffect(() => {
+    async function fetchMembers() {
+      if (id) {
+        const membersData = await getMembers(Number(id));
+        setMembers(membersData);
+      }
+    }
+    fetchMembers();
+  }, [id]);
+
+  useEffect(() => {
+    async function fetchTransactions() {
+      if (userId) {
+        const transactionData: Transaction[] = await getTransactions(
+          id.toString()
+        );
+        setTransactions(transactionData);
+      }
+    }
+    fetchTransactions();
+  }, [userId]);
+
+  //Fetch bill info
+  useEffect(() => {
+    async function fetchBillInfo() {
+      if (id) {
+        const data: BillInfo[] | null = await getBillInfo(Number(id));
+        setBillInfo(data);
+      }
+    }
+    fetchBillInfo();
+  }, [id]);
+
+  useEffect(() => {
+    async function fetchMyTabInfo() {
+      if (userId) {
+        const data = await getMyTabInfo(userId.toString(), Number(id));
+        setMyTabInfo(data);
+      }
+    }
+    fetchMyTabInfo();
+  }, [userId, id]);
+
   return (
-    <YStack>
-      <YStack>
-        <Text>Viewing Bill: {id}</Text>
-        <Text>User: {userId}</Text>
-        <Text>List of Members: {JSON.stringify(members)}</Text>
-      </YStack>
-      <XStack>
-        <Paragraph>
-          Will receive an id from Homepage and use it to create a GET() request
-          to receive lists of transactions and members for that BillId
-        </Paragraph>
+    <View backgroundColor={"white"}>
+      <XStack height={windowHeight * 0.15} backgroundColor={"white"}>
+        <HeaderInfo
+          members={members}
+          summaryInfo={summaryInfo}
+          billInfo={billInfo}
+        />
       </XStack>
-      <Separator />
-      <XStack>
-        <Paragraph>Fetch created transactions</Paragraph>
+
+      <XStack height={windowHeight * 0.62}>
+        <BillTabs
+          transactions={transactions}
+          summaryInfo={summaryInfo}
+          billId={Number(id)}
+          userId={userId?.toString()}
+        />
       </XStack>
-      <XStack>
-        <CreateTransaction billId={id} userId={userId} members={members} />
+
+      <XStack alignContent="flex-end">
+        <XStack flex={1} />
+        <Link
+          href={{
+            pathname: "/pages/create-transaction",
+            params: {
+              billId: id,
+              userId: userId?.toString(),
+              members: members,
+            },
+          }}
+          asChild
+        >
+          <Button>Create Txn</Button>
+        </Link>
       </XStack>
-    </YStack>
+    </View>
   );
 };
 

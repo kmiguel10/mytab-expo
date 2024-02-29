@@ -1,50 +1,235 @@
-import { View, Text } from "react-native";
-import React from "react";
-import { Button, Card, H2, H4, YStack } from "tamagui";
-import { ChevronRight, Cloud, Moon, Star, Sun } from "@tamagui/lucide-icons";
-import { ListItem, Separator, XStack, YGroup } from "tamagui";
+import { X } from "@tamagui/lucide-icons";
+import { Check as CheckIcon } from "@tamagui/lucide-icons";
 
-const CustomSplit = () => {
+import {
+  Adapt,
+  Button,
+  Dialog,
+  Fieldset,
+  Input,
+  Label,
+  Paragraph,
+  Sheet,
+  TooltipSimple,
+  Unspaced,
+  XStack,
+  Text,
+  ListItem,
+  Checkbox,
+  CheckboxContext,
+} from "tamagui";
+import { SelectDemoItem } from "./SelectDemo";
+import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
+import { FC, useEffect, useState } from "react";
+
+interface Props {
+  memberSplits: MemberSplitAmount[];
+  onSaveSplits: (selectedMembers: SelectedMemberSplitAmount[]) => void;
+  amount: string;
+  setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
+  includedMembers: SelectedMemberSplitAmount[];
+}
+
+const CustomSplit: React.FC<Props> = ({
+  memberSplits,
+  amount,
+  onSaveSplits,
+  setIsEven,
+  includedMembers,
+}) => {
+  const [selectedMembers, setSelectedMembers] =
+    useState<SelectedMemberSplitAmount[]>();
+  //set up the list item...
+
+  const initializeSelectedSplits = () => {
+    // const newSelectedSplits: SelectedMemberSplitAmount[] = memberSplits.map(
+    //   (member) => ({
+    //     isIncluded: true,
+    //     memberId: member.memberId,
+    //     amount: 0,
+    //   })
+    // );
+
+    // setSelectedMembers(newSelectedSplits);
+    setSelectedMembers(includedMembers);
+
+    console.log(
+      "Selected members (custom split): ",
+      JSON.stringify(selectedMembers)
+    );
+  };
+
+  const handleAmountChange = (memberId: string, newAmount: string) => {
+    setSelectedMembers((prevSelectedMembers) => {
+      return prevSelectedMembers?.map((member) => {
+        if (member.memberId === memberId) {
+          return {
+            ...member,
+            amount: parseFloat(newAmount),
+          };
+        }
+        return member;
+      });
+    });
+  };
+
+  const handleSaveChanges = () => {
+    if (selectedMembers) {
+      onSaveSplits(selectedMembers);
+      setIsEven(false);
+    }
+  };
+
+  const handleCheckboxChange = (memberId: string) => {
+    setSelectedMembers((prevSelectedMembers) =>
+      prevSelectedMembers?.map((member) =>
+        member.memberId === memberId
+          ? { ...member, isIncluded: !member.isIncluded }
+          : member
+      )
+    );
+  };
+
+  //on save assign those checked to the transactions.split on the parent component
+  useEffect(() => {
+    console.log("Custom Split Component");
+    console.log("Amount: ", amount);
+    console.log("member splits: ", JSON.stringify(memberSplits));
+    initializeSelectedSplits();
+  }, [memberSplits]);
   return (
-    <Card elevate bordered>
-      <Card.Header>
-        <H4>Custom</H4>
-      </Card.Header>
-      <Card.Footer />
+    <Dialog modal>
+      <Dialog.Trigger asChild alignContent="flex-end">
+        {/* <XStack>
+          <XStack flex={2} /> */}
+        <Button width="80%" variant="outlined" theme="active">
+          Split
+        </Button>
+        {/* </XStack> */}
+      </Dialog.Trigger>
+      <Adapt when="sm" platform="touch">
+        <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>
+          <Sheet.Frame padding="$4" gap="$4">
+            <Adapt.Contents />
+          </Sheet.Frame>
 
-      <YGroup
-        alignSelf="center"
-        bordered
-        width={340}
-        size="$4"
-        separator={<Separator />}
-      >
-        <YGroup.Item>
-          <YStack>
-            <ListItem hoverTheme title="Star" subTitle="Twinkles" />
-            <ListItem hoverTheme>
+          <Sheet.Overlay
+            animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
+        </Sheet>
+      </Adapt>
+      <Dialog.Portal>
+        <Dialog.Overlay
+          key="overlay"
+          animation="slow"
+          opacity={0.5}
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
+        <Dialog.Content
+          bordered
+          elevate
+          key="content"
+          animateOnly={["transform", "opacity"]}
+          animation={[
+            "quick",
+            {
+              opacity: {
+                overshootClamping: true,
+              },
+            },
+          ]}
+          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+          gap="$4"
+        >
+          <Dialog.Title>Amount: {amount}</Dialog.Title>
+
+          <Dialog.Description>
+            Make changes to your profile here. Click save when you're done.
+          </Dialog.Description>
+          {selectedMembers?.map((selectedMembers, index) => (
+            // <Text key={index}>{JSON.stringify(selectedMembers)}</Text>
+            <Fieldset gap="$1" horizontal key={index}>
+              {/* <Text key={index}>{JSON.stringify(selectedMembers)}</Text> */}
               <XStack>
-                <Button>Test</Button>
-                <Text>TEst</Text>
+                <Checkbox
+                  checked={selectedMembers.isIncluded}
+                  onCheckedChange={() =>
+                    handleCheckboxChange(selectedMembers.memberId)
+                  }
+                >
+                  <Checkbox.Indicator>
+                    <Text>X</Text>
+                  </Checkbox.Indicator>
+                </Checkbox>
+                <Label width={160} justifyContent="flex-end" htmlFor="name">
+                  {selectedMembers.memberId}
+                </Label>
+                <Input
+                  flex={1}
+                  id={`amount-${selectedMembers.memberId}`}
+                  value={selectedMembers.amount?.toString()}
+                  onChangeText={(newAmount: string) =>
+                    handleAmountChange(selectedMembers.memberId, newAmount)
+                  }
+                  defaultValue={selectedMembers.amount?.toString()}
+                />
               </XStack>
-            </ListItem>
-          </YStack>
-        </YGroup.Item>
-        <YGroup.Item>
-          <XStack>
-            <ListItem hoverTheme>Moon</ListItem>
-          </XStack>
-        </YGroup.Item>
-        <YGroup.Item>
-          <ListItem hoverTheme>Sun</ListItem>
-        </YGroup.Item>
-        <YGroup.Item>
-          <ListItem hoverTheme>Cloud</ListItem>
-        </YGroup.Item>
-      </YGroup>
+            </Fieldset>
+          ))}
+          {/* <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="name">
+              Name
+            </Label>
 
-      <Card.Background />
-    </Card>
+            <Input flex={1} id="name" defaultValue="Nate Wienert" />
+          </Fieldset>
+
+          <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="username">
+              <TooltipSimple
+                label="Pick your favorite"
+                placement="bottom-start"
+              >
+                <Paragraph>Food</Paragraph>
+              </TooltipSimple>
+            </Label>
+
+            <SelectDemoItem />
+          </Fieldset> */}
+          <XStack alignSelf="flex-end" gap="$4">
+            {/* <DialogInstance /> */}
+            <Dialog.Close displayWhenAdapted asChild>
+              <Button
+                theme="active"
+                aria-label="Close"
+                onPress={handleSaveChanges}
+              >
+                Save changes
+              </Button>
+            </Dialog.Close>
+          </XStack>
+          <XStack>
+            <Text>{JSON.stringify(selectedMembers)}</Text>
+          </XStack>
+          <Unspaced>
+            <Dialog.Close asChild>
+              <Button
+                position="absolute"
+                top="$3"
+                right="$3"
+                size="$2"
+                circular
+                icon={X}
+              />
+            </Dialog.Close>
+          </Unspaced>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
   );
 };
 

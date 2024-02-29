@@ -1,80 +1,89 @@
-// import { Text, View } from "@/components/Themed";
-import { ListItem, ScrollView, XStack, YStack } from "tamagui";
+import { Avatar, ListItem, ScrollView, XStack, YStack } from "tamagui";
 
-import { User } from "@/types/global";
+import BillCard from "@/components/homepage/bill-card";
+import JoinBill from "@/components/my-bill/transactions/join-bill";
+import { getBillsForUserId } from "@/lib/api";
+import { BillData } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
-import { Button, H1, Paragraph, Separator, Text, View } from "tamagui";
-import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import JoinBill from "@/components/my-bill/join-bill";
+import { Separator, View, Text } from "tamagui";
+import { Dimensions } from "react-native";
 
 export default function Home() {
-  const [bills, setBills] = useState<any[]>([]);
-
+  const [bills, setBills] = useState<BillData[]>([]);
   const { id } = useLocalSearchParams();
-
-  const getBills = async () => {
-    let { data: billsData, error } = await supabase
-      .from("members")
-      .select("*")
-      .eq("userid", id);
-
-    if (billsData) {
-      setBills(billsData); // Set the bills state with the retrieved data
-      console.log("Bills: ", billsData);
-    } else {
-      // Handle the case where billsData is null
-      // For example, you can set an empty array as the default value
-      console.log("Error", error);
-      setBills([]);
-    }
-  };
+  const windowHeight = Dimensions.get("window").height;
 
   useEffect(() => {
-    if (id) getBills();
+    async function fetchBills() {
+      if (id) {
+        const billsData = await getBillsForUserId(id.toString());
+        setBills(billsData);
+      }
+    }
+    fetchBills();
   }, [id]);
 
-  //get bills based on id
   return (
-    <View>
-      <H1>HOME</H1>
-      <Paragraph>Welcome: {id}</Paragraph>
+    <View backgroundColor={"white"}>
+      {/* <ToastViewport /> */}
+      {/* <ToastDemo /> */}
+      <XStack
+        justifyContent="space-between"
+        borderRadius="$2"
+        height={windowHeight * 0.15}
+        backgroundColor={"white"}
+      >
+        <Avatar circular size="$6">
+          <Avatar.Image
+            accessibilityLabel="Nate Wienert"
+            src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+          />
+          <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+        </Avatar>
+        <Text>User id: {id.slice(0, 5)}</Text>
+        <JoinBill />
+      </XStack>
 
+      {/* <Paragraph>Welcome: {id}</Paragraph>
       <Paragraph>
         Based on the user id, will do a GET() request to get all Bills
         associated with the userId
-      </Paragraph>
-      <View />
-      <Separator marginVertical={15} />
-      <Paragraph>
+      </Paragraph> */}
+
+      {/* <Separator marginVertical={15} /> */}
+      {/* <Paragraph>
         This will show a table with: Username, List of Bills, create bill button
         (separate component)
-      </Paragraph>
-      <JoinBill />
+      </Paragraph> */}
 
-      <ScrollView>
-        <YStack>
-          {bills.map((item, index) => (
-            <ListItem key={index}>
-              <XStack>
-                {item.ownerid === id ? <Text>owner</Text> : <Text>Member</Text>}
-
-                <Link
-                  // href={`/(bill)/mybill/${item.billid}`}
-                  href={{
-                    pathname: `/(bill)/mybill/${item.billid}`,
-                    params: { id: item.billId, userId: id },
-                  }}
-                  asChild
-                >
-                  <Button>
-                    <Text>{item.name}</Text>
-                  </Button>
-                </Link>
-              </XStack>
-            </ListItem>
-          ))}
-        </YStack>
+      <ScrollView backgroundColor={"white"} height={windowHeight * 0.65}>
+        {bills.map((item, index) => (
+          <XStack key={index} backgroundColor="white" justifyContent="center">
+            <Link
+              href={{
+                pathname: `/(bill)/mybill/${item.billid}`,
+                params: { userId: id },
+              }}
+              asChild
+            >
+              <BillCard
+                animation="bouncy"
+                size="$4"
+                width={360}
+                height={110}
+                scale={0.9}
+                hoverStyle={{ scale: 0.925 }}
+                pressStyle={{ scale: 0.875 }}
+                bill={item}
+                membership={item.ownerid === id ? "Owner" : "Member"}
+              />
+              {/* <Button>
+                  <Text>{item.name}</Text>
+                </Button> */}
+            </Link>
+          </XStack>
+        ))}
       </ScrollView>
     </View>
   );
