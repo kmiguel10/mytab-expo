@@ -99,8 +99,13 @@ const CustomSplit: React.FC<Props> = ({
   }, [memberSplits]);
   return (
     <Dialog modal>
-      <Dialog.Trigger asChild>
-        <Button>Show Dialog</Button>
+      <Dialog.Trigger asChild alignContent="flex-end">
+        {/* <XStack>
+          <XStack flex={2} /> */}
+        <Button width="80%" variant="outlined" theme="active">
+          Split
+        </Button>
+        {/* </XStack> */}
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
         <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>

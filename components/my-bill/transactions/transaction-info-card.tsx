@@ -11,13 +11,14 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
   const windowWidth = Dimensions.get("window").width;
   return (
     <ScrollView>
-      <XStack flex={1} flexWrap="wrap">
+      <XStack flex={1} flexWrap="wrap" space="$1">
         {transactions.map((txn, index) => (
           <Card
             elevate
             size="$4"
             bordered
             key={index}
+            height={100}
             width={windowWidth * 0.5}
             {...props}
           >

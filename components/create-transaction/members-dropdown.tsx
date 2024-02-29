@@ -1,5 +1,5 @@
 import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FontSizeTokens, SelectProps } from "tamagui";
 import {
   Adapt,
@@ -20,12 +20,14 @@ interface Member {
 
 interface MembersDropdownProps extends SelectProps {
   members: any[];
+  defaultPayer: string;
   onPayerChange: (selectedPayer: string) => void;
 }
 
 export default function MembersDropdown({
   members,
   onPayerChange,
+  defaultPayer,
   ...props
 }: MembersDropdownProps) {
   const [payer, setPayer] = useState("");
@@ -51,15 +53,21 @@ export default function MembersDropdown({
     console.log("Selectedmember:", selectedMember.userid);
   };
 
+  useEffect(() => {
+    // setPayer(defaultPayer);
+    onPayerChange(defaultPayer);
+  }, [defaultPayer]);
+
   return (
     <Select
       value={payer}
       onValueChange={handlePayerSelect}
+      defaultValue={defaultPayer}
       disablePreventBodyScroll
       {...props}
     >
-      <Select.Trigger width={220}>
-        <Select.Value placeholder="Select Payer" />
+      <Select.Trigger width="51%">
+        <Select.Value placeholder={defaultPayer} />
       </Select.Trigger>
 
       <Adapt when="sm" platform="touch">
@@ -120,7 +128,9 @@ export default function MembersDropdown({
                       key={item.userid}
                       value={item.userid}
                     >
-                      <Select.ItemText>{item.userid}</Select.ItemText>
+                      <Select.ItemText>
+                        {item.userid.slice(0, 5)}
+                      </Select.ItemText>
                       <Select.ItemIndicator marginLeft="auto">
                         {/* <Check size={16} /> */}
                       </Select.ItemIndicator>

@@ -10,8 +10,8 @@ import {
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Dimensions, View } from "react-native";
-import { Button, XStack, useWindowDimensions } from "tamagui";
+import { Dimensions } from "react-native";
+import { Button, XStack, useWindowDimensions, View } from "tamagui";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
@@ -81,8 +81,8 @@ const Page = () => {
   }, [userId, id]);
 
   return (
-    <View>
-      <XStack height={windowHeight * 0.15}>
+    <View backgroundColor={"white"}>
+      <XStack height={windowHeight * 0.15} backgroundColor={"white"}>
         <HeaderInfo
           members={members}
           summaryInfo={summaryInfo}

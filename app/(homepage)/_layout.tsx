@@ -20,7 +20,7 @@ export default function TabLayout() {
           title: "Homepage",
           tabBarLabel: "Bills",
           tabBarShowLabel: false,
-          tabBarIcon: () => <Ionicons name="receipt" size={24} color="black" />,
+          tabBarIcon: () => <Ionicons name="receipt" size={24} color="gray" />,
           headerRight: () => (
             <Link
               href={{

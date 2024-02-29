@@ -34,35 +34,41 @@ const BillTabs: React.FC<Props> = ({
       flexDirection="column"
       width={400}
       borderRadius="$4"
-      borderWidth="$0.25"
       overflow="hidden"
-      borderColor="$borderColor"
+      borderColor="white"
+      backgroundColor="white"
     >
       <Tabs.List
-        disablePassBorderRadius="bottom"
+        disablePassBorderRadius
+        backgroundColor="transparent"
         aria-label="Manage your account"
       >
-        <Tabs.Tab flex={1} value="tab1">
-          <SizableText fontFamily="$body">Transactions</SizableText>
+        <Tabs.Tab flex={1.2} value="tab1" backgroundColor={"white"}>
+          <SizableText fontFamily="$body" fontSize="$2">
+            Transactions
+          </SizableText>
         </Tabs.Tab>
-        <Tabs.Tab flex={1} value="tab2">
-          <SizableText fontFamily="$body">Summary</SizableText>
+        <Tabs.Tab flex={1} value="tab2" backgroundColor={"white"}>
+          <SizableText fontFamily="$body" fontSize="$2">
+            Summary
+          </SizableText>
         </Tabs.Tab>
 
-        <Tabs.Tab flex={1} value="tab3">
-          <SizableText fontFamily="$body">MyTab</SizableText>
+        <Tabs.Tab flex={1} value="tab3" backgroundColor={"white"}>
+          <SizableText fontFamily="$body" fontSize="$2" textAlign="left">
+            My Tab
+          </SizableText>
         </Tabs.Tab>
         <XStack flex={2} />
       </Tabs.List>
-      <Separator />
+      {/* <Separator /> */}
       <Tabs.Content value="tab1">
-        <ScrollView>
-          <YStack>
-            <XStack>
-              <TransactionInfoCard transactions={transactions} />
-            </XStack>
-          </YStack>
-        </ScrollView>
+        <YStack>
+          <XStack>
+            <TransactionInfoCard transactions={transactions} />
+          </XStack>
+        </YStack>
+
         {/* <ScrollView horizontal height="25%">
             <MembersView members={members} />
           </ScrollView> */}

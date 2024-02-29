@@ -7,10 +7,12 @@ import { BillData } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Separator, View, Text } from "tamagui";
+import { Dimensions } from "react-native";
 
 export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
   const { id } = useLocalSearchParams();
+  const windowHeight = Dimensions.get("window").height;
 
   useEffect(() => {
     async function fetchBills() {
@@ -23,10 +25,15 @@ export default function Home() {
   }, [id]);
 
   return (
-    <View>
+    <View backgroundColor={"white"}>
       {/* <ToastViewport /> */}
       {/* <ToastDemo /> */}
-      <XStack alignItems="center" flexWrap="wrap" alignContent="space-between">
+      <XStack
+        justifyContent="space-between"
+        borderRadius="$2"
+        height={windowHeight * 0.15}
+        backgroundColor={"white"}
+      >
         <Avatar circular size="$6">
           <Avatar.Image
             accessibilityLabel="Nate Wienert"
@@ -34,10 +41,8 @@ export default function Home() {
           />
           <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
         </Avatar>
+        <Text>User id: {id.slice(0, 5)}</Text>
         <JoinBill />
-      </XStack>
-      <XStack>
-        <Text>User id: {id}</Text>
       </XStack>
 
       {/* <Paragraph>Welcome: {id}</Paragraph>
@@ -46,40 +51,38 @@ export default function Home() {
         associated with the userId
       </Paragraph> */}
 
-      <Separator marginVertical={15} />
+      {/* <Separator marginVertical={15} /> */}
       {/* <Paragraph>
         This will show a table with: Username, List of Bills, create bill button
         (separate component)
       </Paragraph> */}
 
-      <ScrollView>
+      <ScrollView backgroundColor={"white"} height={windowHeight * 0.65}>
         {bills.map((item, index) => (
-          <ListItem key={index}>
-            <YStack>
-              <Link
-                href={{
-                  pathname: `/(bill)/mybill/${item.billid}`,
-                  params: { userId: id },
-                }}
-                asChild
-              >
-                <BillCard
-                  animation="bouncy"
-                  size="$4"
-                  width={360}
-                  height={110}
-                  scale={0.9}
-                  hoverStyle={{ scale: 0.925 }}
-                  pressStyle={{ scale: 0.875 }}
-                  bill={item}
-                  membership={item.ownerid === id ? "Owner" : "Member"}
-                />
-                {/* <Button>
+          <XStack key={index} backgroundColor="white" justifyContent="center">
+            <Link
+              href={{
+                pathname: `/(bill)/mybill/${item.billid}`,
+                params: { userId: id },
+              }}
+              asChild
+            >
+              <BillCard
+                animation="bouncy"
+                size="$4"
+                width={360}
+                height={110}
+                scale={0.9}
+                hoverStyle={{ scale: 0.925 }}
+                pressStyle={{ scale: 0.875 }}
+                bill={item}
+                membership={item.ownerid === id ? "Owner" : "Member"}
+              />
+              {/* <Button>
                   <Text>{item.name}</Text>
                 </Button> */}
-              </Link>
-            </YStack>
-          </ListItem>
+            </Link>
+          </XStack>
         ))}
       </ScrollView>
     </View>

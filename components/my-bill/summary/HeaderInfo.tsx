@@ -1,6 +1,6 @@
 import { View, Text, Dimensions } from "react-native";
 import React from "react";
-import { Card, CardProps, H2, H4, H5, XStack, YStack } from "tamagui";
+import { Card, CardProps, H2, H3, H4, H5, XStack, YStack } from "tamagui";
 import { BillInfo } from "@/types/global";
 import MembersView from "../transactions/members-view";
 
@@ -27,22 +27,26 @@ const HeaderInfo: React.FC<Props> = ({
     0
   );
   return (
-    <XStack alignContent="space-between" alignItems="center">
-      <YStack width={windowWidth * 0.5}>
-        <YStack>
-          <H2>{billInfo[0]?.name}</H2>
+    <XStack alignContent="space-between" alignItems="center" gap="$3">
+      <YStack width={windowWidth * 0.5} gap="$2">
+        <View>
+          <H3>{billInfo[0]?.name}</H3>
           <Text>Bill Name</Text>
-        </YStack>
-        <YStack>
+        </View>
+        <View>
           <MembersView members={members} />
           <Text>Members</Text>
-        </YStack>
+        </View>
       </YStack>
-      <YStack width={windowWidth * 0.5}>
-        <H4>{totalPaid}</H4>
-        <Text>Total Amount</Text>
-        <H4>{txnCount}</H4>
-        <Text>Total Amount</Text>
+      <YStack width={windowWidth * 0.5} gap="$2">
+        <View>
+          <H4>{totalPaid}</H4>
+          <Text>Total Amount</Text>
+        </View>
+        <View>
+          <H4>{txnCount}</H4>
+          <Text>Total Amount</Text>
+        </View>
       </YStack>
       {/* <Card elevate size="$4" bordered flex={1} {...props}>
         <Card.Header padded></Card.Header>

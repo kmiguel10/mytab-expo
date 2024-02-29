@@ -21,7 +21,14 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
   ref
 ) => {
   return (
-    <Card elevate size="$4" bordered ref={ref} {...props}>
+    <Card
+      elevate
+      size="$4"
+      bordered
+      ref={ref}
+      {...props}
+      backgroundColor={"white"}
+    >
       <Card.Header padded>
         <XStack justifyContent="space-between">
           <H4>{bill.name}</H4>

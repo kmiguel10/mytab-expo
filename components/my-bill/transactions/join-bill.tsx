@@ -23,7 +23,7 @@ const JoinBill = () => {
   return (
     <AlertDialog>
       <AlertDialog.Trigger asChild>
-        <Button>Join Bill</Button>
+        <Button color="$blue10Light">Join Bill</Button>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>
