@@ -8,6 +8,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Separator, View, Text } from "tamagui";
 import { Dimensions } from "react-native";
+import HomepageTabs from "@/components/homepage/homepage-tabs";
 
 export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
@@ -27,12 +28,15 @@ export default function Home() {
   }, [id]);
 
   return (
-    <View backgroundColor={"white"}>
-      <XStack
-        justifyContent="space-between"
+    <View backgroundColor={"red"}>
+      <YStack
+        justifyContent="flex-start"
+        gap="$3"
         borderRadius="$2"
         height={windowHeight * 0.15}
-        backgroundColor={"white"}
+        backgroundColor={"yellow"}
+        paddingVertical="$4"
+        paddingHorizontal="$4"
       >
         <Avatar circular size="$6">
           <Avatar.Image
@@ -42,6 +46,19 @@ export default function Home() {
           <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
         </Avatar>
         <Text>User id: {id.slice(0, 5)}</Text>
+      </YStack>
+      <XStack height={windowHeight * 0.63}>
+        <HomepageTabs bills={bills} userId={id.toString()} />
+      </XStack>
+
+      <XStack
+        justifyContent="space-between"
+        backgroundColor={"blue"}
+        height={"20%"}
+        paddingLeft="$4"
+        paddingRight="$4"
+        paddingTop="$3"
+      >
         <JoinBill />
         <Link
           href={{
@@ -52,34 +69,9 @@ export default function Home() {
           }}
           asChild
         >
-          <Button>Create Txn</Button>
+          <Button>Create</Button>
         </Link>
       </XStack>
-      <ScrollView backgroundColor={"white"} height={windowHeight * 0.65}>
-        {bills.map((item, index) => (
-          <XStack key={index} backgroundColor="white" justifyContent="center">
-            <Link
-              href={{
-                pathname: `/(bill)/mybill/${item.billid}`,
-                params: { userId: id },
-              }}
-              asChild
-            >
-              <BillCard
-                animation="bouncy"
-                size="$4"
-                width={360}
-                height={110}
-                scale={0.9}
-                hoverStyle={{ scale: 0.925 }}
-                pressStyle={{ scale: 0.875 }}
-                bill={item}
-                membership={item.ownerid === id ? "Owner" : "Member"}
-              />
-            </Link>
-          </XStack>
-        ))}
-      </ScrollView>
     </View>
   );
 }
