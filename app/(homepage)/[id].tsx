@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Separator, View, Text } from "tamagui";
 import { Dimensions } from "react-native";
 import HomepageTabs from "@/components/homepage/homepage-tabs";
+import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 
 export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
@@ -28,13 +29,13 @@ export default function Home() {
   }, [id]);
 
   return (
-    <View backgroundColor={"red"}>
+    <View backgroundColor={"white"}>
       <YStack
         justifyContent="flex-start"
         gap="$3"
         borderRadius="$2"
         height={windowHeight * 0.15}
-        backgroundColor={"yellow"}
+        backgroundColor={"white"}
         paddingVertical="$4"
         paddingHorizontal="$4"
       >
@@ -48,16 +49,18 @@ export default function Home() {
         <Text>User id: {id.slice(0, 5)}</Text>
       </YStack>
       <XStack height={windowHeight * 0.63}>
-        <HomepageTabs bills={bills} userId={id.toString()} />
+        {/* <HomepageTabs bills={bills} userId={id.toString()} /> */}
+        <TabsAdvancedUnderline />
       </XStack>
 
       <XStack
         justifyContent="space-between"
-        backgroundColor={"blue"}
+        backgroundColor={"transparent"}
         height={"20%"}
         paddingLeft="$4"
         paddingRight="$4"
         paddingTop="$3"
+        opacity={4}
       >
         <JoinBill />
         <Link

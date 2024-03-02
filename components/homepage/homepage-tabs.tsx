@@ -23,7 +23,7 @@ const HomepageTabs: React.FC<Props> = ({ bills, userId }) => {
       borderColor="white"
       backgroundColor="white"
     >
-      <Tabs.List>
+      <Tabs.List width={200}>
         <Tabs.Tab flex={1.2} value="tab1" backgroundColor={"white"}>
           <SizableText fontFamily="$body" fontSize="$2" color={"$blue10Light"}>
             Active ({bills?.length})
@@ -36,7 +36,7 @@ const HomepageTabs: React.FC<Props> = ({ bills, userId }) => {
         </Tabs.Tab>
       </Tabs.List>
       <Tabs.Content value="tab1">
-        <ScrollView backgroundColor={"red"}>
+        <ScrollView backgroundColor={"white"}>
           {bills.map((item, index) => (
             <XStack
               key={index}
@@ -68,7 +68,7 @@ const HomepageTabs: React.FC<Props> = ({ bills, userId }) => {
         </ScrollView>
       </Tabs.Content>
       <Tabs.Content value="tab2">
-        <Text>Test 2</Text>
+        <Text>There are no active bills.</Text>
       </Tabs.Content>
     </Tabs>
   );
