@@ -1,21 +1,38 @@
+import { BillData } from "@/types/global";
+import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle } from "react-native";
+import { Dimensions, LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
 import {
   AnimatePresence,
   Button,
+  H1,
   H5,
+  H6,
+  ScrollView,
   SizableText,
   Stack,
   Tabs,
+  View,
   XStack,
   YStack,
   styled,
 } from "tamagui";
+import BillCard from "./bill-card";
 
-export const TabsAdvancedUnderline = () => {
+interface Props {
+  bills: BillData[];
+  userId: string;
+  height: number;
+}
+
+export const TabsAdvancedUnderline: React.FC<Props> = ({
+  bills,
+  userId,
+  height,
+}) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
     /**
@@ -33,7 +50,7 @@ export const TabsAdvancedUnderline = () => {
   }>({
     activeAt: null,
 
-    currentTab: "tab1",
+    currentTab: "active",
 
     intentAt: null,
 
@@ -78,13 +95,14 @@ export const TabsAdvancedUnderline = () => {
       setIntentIndicator(layout);
     }
   };
+
   return (
     <Tabs
       value={currentTab}
       onValueChange={setCurrentTab}
       orientation="horizontal"
       size="$4"
-      height={150}
+      height={height}
       flexDirection="column"
       activationMode="manual"
       backgroundColor="white"
@@ -125,12 +143,13 @@ export const TabsAdvancedUnderline = () => {
           borderColor="$color3"
           borderBottomWidth="$0.5"
           backgroundColor="transparent"
+          paddingLeft="$2"
         >
           <Tabs.Tab
             unstyled
             paddingHorizontal="$3"
             paddingVertical="$2"
-            value="tab1"
+            value="active"
             onInteraction={handleOnInteraction}
           >
             <SizableText>Active</SizableText>
@@ -140,7 +159,7 @@ export const TabsAdvancedUnderline = () => {
             unstyled
             paddingHorizontal="$3"
             paddingVertical="$2"
-            value="tab2"
+            value="inactive"
             onInteraction={handleOnInteraction}
           >
             <SizableText>Inactive</SizableText>
@@ -164,8 +183,46 @@ export const TabsAdvancedUnderline = () => {
             forceMount
             flex={1}
             justifyContent="center"
+            paddingTop="$2"
           >
-            <H5 textAlign="center">{currentTab}</H5>
+            <View>
+              {currentTab === "active" ? (
+                <ScrollView backgroundColor={"red"}>
+                  {bills.map((item, index) => (
+                    <XStack
+                      key={index}
+                      backgroundColor="white"
+                      justifyContent="center"
+                      padding="$3"
+                    >
+                      <Link
+                        href={{
+                          pathname: `/(bill)/mybill/${item.billid}`,
+                          params: { userId: userId },
+                        }}
+                        asChild
+                      >
+                        <BillCard
+                          animation="bouncy"
+                          size="$4"
+                          width={360}
+                          height={110}
+                          scale={0.9}
+                          hoverStyle={{ scale: 0.925 }}
+                          pressStyle={{ scale: 0.875 }}
+                          bill={item}
+                          membership={
+                            item.ownerid === userId ? "Owner" : "Member"
+                          }
+                        />
+                      </Link>
+                    </XStack>
+                  ))}
+                </ScrollView>
+              ) : (
+                <H6> "Inactive Test This"</H6>
+              )}
+            </View>
           </Tabs.Content>
         </AnimatedYStack>
       </AnimatePresence>

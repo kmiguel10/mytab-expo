@@ -50,7 +50,11 @@ export default function Home() {
       </YStack>
       <XStack height={windowHeight * 0.63}>
         {/* <HomepageTabs bills={bills} userId={id.toString()} /> */}
-        <TabsAdvancedUnderline />
+        <TabsAdvancedUnderline
+          bills={bills}
+          userId={id.toString()}
+          height={windowHeight * 0.63}
+        />
       </XStack>
 
       <XStack
