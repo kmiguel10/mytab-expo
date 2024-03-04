@@ -22,7 +22,7 @@
     "@tamagui/linear-gradient": "^1.89.19",
     "@tamagui/lucide-icons": "^1.89.12",
     "@tamagui/metro-plugin": "^1.89.8",
-    "@tamagui/toast": "^1.90.2",
+    "@tamagui/toast": "1.90.16",
     "babel-preset-expo": "^10.0.1",
     "burnt": "^0.12.2",
     "expo": "~50.0.6",

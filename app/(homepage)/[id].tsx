@@ -1,4 +1,12 @@
-import { Avatar, Button, ListItem, ScrollView, XStack, YStack } from "tamagui";
+import {
+  Avatar,
+  Button,
+  ListItem,
+  ScrollView,
+  Theme,
+  XStack,
+  YStack,
+} from "tamagui";
 
 import BillCard from "@/components/homepage/bill-card";
 import JoinBill from "@/components/my-bill/transactions/join-bill";
@@ -15,6 +23,7 @@ export default function Home() {
   const [bills, setBills] = useState<BillData[]>([]);
   const { id } = useLocalSearchParams();
   const windowHeight = Dimensions.get("window").height;
+  const windowWidth = Dimensions.get("window").width;
 
   const onPressCreate = () => {};
 
@@ -48,18 +57,19 @@ export default function Home() {
         </Avatar>
         <Text>User id: {id.slice(0, 5)}</Text>
       </YStack>
-      <XStack height={windowHeight * 0.63}>
+      <XStack height={windowHeight * 0.63} backgroundColor={"purple"}>
         {/* <HomepageTabs bills={bills} userId={id.toString()} /> */}
         <TabsAdvancedUnderline
           bills={bills}
           userId={id.toString()}
           height={windowHeight * 0.63}
+          width={windowWidth}
         />
       </XStack>
 
       <XStack
         justifyContent="space-between"
-        backgroundColor={"transparent"}
+        backgroundColor={"$gray2Light"}
         height={"20%"}
         paddingLeft="$4"
         paddingRight="$4"

@@ -22,8 +22,13 @@ const ModalScreen = () => {
   );
   const [name, setName] = useState("");
 
-  const CreateBill = async () => {
+  const onCreateBill = async () => {
     console.log("User id: ", id);
+
+    if (!name) {
+      console.error("Error: Name cannot be null");
+      return; // Exit the function if name is null
+    }
 
     const { data, error } = await supabase
       .from("bills")
@@ -32,6 +37,7 @@ const ModalScreen = () => {
 
     console.log("DATA", data);
     console.log("Error", error);
+
     if (data) {
       console.log("Navigate to homepage");
       router.replace(`/(homepage)/${id}`);
@@ -57,17 +63,15 @@ const ModalScreen = () => {
       alignItems="center"
       minWidth={300}
       gap="$2"
-      onSubmit={CreateBill}
+      onSubmit={onCreateBill}
       backgroundColor="$background"
       borderColor="$borderColor"
       padding="$8"
+      height="100%"
     >
       <YStack>
         <XStack>
           <H4>Create Bill</H4>
-        </XStack>
-        <XStack>
-          <Text>Bill owner: {id}</Text>
         </XStack>
         <XStack alignItems="center" space="$2">
           <Input
@@ -78,7 +82,7 @@ const ModalScreen = () => {
             onChangeText={setName}
           />
         </XStack>
-        <XStack alignContent="space-between">
+        <XStack justifyContent="space-between">
           <Form.Trigger asChild disabled={status !== "off"}>
             <Button
               icon={status === "submitting" ? () => <Spinner /> : undefined}
@@ -88,7 +92,6 @@ const ModalScreen = () => {
           </Form.Trigger>
           <Button onPress={handleCloseModal}>Cancel</Button>
         </XStack>
-        <XStack></XStack>
       </YStack>
     </Form>
   );

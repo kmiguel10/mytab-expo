@@ -26,12 +26,14 @@ interface Props {
   bills: BillData[];
   userId: string;
   height: number;
+  width: number;
 }
 
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
   userId,
   height,
+  width,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -106,9 +108,8 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       flexDirection="column"
       activationMode="manual"
       backgroundColor="white"
-      borderRadius="$4"
     >
-      <YStack>
+      <YStack width={width}>
         <AnimatePresence>
           {intentAt && (
             <TabsRovingIndicator
@@ -187,13 +188,13 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           >
             <View>
               {currentTab === "active" ? (
-                <ScrollView backgroundColor={"red"}>
+                <ScrollView backgroundColor={"whitesmoke"}>
                   {bills.map((item, index) => (
                     <XStack
                       key={index}
-                      backgroundColor="white"
+                      backgroundColor="transparent"
                       justifyContent="center"
-                      padding="$3"
+                      padding="$1.5"
                     >
                       <Link
                         href={{
@@ -204,7 +205,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                       >
                         <BillCard
                           animation="bouncy"
-                          size="$4"
+                          size="$3"
                           width={360}
                           height={110}
                           scale={0.9}

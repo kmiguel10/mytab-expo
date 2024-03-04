@@ -16,52 +16,64 @@ interface Props extends CardProps {
   membership: string;
 }
 
+/**
+ * Shows Bills information: name, membership status, members, amount in bill
+ * @param param0
+ * @param ref
+ * @returns
+ */
 const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
   { bill, membership, ...props },
   ref
 ) => {
   return (
     <Card
-      elevate
-      size="$4"
       bordered
       ref={ref}
       {...props}
-      backgroundColor={"white"}
+      backgroundColor="white"
+      borderRadius={"$5"}
     >
-      <Card.Header padded>
+      <Card.Header>
         <XStack justifyContent="space-between">
-          <H4>{bill.name}</H4>
+          <H4 fontFamily={"$heading"} maxWidth={"50%"} overflow="hidden">
+            {bill.name}
+          </H4>
           <H4>${bill.amount}</H4>
         </XStack>
-        <Paragraph theme="alt2">{membership}</Paragraph>
-        <Paragraph theme="alt2">{membership}</Paragraph>
+        <Text theme="alt2">{membership}</Text>
       </Card.Header>
 
-      <Card.Footer padded>
-        <XStack flex={1} />
-        {/* <Button borderRadius="$10">Purchase</Button> */}
-        {/* <Text>Members</Text> */}
-        <Avatar circular size="$2">
-          <Avatar.Image
-            accessibilityLabel="Nate Wienert"
-            src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-          />
-          <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-        </Avatar>
-        <Avatar circular size="$2">
-          <Avatar.Image
-            accessibilityLabel="Nate Wienert"
-            src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-          />
-          <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-        </Avatar>
-        <Avatar circular size="$2">
-          <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-        </Avatar>
-        <Text>...more</Text>
-      </Card.Footer>
+      <Card.Footer padding="$3">
+        {membership !== "Owner" ? (
+          <XStack flex={1} />
+        ) : (
+          <Text paddingTop={"$2"} flex={1}>
+            Bill Code: {bill.billcode}
+          </Text>
+        )}
 
+        <XStack justifyContent="center">
+          <Avatar circular size="$2">
+            <Avatar.Image
+              accessibilityLabel="Nate Wienert"
+              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+            />
+            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+          </Avatar>
+          <Avatar circular size="$2">
+            <Avatar.Image
+              accessibilityLabel="Nate Wienert"
+              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+            />
+            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+          </Avatar>
+          <Avatar circular size="$2">
+            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+          </Avatar>
+          <Text>...more</Text>
+        </XStack>
+      </Card.Footer>
       <Card.Background></Card.Background>
     </Card>
   );

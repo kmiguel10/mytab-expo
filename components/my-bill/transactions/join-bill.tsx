@@ -23,7 +23,7 @@ const JoinBill = () => {
   return (
     <AlertDialog>
       <AlertDialog.Trigger asChild>
-        <Button color="$blue10Light">Join</Button>
+        <Button>Join</Button>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>
@@ -64,7 +64,7 @@ const JoinBill = () => {
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <Button theme="active" onPress={joinAsMember}>
-                  Accept
+                  Join
                 </Button>
               </AlertDialog.Action>
             </XStack>

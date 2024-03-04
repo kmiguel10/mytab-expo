@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { Link, Stack } from "expo-router";
 import { Pressable } from "react-native";
+import { Plus } from "@tamagui/lucide-icons";
 
 export default function TabLayout() {
   const route = useRoute();
