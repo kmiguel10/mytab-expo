@@ -4,6 +4,7 @@ import SplitView from "@/components/create-transaction/split-view";
 import { getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
+import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Text } from "react-native";

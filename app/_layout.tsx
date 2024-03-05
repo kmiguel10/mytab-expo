@@ -54,34 +54,31 @@ function RootLayoutNav() {
   return (
     <TamaguiProvider config={config} defaultTheme={colorScheme as any}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <ToastProvider>
-          <Stack>
-            <Stack.Screen
-              name="index"
-              options={{ title: "Log In / Sign up" }}
-            />
-            <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
-            <Stack.Screen name="(bill)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="pages/create-transaction"
-              options={{ title: "Create Transaction" }}
-            />
-            {/* <Stack.Screen
+        {/* <ToastProvider> */}
+        <Stack>
+          <Stack.Screen name="index" options={{ title: "Log In / Sign up" }} />
+          <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
+          <Stack.Screen name="(bill)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="pages/create-transaction"
+            options={{ title: "Create Transaction" }}
+          />
+          {/* <Stack.Screen
               name="/(bill)/mybill/"
               options={{ headerShown: false }}
             /> */}
-            <Stack.Screen
-              name="(modals)/create-bill"
-              options={{
-                presentation: "modal",
-                title: "Create Bill",
-                // headerLeft: () => (
-                //   <Button onPress={() => router.back()}>Home</Button>
-                // ),
-              }}
-            />
+          <Stack.Screen
+            name="(modals)/create-bill"
+            options={{
+              presentation: "modal",
+              title: "Create Bill",
+              // headerLeft: () => (
+              //   <Button onPress={() => router.back()}>Home</Button>
+              // ),
+            }}
+          />
 
-            {/* <Stack.Screen
+          {/* <Stack.Screen
             name="(modals)/create-transaction"
             options={{
               headerTitle: "Create Transaction",
@@ -89,8 +86,8 @@ function RootLayoutNav() {
               title: "Create Transaction",
             }}
           /> */}
-          </Stack>
-        </ToastProvider>
+        </Stack>
+        {/* </ToastProvider> */}
       </ThemeProvider>
     </TamaguiProvider>
   );

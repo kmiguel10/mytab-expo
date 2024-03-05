@@ -179,16 +179,10 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           opacity={1}
           flex={1}
         >
-          <Tabs.Content
-            value={currentTab}
-            forceMount
-            flex={1}
-            justifyContent="center"
-            paddingTop="$2"
-          >
+          <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
             <View>
               {currentTab === "active" ? (
-                <ScrollView backgroundColor={"whitesmoke"}>
+                <ScrollView backgroundColor={"whitesmoke"} height={height}>
                   {bills.map((item, index) => (
                     <XStack
                       key={index}

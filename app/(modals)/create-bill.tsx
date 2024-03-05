@@ -1,18 +1,17 @@
 import { supabase } from "@/lib/supabase";
-import { Redirect, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useToastController } from "@tamagui/toast";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Button,
   Form,
-  H2,
   H4,
   Input,
   Spinner,
-  Text,
+  View,
   XStack,
   YStack,
 } from "tamagui";
-import { useRouter } from "expo-router";
 
 const ModalScreen = () => {
   const router = useRouter();
@@ -21,6 +20,7 @@ const ModalScreen = () => {
     "off"
   );
   const [name, setName] = useState("");
+  const [billCreatedSuccess, setBillCreatedSuccess] = useState("false");
 
   const onCreateBill = async () => {
     console.log("User id: ", id);
@@ -40,7 +40,12 @@ const ModalScreen = () => {
 
     if (data) {
       console.log("Navigate to homepage");
-      router.replace(`/(homepage)/${id}`);
+      setBillCreatedSuccess("true");
+      console.log("BOOL", billCreatedSuccess);
+      router.replace({
+        pathname: `/(homepage)/${id}`,
+        params: { billCreatedSuccess: "true" }, // Add userId to params
+      });
     } else {
       console.error("Error creating bill: ", error);
     }
@@ -50,50 +55,44 @@ const ModalScreen = () => {
     router.back();
   };
 
-  useEffect(() => {
-    if (status === "submitting") {
-      const timer = setTimeout(() => setStatus("off"));
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [status]);
   return (
-    <Form
-      alignItems="center"
-      minWidth={300}
-      gap="$2"
-      onSubmit={onCreateBill}
-      backgroundColor="$background"
-      borderColor="$borderColor"
-      padding="$8"
-      height="100%"
-    >
-      <YStack>
-        <XStack>
-          <H4>Create Bill</H4>
-        </XStack>
-        <XStack alignItems="center" space="$2">
-          <Input
-            flex={1}
-            size={3}
-            placeholder="Name of Bill"
-            value={name}
-            onChangeText={setName}
-          />
-        </XStack>
-        <XStack justifyContent="space-between">
-          <Form.Trigger asChild disabled={status !== "off"}>
-            <Button
-              icon={status === "submitting" ? () => <Spinner /> : undefined}
-            >
-              Submit
-            </Button>
-          </Form.Trigger>
-          <Button onPress={handleCloseModal}>Cancel</Button>
-        </XStack>
-      </YStack>
-    </Form>
+    <View>
+      <Form
+        alignItems="center"
+        minWidth={300}
+        gap="$2"
+        onSubmit={onCreateBill}
+        backgroundColor="$background"
+        borderColor="$borderColor"
+        padding="$8"
+        height="100%"
+      >
+        <YStack>
+          <XStack>
+            <H4>Create Bill</H4>
+          </XStack>
+          <XStack alignItems="center" space="$2">
+            <Input
+              flex={1}
+              size={3}
+              placeholder="Name of Bill"
+              value={name}
+              onChangeText={setName}
+            />
+          </XStack>
+          <XStack justifyContent="space-between">
+            <Form.Trigger asChild disabled={status !== "off"}>
+              <Button
+                icon={status === "submitting" ? () => <Spinner /> : undefined}
+              >
+                Submit
+              </Button>
+            </Form.Trigger>
+            <Button onPress={handleCloseModal}>Cancel</Button>
+          </XStack>
+        </YStack>
+      </Form>
+    </View>
   );
 };
 
