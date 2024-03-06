@@ -1,23 +1,9 @@
-import {
-  Avatar,
-  Button,
-  ListItem,
-  ScrollView,
-  Theme,
-  XStack,
-  YStack,
-} from "tamagui";
+import { Avatar, Button, XStack, YStack } from "tamagui";
 
-import BillCard from "@/components/homepage/bill-card";
+import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/my-bill/transactions/join-bill";
 import { getBillsForUserId } from "@/lib/api";
 import { BillData } from "@/types/global";
-import { Link, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { Separator, View, Text } from "tamagui";
-import { Dimensions } from "react-native";
-import HomepageTabs from "@/components/homepage/homepage-tabs";
-import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import {
   Toast,
   ToastProvider,
@@ -25,10 +11,14 @@ import {
   useToastController,
   useToastState,
 } from "@tamagui/toast";
-import { ToastDemo } from "../pages/toast-demo";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import React from "react";
+import { Link, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { Dimensions } from "react-native";
+import { Text, View } from "tamagui";
+
 import { useRoute } from "@react-navigation/native";
+import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Home = () => {
   const { id, billCreatedSuccess } = useLocalSearchParams();
@@ -57,14 +47,6 @@ const Home = () => {
     }
     console.log("PARAM", billCreatedSuccess, id, params);
   }, [id]);
-
-  // useEffect(() => {
-  //   setOpen(false);
-  //   window.clearTimeout(timerRef.current);
-  //   timerRef.current = window.setTimeout(() => {
-  //     setOpen(true);
-  //   }, 150);
-  // }, [id]);
 
   return (
     <ToastProvider>
