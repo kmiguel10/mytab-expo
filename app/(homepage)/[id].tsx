@@ -1,52 +1,64 @@
-import { Avatar, Button, XStack, YStack } from "tamagui";
+import { Avatar, XStack, YStack } from "tamagui";
 
+import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
-import JoinBill from "@/components/my-bill/transactions/join-bill";
+import JoinBill from "@/components/homepage/join-bill";
 import { getBillsForUserId } from "@/lib/api";
 import { BillData } from "@/types/global";
-import {
-  Toast,
-  ToastProvider,
-  ToastViewport,
-  useToastController,
-  useToastState,
-} from "@tamagui/toast";
-import { Link, useLocalSearchParams } from "expo-router";
+import { Toast, ToastProvider, ToastViewport } from "@tamagui/toast";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { Text, View } from "tamagui";
 
-import { useRoute } from "@react-navigation/native";
 import React from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { id, billCreatedSuccess } = useLocalSearchParams();
+  const { id, newBillId, joinedBillCode } = useLocalSearchParams();
   const [bills, setBills] = useState<BillData[]>([]);
-
-  const windowHeight = Dimensions.get("window").height;
-  const windowWidth = Dimensions.get("window").width;
-  const toast = useToastController();
-  const { left, top, right } = useSafeAreaInsets();
+  const [newBill, setNewBill] = useState<BillData | null>(null);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
-  const timerRef = React.useRef(0);
-  const currentToast = useToastState();
-  const route = useRoute();
-  const { params } = useRoute();
 
   useEffect(() => {
     async function fetchBills() {
-      if (id) {
-        const billsData = await getBillsForUserId(id.toString());
-        setBills(billsData);
+      if (!id) return;
+
+      const billsData = await getBillsForUserId(id.toString());
+      setBills(billsData);
+
+      if (newBillId || joinedBillCode) {
+        let newBill: BillData = {
+          memberid: "",
+          userid: "",
+          billid: 0,
+          billcode: "",
+          ownerid: "",
+          name: "",
+          createdAt: new Date(),
+          isDeleted: false,
+          isSettled: false,
+          amount: 0,
+        };
+        if (newBillId) {
+          newBill = billsData?.find(
+            (bill) => bill?.billid === parseInt(newBillId.toString())
+          );
+        } else {
+          newBill = billsData?.find(
+            (bill) => bill?.billid === parseInt(joinedBillCode.toString())
+          );
+        }
+
+        if (newBill) {
+          setNewBill(newBill);
+          setOpen(true);
+        }
       }
     }
+
     fetchBills();
-    if (billCreatedSuccess === "true") {
-      setOpen(true);
-    }
-    console.log("PARAM", billCreatedSuccess, id, params);
-  }, [id]);
+  }, [id, newBillId, joinedBillCode]);
 
   return (
     <ToastProvider>
@@ -77,7 +89,6 @@ const Home = () => {
           <Text>User id: {id.slice(0, 5)}</Text>
         </YStack>
         <XStack height={windowHeight * 0.63} backgroundColor={"purple"}>
-          {/* <HomepageTabs bills={bills} userId={id.toString()} /> */}
           <TabsAdvancedUnderline
             bills={bills}
             userId={id.toString()}
@@ -96,7 +107,8 @@ const Home = () => {
           opacity={4}
         >
           <JoinBill />
-          <Link
+          <CreateBill />
+          {/* <Link
             href={{
               pathname: "/(modals)/create-bill",
               params: {
@@ -106,8 +118,8 @@ const Home = () => {
             asChild
           >
             <Button>Create</Button>
-          </Link>
-          <Button
+          </Link> */}
+          {/* <Button
             onPress={() => {
               setOpen(false);
               window.clearTimeout(timerRef.current);
@@ -117,26 +129,51 @@ const Home = () => {
             }}
           >
             Single Toast
-          </Button>
+          </Button> */}
 
-          {billCreatedSuccess && (
-            <XStack width={"400"}>
-              <Toast
-                onOpenChange={setOpen}
-                open={open}
-                animation="100ms"
-                enterStyle={{ x: -20, opacity: 0 }}
-                exitStyle={{ x: -20, opacity: 0 }}
-                opacity={1}
-                x={0}
-                backgroundColor={"$green10"}
-              >
-                <Toast.Title>Bill Successfully Created</Toast.Title>
-                {/* <Toast.Description>
-              We'll be in touch. {billCreatedSuccess}
-            </Toast.Description> */}
-              </Toast>
-            </XStack>
+          {newBillId && (
+            <Toast
+              onOpenChange={setOpen}
+              open={open}
+              animation="100ms"
+              enterStyle={{ x: -20, opacity: 0 }}
+              exitStyle={{ x: -20, opacity: 0 }}
+              opacity={1}
+              x={0}
+              backgroundColor={"$green8"}
+              height={"400"}
+              width={"80%"}
+              justifyContent="center"
+            >
+              <Toast.Title alignItems="center">
+                Successfully created {newBill?.name} Bill
+              </Toast.Title>
+              <Toast.Description>
+                Share Bill Code to your friends: {newBill?.billcode}
+              </Toast.Description>
+            </Toast>
+          )}
+          {joinedBillCode && (
+            <Toast
+              onOpenChange={setOpen}
+              open={open}
+              animation="100ms"
+              enterStyle={{ x: -20, opacity: 0 }}
+              exitStyle={{ x: -20, opacity: 0 }}
+              opacity={1}
+              x={0}
+              backgroundColor={"$green8"}
+              height={"400"}
+              width={"80%"}
+              justifyContent="center"
+            >
+              <Toast.Title alignItems="center">
+                You joined " {newBill?.name} "
+              </Toast.Title>
+              <Toast.Description>
+                Share Bill Code to your friends: {newBill?.billcode}
+              </Toast.Description>
+            </Toast>
           )}
         </XStack>
       </View>

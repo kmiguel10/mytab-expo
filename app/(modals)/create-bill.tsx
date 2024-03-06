@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useToastController } from "@tamagui/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
+import { BillData } from "@/types/global";
 import {
   Button,
   Form,
@@ -20,14 +21,13 @@ const ModalScreen = () => {
     "off"
   );
   const [name, setName] = useState("");
-  const [billCreatedSuccess, setBillCreatedSuccess] = useState("false");
+  const [newBill, setNewBill] = useState<BillData | null>(null);
 
   const onCreateBill = async () => {
-    console.log("User id: ", id);
-
     if (!name) {
       console.error("Error: Name cannot be null");
       return; // Exit the function if name is null
+      //change variant of input component here to error
     }
 
     const { data, error } = await supabase
@@ -38,16 +38,19 @@ const ModalScreen = () => {
     console.log("DATA", data);
     console.log("Error", error);
 
-    if (data) {
+    if (data && data.length > 0) {
       console.log("Navigate to homepage");
-      setBillCreatedSuccess("true");
-      console.log("BOOL", billCreatedSuccess);
+      const newBillData: BillData = data[0] as BillData;
+      setNewBill(newBillData);
+      console.log("BOOL", newBill);
+      console.log("Bill Created: ", data);
       router.replace({
         pathname: `/(homepage)/${id}`,
-        params: { billCreatedSuccess: "true" }, // Add userId to params
+        params: { newBillId: newBill?.billid ?? "" }, // Add userId to params
       });
     } else {
       console.error("Error creating bill: ", error);
+      //display error here , or just create a , there is an error toast
     }
   };
 
