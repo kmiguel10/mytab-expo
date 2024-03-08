@@ -1,3 +1,5 @@
+import React from "react";
+import { SummaryInfo, Transaction } from "@/types/global";
 import { BillData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -15,18 +17,25 @@ import {
   XStack,
   YStack,
   styled,
+  Text,
 } from "tamagui";
-import BillCard from "./bill-card";
+import TransactionInfoCard from "../transactions/transaction-info-card";
+import Summary from "../summary/summary";
+import MyTab from "./MyTab";
 
 interface Props {
-  bills: BillData[];
+  transactions: Transaction[];
+  summaryInfo: SummaryInfo[];
+  billId: number;
   userId: string;
   height: number;
   width: number;
 }
 
-export const TabsAdvancedUnderline: React.FC<Props> = ({
-  bills,
+const UnderlinedTabs: React.FC<Props> = ({
+  transactions,
+  summaryInfo,
+  billId,
   userId,
   height,
   width,
@@ -48,7 +57,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
   }>({
     activeAt: null,
 
-    currentTab: "active",
+    currentTab: "Transactions",
 
     intentAt: null,
 
@@ -93,7 +102,6 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
-
   return (
     <Tabs
       value={currentTab}
@@ -105,7 +113,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       activationMode="manual"
       backgroundColor="white"
     >
-      <YStack width={width}>
+      <XStack width={width}>
         <AnimatePresence>
           {intentAt && (
             <TabsRovingIndicator
@@ -116,7 +124,6 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             />
           )}
         </AnimatePresence>
-
         <AnimatePresence>
           {activeAt && (
             <TabsRovingIndicator
@@ -146,23 +153,32 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             unstyled
             paddingHorizontal="$3"
             paddingVertical="$2"
-            value="active"
+            value="Transactions"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Active</SizableText>
+            <SizableText>Transaction</SizableText>
           </Tabs.Tab>
 
           <Tabs.Tab
             unstyled
             paddingHorizontal="$3"
             paddingVertical="$2"
-            value="inactive"
+            value="Summary"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Inactive</SizableText>
+            <SizableText>Summary</SizableText>
+          </Tabs.Tab>
+          <Tabs.Tab
+            unstyled
+            paddingHorizontal="$3"
+            paddingVertical="$2"
+            value="My Tab"
+            onInteraction={handleOnInteraction}
+          >
+            <SizableText>My Tab</SizableText>
           </Tabs.Tab>
         </Tabs.List>
-      </YStack>
+      </XStack>
       <AnimatePresence
         exitBeforeEnter
         enterVariant={enterVariant}
@@ -176,50 +192,28 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           flex={1}
         >
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
-            <View>
-              {currentTab === "active" ? (
-                <ScrollView backgroundColor={"whitesmoke"} height={height}>
-                  {bills.map((item, index) => (
-                    <XStack
-                      key={index}
-                      backgroundColor="transparent"
-                      justifyContent="center"
-                      padding="$1.5"
-                    >
-                      <Link
-                        href={{
-                          pathname: `/(bill)/mybill/${item.billid}`,
-                          params: { userId: userId },
-                        }}
-                        asChild
-                      >
-                        <BillCard
-                          animation="bouncy"
-                          size="$3"
-                          width={360}
-                          height={110}
-                          scale={0.9}
-                          hoverStyle={{ scale: 0.925 }}
-                          pressStyle={{ scale: 0.875 }}
-                          bill={item}
-                          membership={
-                            item.ownerid === userId ? "Owner" : "Member"
-                          }
-                        />
-                      </Link>
-                    </XStack>
-                  ))}
-                </ScrollView>
-              ) : (
-                <H6> "Inactive Test This"</H6>
-              )}
-            </View>
+            {currentTab === "Transactions" && (
+              <TransactionInfoCard transactions={transactions} />
+            )}
+            {currentTab === "Summary" && (
+              <View>
+                <Summary summaryInfo={summaryInfo} />
+              </View>
+            )}
+            {currentTab === "My Tab" && (
+              <View>
+                <MyTab userId={userId} billId={billId} />
+              </View>
+            )}
           </Tabs.Content>
         </AnimatedYStack>
       </AnimatePresence>
     </Tabs>
   );
 };
+
+export default UnderlinedTabs;
+
 const TabsRovingIndicator = ({
   active,
   ...props

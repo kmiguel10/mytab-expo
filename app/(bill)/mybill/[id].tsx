@@ -1,3 +1,4 @@
+import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
 import BillTabs from "@/components/my-bill/transactions/bill-tabs";
 import {
@@ -91,11 +92,19 @@ const Page = () => {
       </XStack>
 
       <XStack height={windowHeight * 0.62}>
-        <BillTabs
+        {/* <BillTabs
           transactions={transactions}
           summaryInfo={summaryInfo}
           billId={Number(id)}
           userId={userId?.toString()}
+        /> */}
+        <UnderlinedTabs
+          transactions={transactions}
+          summaryInfo={summaryInfo}
+          billId={Number(id)}
+          userId={userId?.toString()}
+          height={800}
+          width={400}
         />
       </XStack>
 
