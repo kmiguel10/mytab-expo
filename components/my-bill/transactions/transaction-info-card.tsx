@@ -11,27 +11,41 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
   const windowWidth = Dimensions.get("window").width;
   return (
     <ScrollView>
-      <XStack flex={1} flexWrap="wrap" space="$1">
+      <XStack
+        flex={1}
+        flexWrap="wrap"
+        space="$1"
+        backgroundColor={"whitesmoke"}
+        width={windowWidth}
+        justifyContent="center"
+      >
         {transactions.map((txn, index) => (
-          <Card
-            elevate
-            size="$4"
-            bordered
-            key={index}
-            height={100}
-            width={windowWidth * 0.5}
-            {...props}
+          <XStack
+            padding="$1"
+            backgroundColor={"whitesmoke"}
+            width={windowWidth * 0.49}
+            justifyContent="center"
           >
-            <Card.Header padded>
-              <XStack justifyContent="space-between">
-                <H6>{txn.name}</H6>
-                <H6>${txn.amount}</H6>
-              </XStack>
-            </Card.Header>
-            <Card.Footer padded>
-              <Text>Paid By: {txn.payerid?.slice(0, 5)}</Text>
-            </Card.Footer>
-          </Card>
+            <Card
+              elevate
+              size="$4"
+              bordered
+              key={index}
+              height={100}
+              width={windowWidth * 0.48}
+              {...props}
+            >
+              <Card.Header padded>
+                <XStack justifyContent="space-between">
+                  <H6>{txn.name}</H6>
+                  <H6>${txn.amount}</H6>
+                </XStack>
+              </Card.Header>
+              <Card.Footer padded>
+                <Text>Paid By: {txn.payerid?.slice(0, 5)}</Text>
+              </Card.Footer>
+            </Card>
+          </XStack>
         ))}
       </XStack>
     </ScrollView>

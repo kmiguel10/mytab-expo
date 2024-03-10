@@ -17,7 +17,6 @@ import {
   XStack,
   YStack,
   styled,
-  Text,
 } from "tamagui";
 import TransactionInfoCard from "../transactions/transaction-info-card";
 import Summary from "../summary/summary";
@@ -98,6 +97,7 @@ const UnderlinedTabs: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
+
   return (
     <Tabs
       value={currentTab}
@@ -105,11 +105,12 @@ const UnderlinedTabs: React.FC<Props> = ({
       orientation="horizontal"
       size="$4"
       height={height}
+      width={width}
       flexDirection="column"
       activationMode="manual"
       backgroundColor="white"
     >
-      <XStack width={width}>
+      <XStack>
         <AnimatePresence>
           {intentAt && (
             <TabsRovingIndicator

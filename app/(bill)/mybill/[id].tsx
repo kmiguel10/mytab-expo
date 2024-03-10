@@ -15,13 +15,12 @@ import { Dimensions } from "react-native";
 import { Button, XStack, useWindowDimensions, View } from "tamagui";
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
-  const { height } = useWindowDimensions();
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
-  const windowHeight = Dimensions.get("window").height;
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   /** fetch summary info */
   useEffect(() => {
     async function fetchSummaryInfo() {
@@ -72,6 +71,7 @@ const Page = () => {
       }
     }
     fetchMyTabInfo();
+    console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
   return (
     <View backgroundColor={"white"}>
@@ -82,7 +82,7 @@ const Page = () => {
           billInfo={billInfo}
         />
       </XStack>
-      <XStack height={windowHeight * 0.62}>
+      <XStack height={windowHeight * 0.63}>
         {/* <BillTabs
           transactions={transactions}
           summaryInfo={summaryInfo}
@@ -94,12 +94,20 @@ const Page = () => {
           summaryInfo={summaryInfo}
           billId={Number(id)}
           userId={userId?.toString()}
-          height={800}
-          width={400}
+          height={windowHeight * 0.63}
+          width={windowWidth}
         />
       </XStack>
 
-      <XStack alignContent="flex-end">
+      <XStack
+        alignContent="flex-end"
+        backgroundColor={"$gray2Light"}
+        height={"20%"}
+        paddingLeft="$4"
+        paddingRight="$4"
+        paddingTop="$3"
+        opacity={4}
+      >
         <XStack flex={1} />
         <Link
           href={{
