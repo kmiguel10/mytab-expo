@@ -1,3 +1,4 @@
+import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
 import BillTabs from "@/components/my-bill/transactions/bill-tabs";
 import {
@@ -12,18 +13,15 @@ import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Dimensions } from "react-native";
 import { Button, XStack, useWindowDimensions, View } from "tamagui";
-
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
   const { height } = useWindowDimensions();
-
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const windowHeight = Dimensions.get("window").height;
-
   /** fetch summary info */
   useEffect(() => {
     async function fetchSummaryInfo() {
@@ -35,7 +33,6 @@ const Page = () => {
     fetchSummaryInfo();
     console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id]);
-
   /**Fetch members of the bill */
   useEffect(() => {
     async function fetchMembers() {
@@ -46,7 +43,6 @@ const Page = () => {
     }
     fetchMembers();
   }, [id]);
-
   useEffect(() => {
     async function fetchTransactions() {
       if (userId) {
@@ -58,7 +54,6 @@ const Page = () => {
     }
     fetchTransactions();
   }, [userId]);
-
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -69,7 +64,6 @@ const Page = () => {
     }
     fetchBillInfo();
   }, [id]);
-
   useEffect(() => {
     async function fetchMyTabInfo() {
       if (userId) {
@@ -79,7 +73,6 @@ const Page = () => {
     }
     fetchMyTabInfo();
   }, [userId, id]);
-
   return (
     <View backgroundColor={"white"}>
       <XStack height={windowHeight * 0.15} backgroundColor={"white"}>
@@ -89,13 +82,20 @@ const Page = () => {
           billInfo={billInfo}
         />
       </XStack>
-
       <XStack height={windowHeight * 0.62}>
-        <BillTabs
+        {/* <BillTabs
           transactions={transactions}
           summaryInfo={summaryInfo}
           billId={Number(id)}
           userId={userId?.toString()}
+        /> */}
+        <UnderlinedTabs
+          transactions={transactions}
+          summaryInfo={summaryInfo}
+          billId={Number(id)}
+          userId={userId?.toString()}
+          height={800}
+          width={400}
         />
       </XStack>
 
@@ -118,5 +118,4 @@ const Page = () => {
     </View>
   );
 };
-
 export default Page;
