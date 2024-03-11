@@ -11,9 +11,7 @@ const MemberCards: React.FC<Props> = ({ members, ...props }) => {
   return (
     <ScrollView>
       <XStack
-        flex={1}
         flexWrap="wrap"
-        space="$1"
         backgroundColor={"whitesmoke"}
         width={windowWidth}
         justifyContent="center"

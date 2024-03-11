@@ -204,7 +204,12 @@ const UnderlinedTabs: React.FC<Props> = ({
               />
             )}
             {currentTab === "My Tab" && (
-              <MyTab userId={userId} billId={billId} />
+              <MyTab
+                userId={userId}
+                billId={billId}
+                tabSectionHeight={height}
+                tabSectionWidth={width}
+              />
             )}
           </Tabs.Content>
         </AnimatedYStack>

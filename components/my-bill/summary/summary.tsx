@@ -31,8 +31,8 @@ const Summary: React.FC<Props> = ({
 
   return (
     <View>
-      <YStack justifyContent="center" padding="$2">
-        <View>
+      <YStack justifyContent="center">
+        <View padding="$2">
           <SummaryChart
             members={summaryInfo}
             scaledHeight={chartHeight}

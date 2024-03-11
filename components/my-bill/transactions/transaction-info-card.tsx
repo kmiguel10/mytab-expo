@@ -48,6 +48,15 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
             </Card>
           </XStack>
         ))}
+        {/** Creates an extra card to even out spacing */}
+        {transactions.length % 2 !== 0 && (
+          <XStack
+            padding="$1"
+            backgroundColor={"whitesmoke"}
+            width={windowWidth * 0.49}
+            justifyContent="center"
+          ></XStack>
+        )}
       </XStack>
     </ScrollView>
   );

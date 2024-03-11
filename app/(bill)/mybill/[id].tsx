@@ -1,6 +1,5 @@
 import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
-import BillTabs from "@/components/my-bill/transactions/bill-tabs";
 import {
   getBillInfo,
   getBillSummaryInfo,
@@ -11,8 +10,7 @@ import {
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
-import { Button, XStack, useWindowDimensions, View } from "tamagui";
+import { Button, View, XStack, useWindowDimensions } from "tamagui";
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
@@ -102,12 +100,13 @@ const Page = () => {
 
       <XStack
         alignContent="flex-end"
-        backgroundColor={"$gray2Light"}
+        // backgroundColor={"$gray2Light"}
         height={"20%"}
         paddingLeft="$4"
         paddingRight="$4"
         paddingTop="$3"
         opacity={4}
+        backgroundColor={"$red10Light"}
       >
         <XStack flex={1} />
         <Link
