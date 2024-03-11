@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SummaryInfo, Transaction } from "@/types/global";
 import { BillData } from "@/types/global";
 import { Link } from "expo-router";
@@ -97,6 +97,10 @@ const UnderlinedTabs: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
+  /** UseEffects */
+  useEffect(() => {
+    console.log("Tab section height: ", height);
+  }, []);
 
   return (
     <Tabs
@@ -193,14 +197,14 @@ const UnderlinedTabs: React.FC<Props> = ({
               <TransactionInfoCard transactions={transactions} />
             )}
             {currentTab === "Summary" && (
-              <View>
-                <Summary summaryInfo={summaryInfo} />
-              </View>
+              <Summary
+                summaryInfo={summaryInfo}
+                tabSectionHeight={height}
+                tabSectionWidth={width}
+              />
             )}
             {currentTab === "My Tab" && (
-              <View>
-                <MyTab userId={userId} billId={billId} />
-              </View>
+              <MyTab userId={userId} billId={billId} />
             )}
           </Tabs.Content>
         </AnimatedYStack>

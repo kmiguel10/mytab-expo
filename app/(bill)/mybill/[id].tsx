@@ -21,6 +21,7 @@ const Page = () => {
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
   /** fetch summary info */
   useEffect(() => {
     async function fetchSummaryInfo() {

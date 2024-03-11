@@ -1,29 +1,24 @@
-import { View, Text, Dimensions } from "react-native";
 import React from "react";
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph,
-  StackedBarChart,
-} from "react-native-chart-kit";
+import { BarChart } from "react-native-chart-kit";
 
 interface Props {
   members: { amountPaid: number; txnCount: number; userid: string }[];
+  scaledHeight: number;
+  scaledWidth: number;
 }
 
-const SummaryChart: React.FC<Props> = ({ members }) => {
+const SummaryChart: React.FC<Props> = ({
+  members,
+  scaledHeight,
+  scaledWidth,
+}) => {
   const labelsMembers = members.map((member) => member.userid.slice(0, 4));
   const datasetMembers = members.map((member) => member.amountPaid);
-  const data = {
-    labels: labelsMembers,
-    datasets: datasetMembers,
-  };
+
   return (
     <BarChart
       style={{
-        marginVertical: 8,
+        marginVertical: 3,
         borderRadius: 16,
       }}
       data={{
@@ -34,9 +29,9 @@ const SummaryChart: React.FC<Props> = ({ members }) => {
           },
         ],
       }}
-      width={Dimensions.get("window").width}
-      height={220}
-      yAxisLabel="$"
+      width={scaledWidth}
+      height={scaledHeight}
+      yAxisLabel="$ "
       yAxisSuffix=""
       chartConfig={{
         backgroundColor: "#e26a00",
@@ -54,7 +49,9 @@ const SummaryChart: React.FC<Props> = ({ members }) => {
           stroke: "#ffa726",
         },
       }}
-      verticalLabelRotation={30}
+      verticalLabelRotation={0}
+      fromZero
+      withInnerLines={true}
     />
   );
 };

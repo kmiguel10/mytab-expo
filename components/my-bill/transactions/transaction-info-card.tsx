@@ -25,6 +25,7 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
             backgroundColor={"whitesmoke"}
             width={windowWidth * 0.49}
             justifyContent="center"
+            key={index}
           >
             <Card
               elevate
@@ -49,13 +50,6 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
         ))}
       </XStack>
     </ScrollView>
-
-    // <View>
-    //   <Text>TransactionIndoCard</Text>
-    //   {transactions.map((txn, index) => (
-    //     <Text key={index}>{JSON.stringify(txn)}</Text>
-    //   ))}
-    // </View>
   );
 };
 
