@@ -67,6 +67,10 @@ function RootLayoutNav() {
               options={{ title: "Create Transaction" }}
             />
             {/* <Stack.Screen
+              name="pages/edit-transaction"
+              options={{ title: "Edit Transaction" }}
+            /> */}
+            {/* <Stack.Screen
               name="/(bill)/mybill/"
               options={{ headerShown: false }}
             /> */}

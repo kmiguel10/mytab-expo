@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { SummaryInfo, Transaction } from "@/types/global";
+import { Member, SummaryInfo, Transaction } from "@/types/global";
 import { BillData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -29,6 +29,7 @@ interface Props {
   userId: string;
   height: number;
   width: number;
+  members: Member[];
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -38,6 +39,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   userId,
   height,
   width,
+  members,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -197,7 +199,10 @@ const UnderlinedTabs: React.FC<Props> = ({
               paddingTop="$2"
             >
               {currentTab === "Transactions" && (
-                <TransactionInfoCard transactions={transactions} />
+                <TransactionInfoCard
+                  transactions={transactions}
+                  currentUser={userId}
+                />
               )}
               {currentTab === "Summary" && (
                 <Summary

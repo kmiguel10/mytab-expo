@@ -1,26 +1,20 @@
 import { X } from "@tamagui/lucide-icons";
-import { Check as CheckIcon } from "@tamagui/lucide-icons";
 
+import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
+import { useEffect, useState } from "react";
 import {
   Adapt,
   Button,
+  Checkbox,
   Dialog,
   Fieldset,
   Input,
   Label,
-  Paragraph,
   Sheet,
-  TooltipSimple,
+  Text,
   Unspaced,
   XStack,
-  Text,
-  ListItem,
-  Checkbox,
-  CheckboxContext,
 } from "tamagui";
-import { SelectDemoItem } from "./SelectDemo";
-import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
-import { FC, useEffect, useState } from "react";
 
 interface Props {
   memberSplits: MemberSplitAmount[];
@@ -42,15 +36,6 @@ const CustomSplit: React.FC<Props> = ({
   //set up the list item...
 
   const initializeSelectedSplits = () => {
-    // const newSelectedSplits: SelectedMemberSplitAmount[] = memberSplits.map(
-    //   (member) => ({
-    //     isIncluded: true,
-    //     memberId: member.memberId,
-    //     amount: 0,
-    //   })
-    // );
-
-    // setSelectedMembers(newSelectedSplits);
     setSelectedMembers(includedMembers);
 
     console.log(
@@ -180,26 +165,6 @@ const CustomSplit: React.FC<Props> = ({
               </XStack>
             </Fieldset>
           ))}
-          {/* <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Name
-            </Label>
-
-            <Input flex={1} id="name" defaultValue="Nate Wienert" />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="username">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Food</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <SelectDemoItem />
-          </Fieldset> */}
           <XStack alignSelf="flex-end" gap="$4">
             {/* <DialogInstance /> */}
             <Dialog.Close displayWhenAdapted asChild>

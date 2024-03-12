@@ -5,7 +5,7 @@ import {
   getBillSummaryInfo,
   getMembers,
   getMyTabInfo,
-  getTransactions,
+  getActiveTransactions,
 } from "@/lib/api";
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
@@ -44,7 +44,7 @@ const Page = () => {
   useEffect(() => {
     async function fetchTransactions() {
       if (userId) {
-        const transactionData: Transaction[] = await getTransactions(
+        const transactionData: Transaction[] = await getActiveTransactions(
           id.toString()
         );
         setTransactions(transactionData);
@@ -95,6 +95,7 @@ const Page = () => {
             userId={userId?.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
+            members={members}
           />
         </YStack>
       </YStack>
@@ -114,7 +115,6 @@ const Page = () => {
             params: {
               billId: id,
               userId: userId?.toString(),
-              members: members,
             },
           }}
           asChild

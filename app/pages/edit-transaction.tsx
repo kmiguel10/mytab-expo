@@ -1,7 +1,7 @@
 import CustomSplit from "@/components/create-transaction/custom-split";
 import MembersDropdown from "@/components/create-transaction/members-dropdown";
 import SplitView from "@/components/create-transaction/split-view";
-import { getMembers } from "@/lib/api";
+import { getCurrentTransaction, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -11,42 +11,40 @@ import {
   Button,
   Fieldset,
   Form,
-  H4,
   Input,
   Label,
   Paragraph,
-  ScrollView,
-  Separator,
-  Switch,
   TooltipSimple,
   XStack,
-  YStack,
 } from "tamagui";
 interface Member {
   userid: string;
+  members: Member[];
   // Add other properties if necessary
 }
 
 interface CreateTransaction {
   billId: any;
-  userId: any;
+  currentUser: string;
   members: Member[]; // Ensure correct type for members
 }
 
-export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
+export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
+    id: "",
     submittedbyid: "",
-    payerid: null,
+    payerid: "",
     amount: 0,
     name: "",
     notes: null,
     split: [],
     isdeleted: false,
   });
+  // const [transaction, setTransaction] = useState<Transaction | null>(null);
   const router = useRouter();
 
-  const { billId, userId } = useLocalSearchParams();
+  const { txnId, currentUser, billId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
@@ -81,13 +79,19 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     }));
   };
 
-  const onCreateTxn = async () => {
-    let _userId = userId.toString();
+  const onEditTxn = async () => {
+    let _userId = currentUser.toString();
     transaction.submittedbyid = _userId;
-    transaction.billid = Number(billId);
+    transaction.billid = parseInt(billId.toString());
+    // const { data, error } = await supabase
+    //   .from("transactions")
+    //   .insert([transaction])
+    //   .select();
+
     const { data, error } = await supabase
       .from("transactions")
-      .insert([transaction])
+      .update([transaction])
+      .eq("id", txnId)
       .select();
 
     if (error) {
@@ -103,11 +107,32 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     }
   };
 
-  const fetchData = async () => {
-    if (billId) {
-      const membersData = await getMembers(Number(billId));
-      setMembers(membersData);
-      // initializeSplits();
+  /** Soft Delete */
+  const onDeleteTxn = async () => {
+    let _userId = currentUser.toString();
+    transaction.submittedbyid = _userId;
+    transaction.billid = parseInt(billId.toString());
+    // const { data, error } = await supabase
+    //   .from("transactions")
+    //   .insert([transaction])
+    //   .select();
+
+    const { data, error } = await supabase
+      .from("transactions")
+      .update({ isdeleted: true })
+      .eq("id", txnId)
+      .select();
+
+    if (error) {
+      console.log("Transaction: ", transaction);
+      console.error("Error inserting data:", error.message, error.details);
+    } else {
+      console.log("Data inserted successfully:", data);
+      // router.replace(`/(bill)/mybill/${billId}`);
+      router.replace({
+        pathname: `/(bill)/mybill/${billId}`,
+        params: { userId: _userId }, // Add userId to params
+      });
     }
   };
 
@@ -148,19 +173,31 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   useEffect(() => {
-    const fetchDataAndInitializeSplits = async () => {
-      if (billId) {
-        try {
-          const membersData = await getMembers(Number(billId));
-          setMembers(membersData);
-        } catch (error) {
-          console.error("Error fetching members:", error);
-        }
+    console.log("txn id", txnId);
+    async function fetchCurrentTransaction() {
+      if (txnId) {
+        const data = await getCurrentTransaction(txnId.toString());
+        setTransaction(data);
+        console.log("current transaction", data);
       }
-    };
+    }
+    fetchCurrentTransaction();
+  }, [txnId]);
 
-    fetchDataAndInitializeSplits();
-  }, [billId]);
+  // useEffect(() => {
+  //   const fetchDataAndInitializeSplits = async () => {
+  //     if (billId) {
+  //       try {
+  //         const membersData = await getMembers(Number(billId));
+  //         setMembers(membersData);
+  //       } catch (error) {
+  //         console.error("Error fetching members:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchDataAndInitializeSplits();
+  // }, [billId]);
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
     // Filter out selectedMembers with isIncluded as true
@@ -188,6 +225,16 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   useEffect(() => {
+    async function fetchMembers() {
+      if (billId) {
+        const membersData = await getMembers(Number(billId));
+        setMembers(membersData);
+      }
+    }
+    fetchMembers();
+  }, [billId]);
+
+  useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
       initializeSplits();
@@ -197,11 +244,12 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
 
   useEffect(() => {
     console.log("Splits", JSON.stringify(transaction.split));
+    console.log("Current user", currentUser);
   }, [transaction.split]);
 
   return (
     // <ScrollView>
-    <Form onSubmit={onCreateTxn} rowGap="$3" borderRadius="$4" padding="$3">
+    <Form onSubmit={onEditTxn} rowGap="$3" borderRadius="$4" padding="$3">
       <Fieldset gap="$4" horizontal>
         <Label width={160} justifyContent="flex-end" htmlFor="transactionName">
           Transaction Name
@@ -274,7 +322,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         <MembersDropdown
           members={members}
           onPayerChange={handlePayerChange}
-          defaultPayer={userId.toString()}
+          defaultPayer={transaction.payerid || ""}
         />
       </Fieldset>
 
@@ -287,13 +335,14 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
           flex={1}
           id="submittedBy"
           defaultValue=""
-          value={userId.toString()}
+          value={transaction.submittedbyid}
           disabled={true}
         />
       </Fieldset>
       <Form.Trigger asChild>
         <Button>Create</Button>
       </Form.Trigger>
+      <Button onPress={onDeleteTxn}>Delete</Button>
     </Form>
     //   <YStack>
     //     <Text>IsEven: {isEven.toString()}</Text>
@@ -310,4 +359,4 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   );
 };
 
-export default CreateTransactionPage;
+export default EditTransactionPage;

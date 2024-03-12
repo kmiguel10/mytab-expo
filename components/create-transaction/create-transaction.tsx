@@ -1,7 +1,9 @@
 import { X } from "@tamagui/lucide-icons";
 
+import { supabase } from "@/lib/supabase";
+import { Transaction } from "@/types/global";
+import { useState } from "react";
 import {
-  Text,
   Adapt,
   Button,
   Dialog,
@@ -9,21 +11,17 @@ import {
   Input,
   Label,
   Paragraph,
+  ScrollView,
+  Separator,
   Sheet,
+  Switch,
+  Text,
   TooltipSimple,
   Unspaced,
   XStack,
   YStack,
-  Switch,
-  Separator,
-  ScrollView,
 } from "tamagui";
-import { SelectDemoItem } from "./SelectDemo";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import MembersDropdown from "./members-dropdown";
-import { Transaction, MemberSplitAmount } from "@/types/global";
-import CustomSplit from "./custom-split";
 
 interface Member {
   userId: string;
