@@ -15,25 +15,24 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
         flex={1}
         flexWrap="wrap"
         space="$1"
-        backgroundColor={"whitesmoke"}
-        width={windowWidth}
+        backgroundColor={"transparent"}
         justifyContent="center"
       >
         {transactions.map((txn, index) => (
           <XStack
             padding="$1"
-            backgroundColor={"whitesmoke"}
-            width={windowWidth * 0.49}
+            backgroundColor={"transparent"}
             justifyContent="center"
             key={index}
           >
             <Card
               elevate
-              size="$4"
+              size="$3"
               bordered
               key={index}
               height={100}
-              width={windowWidth * 0.48}
+              backgroundColor={"transparent"}
+              width={windowWidth * 0.46}
               {...props}
             >
               <Card.Header padded>
@@ -52,8 +51,8 @@ const TransactionInfoCard: React.FC<Props> = ({ transactions, ...props }) => {
         {transactions.length % 2 !== 0 && (
           <XStack
             padding="$1"
-            backgroundColor={"whitesmoke"}
-            width={windowWidth * 0.49}
+            backgroundColor={"transparent"}
+            width={windowWidth * 0.46}
             justifyContent="center"
           ></XStack>
         )}

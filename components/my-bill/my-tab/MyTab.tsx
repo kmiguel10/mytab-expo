@@ -1,7 +1,6 @@
-import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { getMyTabInfo } from "@/lib/api";
-import { Card, H2, XStack, YStack } from "tamagui";
+import { Card, H2, View, XStack, YStack, Text } from "tamagui";
 import { MyTabInfo, SettleCardInfo } from "@/types/global";
 import { getMyTabHeaderAmounts } from "@/lib/helpers";
 import SettleMemberCard from "./settle-member-card";

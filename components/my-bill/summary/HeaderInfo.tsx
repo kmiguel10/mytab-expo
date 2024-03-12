@@ -30,22 +30,22 @@ const HeaderInfo: React.FC<Props> = ({
     <XStack alignContent="space-between" alignItems="center" gap="$3">
       <YStack width={windowWidth * 0.5} gap="$2">
         <View>
-          <H3>{billInfo[0]?.name}</H3>
           <Text>Bill Name</Text>
+          <H4>{billInfo[0]?.name}</H4>
         </View>
         <View>
-          <MembersView members={members} />
           <Text>Members</Text>
+          <MembersView members={members} />
         </View>
       </YStack>
       <YStack width={windowWidth * 0.5} gap="$2">
         <View>
-          <H4>{totalPaid}</H4>
           <Text>Total Amount</Text>
+          <H4>{totalPaid}</H4>
         </View>
         <View>
+          <Text>Total Count</Text>
           <H4>{txnCount}</H4>
-          <Text>Total Amount</Text>
         </View>
       </YStack>
       {/* <Card elevate size="$4" bordered flex={1} {...props}>

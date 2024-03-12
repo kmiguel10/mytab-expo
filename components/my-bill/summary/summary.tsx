@@ -39,8 +39,12 @@ const Summary: React.FC<Props> = ({
             scaledWidth={chartWidth}
           />
         </View>
-        <View height={memberCardsHeight}>
-          <MemberCards members={summaryInfo} />
+        <View height={memberCardsHeight} justifyContent="center" padding="$2">
+          <MemberCards
+            members={summaryInfo}
+            scaledHeight={chartHeight}
+            scaledWidth={chartWidth}
+          />
         </View>
       </YStack>
     </View>

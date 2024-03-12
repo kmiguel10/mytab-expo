@@ -35,6 +35,7 @@ const SettleMemberCard: React.FC<Props> = ({
           >
             <Card
               elevate
+              shadowColor={"white"}
               size="$3"
               bordered
               key={index}

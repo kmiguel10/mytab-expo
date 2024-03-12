@@ -97,124 +97,128 @@ const UnderlinedTabs: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
-  /** UseEffects */
-  useEffect(() => {
-    console.log("Tab section height: ", height);
-  }, []);
 
   return (
-    <Tabs
-      value={currentTab}
-      onValueChange={setCurrentTab}
-      orientation="horizontal"
-      size="$4"
-      height={height}
-      width={width}
-      flexDirection="column"
-      activationMode="manual"
-      backgroundColor="white"
-    >
-      <XStack>
-        <AnimatePresence>
-          {intentAt && (
-            <TabsRovingIndicator
-              width={intentAt.width}
-              height="$0.5"
-              x={intentAt.x}
-              bottom={0}
-            />
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {activeAt && (
-            <TabsRovingIndicator
-              theme="active"
-              active
-              width={activeAt.width}
-              height="$0.5"
-              x={activeAt.x}
-              bottom={0}
-            />
-          )}
-        </AnimatePresence>
-
-        <Tabs.List
-          disablePassBorderRadius
-          loop={false}
-          aria-label="Manage your account"
-          borderBottomLeftRadius={0}
-          borderBottomRightRadius={0}
-          paddingBottom="$1.5"
-          borderColor="$color3"
-          borderBottomWidth="$0.5"
-          backgroundColor="transparent"
-          paddingLeft="$2"
-        >
-          <Tabs.Tab
-            unstyled
-            paddingHorizontal="$3"
-            paddingVertical="$2"
-            value="Transactions"
-            onInteraction={handleOnInteraction}
-          >
-            <SizableText>Transaction</SizableText>
-          </Tabs.Tab>
-
-          <Tabs.Tab
-            unstyled
-            paddingHorizontal="$3"
-            paddingVertical="$2"
-            value="Summary"
-            onInteraction={handleOnInteraction}
-          >
-            <SizableText>Summary</SizableText>
-          </Tabs.Tab>
-          <Tabs.Tab
-            unstyled
-            paddingHorizontal="$3"
-            paddingVertical="$2"
-            value="My Tab"
-            onInteraction={handleOnInteraction}
-          >
-            <SizableText>My Tab</SizableText>
-          </Tabs.Tab>
-        </Tabs.List>
-      </XStack>
-      <AnimatePresence
-        exitBeforeEnter
-        enterVariant={enterVariant}
-        exitVariant={exitVariant}
+    <View>
+      <Tabs
+        value={currentTab}
+        onValueChange={setCurrentTab}
+        orientation="horizontal"
+        size="$4"
+        height={height}
+        flexDirection="column"
+        activationMode="manual"
+        backgroundColor="white"
+        bordered
+        borderRadius={16}
       >
-        <AnimatedYStack
-          key={currentTab}
-          animation="100ms"
-          x={0}
-          opacity={1}
-          flex={1}
+        <View>
+          <AnimatePresence>
+            {intentAt && (
+              <TabsRovingIndicator
+                width={intentAt.width}
+                height="$0.5"
+                x={intentAt.x}
+                bottom={0}
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {activeAt && (
+              <TabsRovingIndicator
+                theme="active"
+                active
+                width={activeAt.width}
+                height="$0.5"
+                x={activeAt.x}
+                bottom={0}
+              />
+            )}
+          </AnimatePresence>
+
+          <Tabs.List
+            disablePassBorderRadius
+            loop={false}
+            aria-label="Manage your account"
+            borderBottomLeftRadius={0}
+            borderBottomRightRadius={0}
+            paddingBottom="$1.5"
+            borderColor="$color3"
+            borderBottomWidth="$0.5"
+            backgroundColor="transparent"
+            paddingLeft="$2"
+          >
+            <Tabs.Tab
+              unstyled
+              paddingHorizontal="$3"
+              paddingVertical="$2"
+              value="Transactions"
+              onInteraction={handleOnInteraction}
+            >
+              <SizableText>Transactions</SizableText>
+            </Tabs.Tab>
+
+            <Tabs.Tab
+              unstyled
+              paddingHorizontal="$3"
+              paddingVertical="$2"
+              value="Summary"
+              onInteraction={handleOnInteraction}
+            >
+              <SizableText>Summary</SizableText>
+            </Tabs.Tab>
+            <Tabs.Tab
+              unstyled
+              paddingHorizontal="$3"
+              paddingVertical="$2"
+              value="My Tab"
+              onInteraction={handleOnInteraction}
+            >
+              <SizableText>My Tab</SizableText>
+            </Tabs.Tab>
+          </Tabs.List>
+        </View>
+        <AnimatePresence
+          exitBeforeEnter
+          enterVariant={enterVariant}
+          exitVariant={exitVariant}
         >
-          <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
-            {currentTab === "Transactions" && (
-              <TransactionInfoCard transactions={transactions} />
-            )}
-            {currentTab === "Summary" && (
-              <Summary
-                summaryInfo={summaryInfo}
-                tabSectionHeight={height}
-                tabSectionWidth={width}
-              />
-            )}
-            {currentTab === "My Tab" && (
-              <MyTab
-                userId={userId}
-                billId={billId}
-                tabSectionHeight={height}
-                tabSectionWidth={width}
-              />
-            )}
-          </Tabs.Content>
-        </AnimatedYStack>
-      </AnimatePresence>
-    </Tabs>
+          <AnimatedYStack
+            key={currentTab}
+            animation="100ms"
+            x={0}
+            opacity={1}
+            flex={1}
+          >
+            <Tabs.Content
+              value={currentTab}
+              forceMount
+              flex={1}
+              paddingTop="$2"
+            >
+              {currentTab === "Transactions" && (
+                <TransactionInfoCard transactions={transactions} />
+              )}
+              {currentTab === "Summary" && (
+                <Summary
+                  summaryInfo={summaryInfo}
+                  tabSectionHeight={height}
+                  tabSectionWidth={width}
+                />
+              )}
+              {currentTab === "My Tab" && (
+                <MyTab
+                  userId={userId}
+                  billId={billId}
+                  tabSectionHeight={height}
+                  tabSectionWidth={width}
+                />
+              )}
+            </Tabs.Content>
+          </AnimatedYStack>
+        </AnimatePresence>
+      </Tabs>
+    </View>
   );
 };
 

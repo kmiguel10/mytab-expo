@@ -10,7 +10,7 @@ import {
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Button, View, XStack, useWindowDimensions } from "tamagui";
+import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
@@ -73,40 +73,39 @@ const Page = () => {
     console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
   return (
-    <View backgroundColor={"white"}>
-      <XStack height={windowHeight * 0.15} backgroundColor={"white"}>
-        <HeaderInfo
-          members={members}
-          summaryInfo={summaryInfo}
-          billInfo={billInfo}
-        />
-      </XStack>
-      <XStack height={windowHeight * 0.63}>
-        {/* <BillTabs
-          transactions={transactions}
-          summaryInfo={summaryInfo}
-          billId={Number(id)}
-          userId={userId?.toString()}
-        /> */}
-        <UnderlinedTabs
-          transactions={transactions}
-          summaryInfo={summaryInfo}
-          billId={Number(id)}
-          userId={userId?.toString()}
-          height={windowHeight * 0.63}
-          width={windowWidth}
-        />
-      </XStack>
-
+    <View>
+      <YStack backgroundColor={"whitesmoke"} padding="$2" gap="$2">
+        <YStack
+          height={windowHeight * 0.15}
+          backgroundColor={"white"}
+          padding="$2"
+          borderRadius={16}
+        >
+          <HeaderInfo
+            members={members}
+            summaryInfo={summaryInfo}
+            billInfo={billInfo}
+          />
+        </YStack>
+        <YStack height={windowHeight * 0.62} borderRadius={16}>
+          <UnderlinedTabs
+            transactions={transactions}
+            summaryInfo={summaryInfo}
+            billId={Number(id)}
+            userId={userId?.toString()}
+            height={windowHeight * 0.62}
+            width={windowWidth * 0.95}
+          />
+        </YStack>
+      </YStack>
       <XStack
         alignContent="flex-end"
-        // backgroundColor={"$gray2Light"}
-        height={"20%"}
+        backgroundColor={"$gray2Light"}
+        height={windowHeight}
         paddingLeft="$4"
         paddingRight="$4"
         paddingTop="$3"
         opacity={4}
-        backgroundColor={"$red10Light"}
       >
         <XStack flex={1} />
         <Link
