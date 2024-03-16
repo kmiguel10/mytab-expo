@@ -62,7 +62,7 @@ type Split = {
 };
 
 type Transaction = {
-  id?: string;
+  id?: number | null;
   billid: number;
   submittedbyid: string;
   payerid: string | null;

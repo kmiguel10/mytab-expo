@@ -95,6 +95,7 @@ export const getBillSummaryInfo = async (billId: number) => {
         const { data: transactions, error: transactionsError } = await supabase
           .from("transactions")
           .select("amount")
+          .eq("isdeleted", false)
           .eq("billid", billId)
           .eq("payerid", member.userid);
 

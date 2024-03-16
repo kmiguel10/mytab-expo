@@ -32,25 +32,22 @@ interface CreateTransaction {
 export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
-    id: "",
+    id: null,
     submittedbyid: "",
     payerid: "",
     amount: 0,
     name: "",
-    notes: null,
+    notes: "",
     split: [],
     isdeleted: false,
   });
-  // const [transaction, setTransaction] = useState<Transaction | null>(null);
   const router = useRouter();
-
   const { txnId, currentUser, billId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
   >([]);
   const [isEven, setIsEven] = useState(true);
-
   const handleNameChange = (txnName: string) => {
     //setName(txnName);
     // transaction.name = name;
@@ -77,16 +74,13 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       ...prevTransaction,
       amount: numericValue, // Ensure amount is a number
     }));
+    initializeSplits(amount);
   };
 
   const onEditTxn = async () => {
     let _userId = currentUser.toString();
     transaction.submittedbyid = _userId;
     transaction.billid = parseInt(billId.toString());
-    // const { data, error } = await supabase
-    //   .from("transactions")
-    //   .insert([transaction])
-    //   .select();
 
     const { data, error } = await supabase
       .from("transactions")
@@ -95,7 +89,8 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("Transaction: ", transaction);
+      console.log("TxnId: ", txnId);
+      console.log("Transaction: ", transaction, txnId);
       console.error("Error inserting data:", error.message, error.details);
     } else {
       console.log("Data inserted successfully:", data);
@@ -109,21 +104,19 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
 
   /** Soft Delete */
   const onDeleteTxn = async () => {
+    let _txnId = parseInt(txnId.toString());
     let _userId = currentUser.toString();
     transaction.submittedbyid = _userId;
     transaction.billid = parseInt(billId.toString());
-    // const { data, error } = await supabase
-    //   .from("transactions")
-    //   .insert([transaction])
-    //   .select();
 
     const { data, error } = await supabase
       .from("transactions")
       .update({ isdeleted: true })
-      .eq("id", txnId)
+      .eq("id", _txnId.toString())
       .select();
 
     if (error) {
+      console.log("Txn id", _txnId);
       console.log("Transaction: ", transaction);
       console.error("Error inserting data:", error.message, error.details);
     } else {
@@ -136,8 +129,8 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
     }
   };
 
-  const initializeSplits = () => {
-    let amountNum = transaction.amount;
+  const initializeSplits = (amountNum: number) => {
+    //let amountNum = transaction.amount;
     const splitEvenAmount = (_amount: number) => {
       return _amount / members.length;
     };
@@ -177,8 +170,8 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
     async function fetchCurrentTransaction() {
       if (txnId) {
         const data = await getCurrentTransaction(txnId.toString());
-        setTransaction(data);
         console.log("current transaction", data);
+        setTransaction(data);
       }
     }
     fetchCurrentTransaction();
@@ -237,10 +230,10 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
-      initializeSplits();
+      //initializeSplits();
       initiateIncludedMembers();
     }
-  }, [members, transaction.amount]);
+  }, [members]);
 
   useEffect(() => {
     console.log("Splits", JSON.stringify(transaction.split));
@@ -304,8 +297,7 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
           />
         </Fieldset>
       </XStack>
-      <Text>Payer: {transaction.payerid}</Text>
-
+      <Text>Splits: {JSON.stringify(transaction.split)}</Text>
       <SplitView
         memberSplits={transaction.split}
         amount={transaction.amount.toString()}
@@ -339,10 +331,12 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
           disabled={true}
         />
       </Fieldset>
-      <Form.Trigger asChild>
-        <Button>Create</Button>
-      </Form.Trigger>
-      <Button onPress={onDeleteTxn}>Delete</Button>
+      <XStack gap="$3" justifyContent="flex-end">
+        <Form.Trigger asChild>
+          <Button>Submit</Button>
+        </Form.Trigger>
+        <Button onPress={onDeleteTxn}>Delete</Button>
+      </XStack>
     </Form>
     //   <YStack>
     //     <Text>IsEven: {isEven.toString()}</Text>

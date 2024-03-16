@@ -36,7 +36,7 @@ const TransactionInfoCard: React.FC<Props> = ({
               href={{
                 pathname: `/pages/edit-transaction`,
                 params: {
-                  txnId: txn.id,
+                  txnId: txn.id || "",
                   billId: txn.billid,
                   currentUser: currentUser,
                 },
