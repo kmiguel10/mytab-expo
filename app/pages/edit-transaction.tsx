@@ -65,14 +65,14 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
     }));
   };
 
-  const handleAmountChange = (amount: string) => {
+  const handleAmountChange = (amount: number) => {
     // Convert amount to a number
-    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    //const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
 
     // Update transaction state
     setTransaction((prevTransaction) => ({
       ...prevTransaction,
-      amount: numericValue, // Ensure amount is a number
+      amount: amount, // Ensure amount is a number
     }));
     initializeSplits(amount);
   };
@@ -290,7 +290,7 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
         <Fieldset alignContent="flex-end">
           <CustomSplit
             memberSplits={transaction.split}
-            amount={transaction.amount.toString()}
+            amount={transaction.amount}
             onSaveSplits={handleSaveSplits}
             setIsEven={setIsEven}
             includedMembers={includedMembers}

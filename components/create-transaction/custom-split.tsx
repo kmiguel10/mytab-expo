@@ -19,7 +19,7 @@ import {
 interface Props {
   memberSplits: MemberSplitAmount[];
   onSaveSplits: (selectedMembers: SelectedMemberSplitAmount[]) => void;
-  amount: string;
+  amount: number;
   setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
   includedMembers: SelectedMemberSplitAmount[];
 }
@@ -33,7 +33,8 @@ const CustomSplit: React.FC<Props> = ({
 }) => {
   const [selectedMembers, setSelectedMembers] =
     useState<SelectedMemberSplitAmount[]>();
-  //set up the list item...
+  const [splitAmount, setSplitAmount] = useState(0);
+  const [sumAmount, setSumAmount] = useState(0);
 
   const initializeSelectedSplits = () => {
     setSelectedMembers(includedMembers);
@@ -44,21 +45,37 @@ const CustomSplit: React.FC<Props> = ({
     );
   };
 
-  const handleAmountChange = (memberId: string, newAmount: string) => {
+  const handleAmountChange = (memberId: string, newAmount: number) => {
     setSelectedMembers((prevSelectedMembers) => {
       return prevSelectedMembers?.map((member) => {
         if (member.memberId === memberId) {
           return {
             ...member,
-            amount: parseFloat(newAmount),
+            amount: newAmount,
           };
         }
+        //set sumAmount to the total sum of amount of selectedMembers
         return member;
       });
     });
   };
 
+  const calculateSumAmount = () => {
+    let sum: number = 0;
+    selectedMembers?.forEach((member) => {
+      if (member.isIncluded) {
+        sum += parseInt(member.amount.toString());
+        console.log("SUM", sum);
+      }
+    });
+    setSumAmount(parseInt(sum.toString()));
+  };
+
   const handleSaveChanges = () => {
+    if (splitAmount != sumAmount) {
+      console.error("Amount is not enough", splitAmount - sumAmount);
+      return;
+    }
     if (selectedMembers) {
       onSaveSplits(selectedMembers);
       setIsEven(false);
@@ -67,12 +84,34 @@ const CustomSplit: React.FC<Props> = ({
 
   const handleCheckboxChange = (memberId: string) => {
     setSelectedMembers((prevSelectedMembers) =>
-      prevSelectedMembers?.map((member) =>
-        member.memberId === memberId
-          ? { ...member, isIncluded: !member.isIncluded }
-          : member
-      )
+      prevSelectedMembers?.map((member) => {
+        if (member.memberId === memberId) {
+          // Deduct amount if member is included, otherwise add amount back
+          const amountToDeduct = member.isIncluded ? member.amount : 0;
+          setSumAmount((prevSum) => prevSum - amountToDeduct);
+          return { ...member, isIncluded: !member.isIncluded, amount: 0 };
+        }
+        return member;
+      })
     );
+  };
+
+  //Sets the split evenly
+  const onEvenClick = () => {
+    const splitEvenAmount = (totalAmount: number, memberCount: number) => {
+      return totalAmount / memberCount;
+    };
+
+    const includedMemberCount = includedMembers.length;
+    const evenSplitAmount = splitEvenAmount(amount, includedMemberCount);
+
+    const newSelectedMembers = includedMembers.map((member) => ({
+      ...member,
+      amount: evenSplitAmount,
+    }));
+    setSumAmount(evenSplitAmount * includedMemberCount);
+
+    setSelectedMembers(newSelectedMembers);
   };
 
   //on save assign those checked to the transactions.split on the parent component
@@ -81,16 +120,19 @@ const CustomSplit: React.FC<Props> = ({
     console.log("Amount: ", amount);
     console.log("member splits: ", JSON.stringify(memberSplits));
     initializeSelectedSplits();
+    setSplitAmount(amount);
   }, [memberSplits]);
+
+  useEffect(() => {
+    calculateSumAmount();
+  }, [selectedMembers]);
+
   return (
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
-        {/* <XStack>
-          <XStack flex={2} /> */}
         <Button width="80%" variant="outlined" theme="active">
           Split
         </Button>
-        {/* </XStack> */}
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
         <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>
@@ -131,15 +173,16 @@ const CustomSplit: React.FC<Props> = ({
           gap="$4"
         >
           <Dialog.Title>Amount: {amount}</Dialog.Title>
-
           <Dialog.Description>
-            Make changes to your profile here. Click save when you're done.
+            Remaining split ampount: {splitAmount}
           </Dialog.Description>
+          <Dialog.Description>
+            Sum split ampount: {sumAmount}
+          </Dialog.Description>
+          <Dialog.Description>Split the amount</Dialog.Description>
           {selectedMembers?.map((selectedMembers, index) => (
-            // <Text key={index}>{JSON.stringify(selectedMembers)}</Text>
             <Fieldset gap="$1" horizontal key={index}>
-              {/* <Text key={index}>{JSON.stringify(selectedMembers)}</Text> */}
-              <XStack>
+              <XStack justifyContent="space-between">
                 <Checkbox
                   checked={selectedMembers.isIncluded}
                   onCheckedChange={() =>
@@ -151,29 +194,32 @@ const CustomSplit: React.FC<Props> = ({
                   </Checkbox.Indicator>
                 </Checkbox>
                 <Label width={160} justifyContent="flex-end" htmlFor="name">
-                  {selectedMembers.memberId}
+                  {selectedMembers.memberId.slice(0, 5)}
                 </Label>
                 <Input
+                  disabled={!selectedMembers.isIncluded}
                   flex={1}
-                  id={`amount-${selectedMembers.memberId}`}
+                  id={`amount-${selectedMembers.memberId.slice(0, 5)}`}
                   value={selectedMembers.amount?.toString()}
-                  onChangeText={(newAmount: string) =>
+                  onChangeText={(newAmount: number) =>
                     handleAmountChange(selectedMembers.memberId, newAmount)
                   }
                   defaultValue={selectedMembers.amount?.toString()}
+                  keyboardType="numeric"
                 />
               </XStack>
             </Fieldset>
           ))}
           <XStack alignSelf="flex-end" gap="$4">
             {/* <DialogInstance /> */}
+            <Button onPress={onEvenClick}>Even</Button>
             <Dialog.Close displayWhenAdapted asChild>
               <Button
                 theme="active"
                 aria-label="Close"
                 onPress={handleSaveChanges}
               >
-                Save changes
+                Save
               </Button>
             </Dialog.Close>
           </XStack>
