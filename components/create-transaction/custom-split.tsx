@@ -64,7 +64,7 @@ const CustomSplit: React.FC<Props> = ({
     let sum: number = 0;
     selectedMembers?.forEach((member) => {
       if (member.isIncluded) {
-        sum += parseInt(member.amount.toString());
+        sum += parseFloat(member.amount.toString());
         console.log("SUM", sum);
       }
     });
@@ -109,6 +109,8 @@ const CustomSplit: React.FC<Props> = ({
       ...member,
       amount: evenSplitAmount,
     }));
+
+    console.log("evenSplitAmount", evenSplitAmount);
     setSumAmount(evenSplitAmount * includedMemberCount);
 
     setSelectedMembers(newSelectedMembers);

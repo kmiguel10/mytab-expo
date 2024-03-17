@@ -249,7 +249,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         <Fieldset alignContent="flex-end">
           <CustomSplit
             memberSplits={transaction.split}
-            amount={transaction.amount.toString()}
+            amount={transaction.amount}
             onSaveSplits={handleSaveSplits}
             setIsEven={setIsEven}
             includedMembers={includedMembers}
