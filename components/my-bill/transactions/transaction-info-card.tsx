@@ -1,8 +1,8 @@
-import { View, Text, Dimensions } from "react-native";
-import React from "react";
-import { Card, CardProps, H4, H6, ScrollView, XStack } from "tamagui";
-import { Member, Transaction } from "@/types/global";
+import { Transaction } from "@/types/global";
 import { Link } from "expo-router";
+import React from "react";
+import { Dimensions, Text } from "react-native";
+import { Card, CardProps, H6, ScrollView, XStack } from "tamagui";
 
 interface Props extends CardProps {
   transactions: Transaction[];
