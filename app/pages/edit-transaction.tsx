@@ -70,6 +70,10 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
     //const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
     let _amount = parseInt(amount.toString());
 
+    if (!_amount) {
+      _amount = 0;
+    }
+
     // Update transaction state
     setTransaction((prevTransaction) => ({
       ...prevTransaction,

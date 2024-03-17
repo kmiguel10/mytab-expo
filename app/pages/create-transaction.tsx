@@ -72,7 +72,11 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
 
   const handleAmountChange = (amount: string) => {
     // Convert amount to a number
-    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    let numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+
+    if (!numericValue) {
+      numericValue = 0;
+    }
 
     // Update transaction state
     setTransaction((prevTransaction) => ({

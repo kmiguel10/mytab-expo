@@ -48,6 +48,9 @@ const CustomSplit: React.FC<Props> = ({
   const handleAmountChange = (memberId: string, newAmount: number) => {
     setSelectedMembers((prevSelectedMembers) => {
       return prevSelectedMembers?.map((member) => {
+        if (!newAmount) {
+          newAmount = 0;
+        }
         if (member.memberId === memberId) {
           return {
             ...member,
