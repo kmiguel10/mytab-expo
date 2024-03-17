@@ -110,7 +110,6 @@ const UnderlinedTabs: React.FC<Props> = ({
         height={height}
         flexDirection="column"
         activationMode="manual"
-        backgroundColor="white"
         bordered
         borderRadius={16}
       >

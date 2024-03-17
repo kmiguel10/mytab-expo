@@ -11,6 +11,11 @@ import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
+import { OuterContainer } from "@/components/containers/outer-container";
+import { HeaderContainer } from "@/components/containers/header-container";
+import { BodyContainer } from "@/components/containers/body-container";
+import { FooterContainer } from "@/components/containers/footer-container";
+
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
@@ -73,21 +78,16 @@ const Page = () => {
     console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
   return (
-    <View>
-      <YStack backgroundColor={"whitesmoke"} padding="$2" gap="$2">
-        <YStack
-          height={windowHeight * 0.15}
-          backgroundColor={"white"}
-          padding="$2"
-          borderRadius={16}
-        >
+    <OuterContainer>
+      <YStack padding="$2" gap="$2">
+        <HeaderContainer height={windowHeight * 0.15}>
           <HeaderInfo
             members={members}
             summaryInfo={summaryInfo}
             billInfo={billInfo}
           />
-        </YStack>
-        <YStack height={windowHeight * 0.62} borderRadius={16}>
+        </HeaderContainer>
+        <BodyContainer height={windowHeight * 0.62}>
           <UnderlinedTabs
             transactions={transactions}
             summaryInfo={summaryInfo}
@@ -97,17 +97,9 @@ const Page = () => {
             width={windowWidth * 0.95}
             members={members}
           />
-        </YStack>
+        </BodyContainer>
       </YStack>
-      <XStack
-        alignContent="flex-end"
-        backgroundColor={"$gray2Light"}
-        height={windowHeight}
-        paddingLeft="$4"
-        paddingRight="$4"
-        paddingTop="$3"
-        opacity={4}
-      >
+      <FooterContainer height={windowHeight}>
         <XStack flex={1} />
         <Link
           href={{
@@ -121,8 +113,8 @@ const Page = () => {
         >
           <Button>Create Txn</Button>
         </Link>
-      </XStack>
-    </View>
+      </FooterContainer>
+    </OuterContainer>
   );
 };
 export default Page;

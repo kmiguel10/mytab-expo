@@ -12,6 +12,9 @@ import { useWindowDimensions } from "react-native";
 import { Text, View } from "tamagui";
 
 import React from "react";
+import { OuterContainer } from "@/components/containers/outer-container";
+import { FooterContainer } from "@/components/containers/footer-container";
+import { BodyContainer } from "@/components/containers/body-container";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode } = useLocalSearchParams();
@@ -69,43 +72,37 @@ const Home = () => {
         top={0}
         right={0}
       /> */}
-      <View backgroundColor={"white"}>
-        <YStack
-          justifyContent="flex-start"
-          gap="$3"
-          borderRadius="$2"
-          height={windowHeight * 0.15}
-          backgroundColor={"white"}
-          paddingVertical="$4"
-          paddingHorizontal="$4"
-        >
-          <Avatar circular size="$6">
-            <Avatar.Image
-              accessibilityLabel="Nate Wienert"
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+      <OuterContainer>
+        <YStack padding="$2" gap="$2">
+          <YStack
+            justifyContent="flex-start"
+            gap="$3"
+            height={windowHeight * 0.15}
+            backgroundColor={"white"}
+            paddingVertical="$4"
+            paddingHorizontal="$4"
+            borderRadius="$6"
+          >
+            <Avatar circular size="$6">
+              <Avatar.Image
+                accessibilityLabel="Nate Wienert"
+                src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+              />
+              <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+            </Avatar>
+            <Text>User id: {id.slice(0, 5)}</Text>
+          </YStack>
+          <BodyContainer height={windowHeight * 0.62}>
+            <TabsAdvancedUnderline
+              bills={bills}
+              userId={id.toString()}
+              height={windowHeight * 0.62}
+              width={windowWidth * 0.95}
             />
-            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar>
-          <Text>User id: {id.slice(0, 5)}</Text>
+          </BodyContainer>
         </YStack>
-        <XStack height={windowHeight * 0.63} backgroundColor={"purple"}>
-          <TabsAdvancedUnderline
-            bills={bills}
-            userId={id.toString()}
-            height={windowHeight * 0.63}
-            width={windowWidth}
-          />
-        </XStack>
 
-        <XStack
-          justifyContent="space-between"
-          backgroundColor={"$gray2Light"}
-          height={"20%"}
-          paddingLeft="$4"
-          paddingRight="$4"
-          paddingTop="$3"
-          opacity={4}
-        >
+        <FooterContainer justifyContent="space-between" height={windowHeight}>
           <JoinBill />
           <CreateBill />
           {/* <Link
@@ -175,8 +172,8 @@ const Home = () => {
               </Toast.Description>
             </Toast>
           )} */}
-        </XStack>
-      </View>
+        </FooterContainer>
+      </OuterContainer>
     </ToastProvider>
   );
 };

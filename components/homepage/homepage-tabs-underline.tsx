@@ -88,6 +88,8 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       flexDirection="column"
       activationMode="manual"
       backgroundColor="white"
+      bordered
+      borderRadius={16}
     >
       <YStack width={width}>
         <AnimatePresence>
@@ -159,7 +161,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
             <View>
               {currentTab === "active" ? (
-                <ScrollView backgroundColor={"whitesmoke"} height={height}>
+                <ScrollView height={height}>
                   {bills.map((item, index) => (
                     <XStack
                       key={index}

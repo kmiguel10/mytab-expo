@@ -28,7 +28,7 @@ const HeaderInfo: React.FC<Props> = ({
   );
   return (
     <XStack alignContent="space-between" alignItems="center" gap="$3">
-      <YStack width={windowWidth * 0.5} gap="$2">
+      <YStack width={windowWidth * 0.5} gap="$2" paddingHorizontal="$2">
         <View>
           <Text>Bill Name</Text>
           <H4>{billInfo[0]?.name}</H4>
