@@ -161,7 +161,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
             <View>
               {currentTab === "active" ? (
-                <ScrollView height={height}>
+                <ScrollView>
                   {bills.map((item, index) => (
                     <XStack
                       key={index}
