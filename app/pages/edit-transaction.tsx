@@ -65,16 +65,17 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
     }));
   };
 
-  const handleAmountChange = (amount: number) => {
+  const handleAmountChange = (amount: string) => {
     // Convert amount to a number
     //const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    let _amount = parseInt(amount.toString());
 
     // Update transaction state
     setTransaction((prevTransaction) => ({
       ...prevTransaction,
-      amount: amount, // Ensure amount is a number
+      amount: _amount, // Ensure amount is a number
     }));
-    initializeSplits(amount);
+    initializeSplits(_amount);
   };
 
   const onEditTxn = async () => {
@@ -171,26 +172,13 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       if (txnId) {
         const data = await getCurrentTransaction(txnId.toString());
         console.log("current transaction", data);
-        setTransaction(data);
+        if (data) {
+          setTransaction(data);
+        }
       }
     }
     fetchCurrentTransaction();
   }, [txnId]);
-
-  // useEffect(() => {
-  //   const fetchDataAndInitializeSplits = async () => {
-  //     if (billId) {
-  //       try {
-  //         const membersData = await getMembers(Number(billId));
-  //         setMembers(membersData);
-  //       } catch (error) {
-  //         console.error("Error fetching members:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchDataAndInitializeSplits();
-  // }, [billId]);
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
     // Filter out selectedMembers with isIncluded as true

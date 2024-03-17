@@ -203,8 +203,11 @@ const CustomSplit: React.FC<Props> = ({
                   flex={1}
                   id={`amount-${selectedMembers.memberId.slice(0, 5)}`}
                   value={selectedMembers.amount?.toString()}
-                  onChangeText={(newAmount: number) =>
-                    handleAmountChange(selectedMembers.memberId, newAmount)
+                  onChangeText={(newAmount: string) =>
+                    handleAmountChange(
+                      selectedMembers.memberId,
+                      parseInt(newAmount)
+                    )
                   }
                   defaultValue={selectedMembers.amount?.toString()}
                   keyboardType="numeric"
