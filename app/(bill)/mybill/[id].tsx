@@ -85,6 +85,8 @@ const Page = () => {
             members={members}
             summaryInfo={summaryInfo}
             billInfo={billInfo}
+            height={windowHeight * 0.15}
+            width={windowWidth}
           />
         </HeaderContainer>
         <BodyContainer height={windowHeight * 0.62}>
