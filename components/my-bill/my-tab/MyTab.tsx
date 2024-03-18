@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
 import { getMyTabInfo } from "@/lib/api";
-import { Card, H2, View, XStack, YStack, Text } from "tamagui";
+import { getMyTabHeaderAmounts, roundToNearestTenth } from "@/lib/helpers";
 import { MyTabInfo, SettleCardInfo } from "@/types/global";
-import { getMyTabHeaderAmounts } from "@/lib/helpers";
+import React, { useEffect, useState } from "react";
+import { H3, Text, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
 
 interface Props {
@@ -63,31 +63,33 @@ const MyTab: React.FC<Props> = ({
       <XStack
         gap="$5"
         height={headerSectionHeight}
-        backgroundColor={"white"}
-        justifyContent="space-evenly"
+        width={tabSectionWidth}
+        padding="$2"
+        paddingLeft="$3"
+        justifyContent="flex-start"
       >
-        <YStack gap="$3">
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
           {owedAmount - debtAmount <= 0 ? (
             <Text>You pay</Text>
           ) : (
             <Text>You receive</Text>
           )}
 
-          <H2
+          <H3
             color={
               owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
             }
           >
-            {settleAmount}
-          </H2>
+            {roundToNearestTenth(settleAmount)}
+          </H3>
         </YStack>
-        <YStack gap="$3">
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You are owed</Text>
-          <H2 color={"$green10Light"}>{owedAmount}</H2>
+          <H3 color={"$green10Light"}>{roundToNearestTenth(owedAmount)}</H3>
         </YStack>
-        <YStack gap="$3">
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You owe</Text>
-          <H2 color={"$red10Light"}>{debtAmount}</H2>
+          <H3 color={"$red10Light"}>{roundToNearestTenth(debtAmount)}</H3>
         </YStack>
       </XStack>
       <XStack height={cardsSectionHeight} backgroundColor={"white"}>

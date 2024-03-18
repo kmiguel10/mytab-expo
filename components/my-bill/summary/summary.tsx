@@ -27,7 +27,7 @@ const Summary: React.FC<Props> = ({
 
   let chartHeight = tabSectionHeight * 0.35;
   let chartWidth = tabSectionWidth * 0.96;
-  let memberCardsHeight = tabSectionHeight * 0.6;
+  let memberCardsHeight = tabSectionHeight * 0.52;
 
   return (
     <View>

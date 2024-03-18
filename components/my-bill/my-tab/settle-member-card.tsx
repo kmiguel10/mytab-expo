@@ -2,6 +2,7 @@ import { View, Text, Dimensions } from "react-native";
 import React from "react";
 import { Card, CardProps, H4, H6, ScrollView, XStack, YStack } from "tamagui";
 import { MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
+import { roundToNearestTenth } from "@/lib/helpers";
 
 interface Props extends CardProps {
   members: SettleCardInfo[];
@@ -23,11 +24,12 @@ const SettleMemberCard: React.FC<Props> = ({
         space="$1"
         backgroundColor={"white"}
         width={scaledWidth}
-        justifyContent="center"
+        justifyContent="space-evenly"
       >
         {members?.map((member, index) => (
           <XStack
             padding="$1"
+            paddingLeft="$2"
             backgroundColor={"white"}
             width={scaledWidth * 0.49}
             justifyContent="center"
@@ -56,18 +58,18 @@ const SettleMemberCard: React.FC<Props> = ({
                         : "$red10Light"
                     }
                   >
-                    ${member.settleAmount}
+                    ${roundToNearestTenth(member.settleAmount)}
                   </H6>
                 </XStack>
               </Card.Header>
               <YStack padding="$3">
                 <XStack justifyContent="space-between">
                   <Text>Owes you: </Text>
-                  <Text>{member.owed}</Text>
+                  <Text>{roundToNearestTenth(member.owed)}</Text>
                 </XStack>
                 <XStack justifyContent="space-between">
                   <Text>You owe: </Text>
-                  <Text>{member.debt}</Text>
+                  <Text>{roundToNearestTenth(member.debt)}</Text>
                 </XStack>
               </YStack>
               {/* <Card.Footer padded></Card.Footer> */}

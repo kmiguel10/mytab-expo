@@ -10,10 +10,15 @@ import {
   Fieldset,
   Input,
   Label,
+  ScrollView,
+  Separator,
   Sheet,
   Text,
   Unspaced,
+  View,
   XStack,
+  YStack,
+  useWindowDimensions,
 } from "tamagui";
 
 interface Props {
@@ -35,6 +40,7 @@ const CustomSplit: React.FC<Props> = ({
     useState<SelectedMemberSplitAmount[]>();
   const [splitAmount, setSplitAmount] = useState(0);
   const [sumAmount, setSumAmount] = useState(0);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   const initializeSelectedSplits = () => {
     setSelectedMembers(includedMembers);
@@ -121,9 +127,10 @@ const CustomSplit: React.FC<Props> = ({
 
   //on save assign those checked to the transactions.split on the parent component
   useEffect(() => {
-    console.log("Custom Split Component");
-    console.log("Amount: ", amount);
-    console.log("member splits: ", JSON.stringify(memberSplits));
+    // console.log("Custom Split Component");
+    // console.log("Amount: ", amount);
+    // console.log("member splits: ", JSON.stringify(memberSplits));
+    console.log("windowHeight", windowHeight);
     initializeSelectedSplits();
     setSplitAmount(amount);
   }, [memberSplits]);
@@ -135,8 +142,14 @@ const CustomSplit: React.FC<Props> = ({
   return (
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
-        <Button width="80%" variant="outlined" theme="active">
-          Split
+        <Button
+          width={windowWidth * 0.45}
+          variant="outlined"
+          theme="active"
+          backgroundColor="$blue3"
+          disabled={!amount}
+        >
+          Split Amount
         </Button>
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
@@ -179,45 +192,63 @@ const CustomSplit: React.FC<Props> = ({
         >
           <Dialog.Title>Amount: {amount}</Dialog.Title>
           <Dialog.Description>
-            Remaining split ampount: {splitAmount}
+            Remaining split ampount: {splitAmount - sumAmount}
           </Dialog.Description>
-          <Dialog.Description>
-            Sum split ampount: {sumAmount}
-          </Dialog.Description>
-          <Dialog.Description>Split the amount</Dialog.Description>
-          {selectedMembers?.map((selectedMembers, index) => (
-            <Fieldset gap="$1" horizontal key={index}>
-              <XStack justifyContent="space-between">
-                <Checkbox
-                  checked={selectedMembers.isIncluded}
-                  onCheckedChange={() =>
-                    handleCheckboxChange(selectedMembers.memberId)
-                  }
-                >
-                  <Checkbox.Indicator>
-                    <Text>X</Text>
-                  </Checkbox.Indicator>
-                </Checkbox>
-                <Label width={160} justifyContent="flex-end" htmlFor="name">
-                  {selectedMembers.memberId.slice(0, 5)}
-                </Label>
-                <Input
-                  disabled={!selectedMembers.isIncluded}
-                  flex={1}
-                  id={`amount-${selectedMembers.memberId.slice(0, 5)}`}
-                  value={selectedMembers.amount?.toString()}
-                  onChangeText={(newAmount: string) =>
-                    handleAmountChange(
-                      selectedMembers.memberId,
-                      parseInt(newAmount)
-                    )
-                  }
-                  defaultValue={selectedMembers.amount?.toString()}
-                  keyboardType="numeric"
-                />
+          <Separator />
+          <View height={windowHeight * 0.45}>
+            <ScrollView>
+              <XStack
+                flexWrap="wrap"
+                backgroundColor={"whitesmoke"}
+                width={windowWidth * 0.95}
+                gap="$2"
+              >
+                {selectedMembers?.map((selectedMembers, index) => (
+                  <Fieldset
+                    gap="$1"
+                    horizontal
+                    key={index}
+                    width={windowWidth * 0.88}
+                  >
+                    <XStack justifyContent="space-between">
+                      <Checkbox
+                        checked={selectedMembers.isIncluded}
+                        onCheckedChange={() =>
+                          handleCheckboxChange(selectedMembers.memberId)
+                        }
+                      >
+                        <Checkbox.Indicator>
+                          <Text>X</Text>
+                        </Checkbox.Indicator>
+                      </Checkbox>
+                      <Label
+                        width={windowWidth * 0.4}
+                        justifyContent="center"
+                        htmlFor="name"
+                      >
+                        {selectedMembers.memberId.slice(0, 5)}
+                      </Label>
+                      <Input
+                        disabled={!selectedMembers.isIncluded}
+                        flex={1}
+                        id={`amount-${selectedMembers.memberId.slice(0, 5)}`}
+                        value={selectedMembers.amount?.toString()}
+                        onChangeText={(newAmount: string) =>
+                          handleAmountChange(
+                            selectedMembers.memberId,
+                            parseInt(newAmount)
+                          )
+                        }
+                        defaultValue={selectedMembers.amount?.toString()}
+                        keyboardType="numeric"
+                      />
+                    </XStack>
+                  </Fieldset>
+                ))}
               </XStack>
-            </Fieldset>
-          ))}
+            </ScrollView>
+          </View>
+          <Separator />
           <XStack alignSelf="flex-end" gap="$4">
             {/* <DialogInstance /> */}
             <Button onPress={onEvenClick}>Even</Button>
@@ -232,7 +263,7 @@ const CustomSplit: React.FC<Props> = ({
             </Dialog.Close>
           </XStack>
           <XStack>
-            <Text>{JSON.stringify(selectedMembers)}</Text>
+            {/* <Text>{JSON.stringify(selectedMembers)}</Text> */}
           </XStack>
           <Unspaced>
             <Dialog.Close asChild>
