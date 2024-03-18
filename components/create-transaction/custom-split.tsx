@@ -1,31 +1,30 @@
 import { X } from "@tamagui/lucide-icons";
-import { Check as CheckIcon } from "@tamagui/lucide-icons";
 
+import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
+import { useEffect, useState } from "react";
 import {
   Adapt,
   Button,
+  Checkbox,
   Dialog,
   Fieldset,
   Input,
   Label,
-  Paragraph,
+  ScrollView,
+  Separator,
   Sheet,
-  TooltipSimple,
-  Unspaced,
-  XStack,
   Text,
-  ListItem,
-  Checkbox,
-  CheckboxContext,
+  Unspaced,
+  View,
+  XStack,
+  YStack,
+  useWindowDimensions,
 } from "tamagui";
-import { SelectDemoItem } from "./SelectDemo";
-import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
-import { FC, useEffect, useState } from "react";
 
 interface Props {
   memberSplits: MemberSplitAmount[];
   onSaveSplits: (selectedMembers: SelectedMemberSplitAmount[]) => void;
-  amount: string;
+  amount: number;
   setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
   includedMembers: SelectedMemberSplitAmount[];
 }
@@ -39,18 +38,11 @@ const CustomSplit: React.FC<Props> = ({
 }) => {
   const [selectedMembers, setSelectedMembers] =
     useState<SelectedMemberSplitAmount[]>();
-  //set up the list item...
+  const [splitAmount, setSplitAmount] = useState(0);
+  const [sumAmount, setSumAmount] = useState(0);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   const initializeSelectedSplits = () => {
-    // const newSelectedSplits: SelectedMemberSplitAmount[] = memberSplits.map(
-    //   (member) => ({
-    //     isIncluded: true,
-    //     memberId: member.memberId,
-    //     amount: 0,
-    //   })
-    // );
-
-    // setSelectedMembers(newSelectedSplits);
     setSelectedMembers(includedMembers);
 
     console.log(
@@ -59,21 +51,40 @@ const CustomSplit: React.FC<Props> = ({
     );
   };
 
-  const handleAmountChange = (memberId: string, newAmount: string) => {
+  const handleAmountChange = (memberId: string, newAmount: number) => {
     setSelectedMembers((prevSelectedMembers) => {
       return prevSelectedMembers?.map((member) => {
+        if (!newAmount) {
+          newAmount = 0;
+        }
         if (member.memberId === memberId) {
           return {
             ...member,
-            amount: parseFloat(newAmount),
+            amount: newAmount,
           };
         }
+        //set sumAmount to the total sum of amount of selectedMembers
         return member;
       });
     });
   };
 
+  const calculateSumAmount = () => {
+    let sum: number = 0;
+    selectedMembers?.forEach((member) => {
+      if (member.isIncluded) {
+        sum += parseFloat(member.amount.toString());
+        console.log("SUM", sum);
+      }
+    });
+    setSumAmount(parseInt(sum.toString()));
+  };
+
   const handleSaveChanges = () => {
+    if (splitAmount != sumAmount) {
+      console.error("Amount is not enough", splitAmount - sumAmount);
+      return;
+    }
     if (selectedMembers) {
       onSaveSplits(selectedMembers);
       setIsEven(false);
@@ -82,30 +93,64 @@ const CustomSplit: React.FC<Props> = ({
 
   const handleCheckboxChange = (memberId: string) => {
     setSelectedMembers((prevSelectedMembers) =>
-      prevSelectedMembers?.map((member) =>
-        member.memberId === memberId
-          ? { ...member, isIncluded: !member.isIncluded }
-          : member
-      )
+      prevSelectedMembers?.map((member) => {
+        if (member.memberId === memberId) {
+          // Deduct amount if member is included, otherwise add amount back
+          const amountToDeduct = member.isIncluded ? member.amount : 0;
+          setSumAmount((prevSum) => prevSum - amountToDeduct);
+          return { ...member, isIncluded: !member.isIncluded, amount: 0 };
+        }
+        return member;
+      })
     );
+  };
+
+  //Sets the split evenly
+  const onEvenClick = () => {
+    const splitEvenAmount = (totalAmount: number, memberCount: number) => {
+      return totalAmount / memberCount;
+    };
+
+    const includedMemberCount = includedMembers.length;
+    const evenSplitAmount = splitEvenAmount(amount, includedMemberCount);
+
+    const newSelectedMembers = includedMembers.map((member) => ({
+      ...member,
+      amount: evenSplitAmount,
+    }));
+
+    console.log("evenSplitAmount", evenSplitAmount);
+    setSumAmount(evenSplitAmount * includedMemberCount);
+
+    setSelectedMembers(newSelectedMembers);
   };
 
   //on save assign those checked to the transactions.split on the parent component
   useEffect(() => {
-    console.log("Custom Split Component");
-    console.log("Amount: ", amount);
-    console.log("member splits: ", JSON.stringify(memberSplits));
+    // console.log("Custom Split Component");
+    // console.log("Amount: ", amount);
+    // console.log("member splits: ", JSON.stringify(memberSplits));
+    console.log("windowHeight", windowHeight);
     initializeSelectedSplits();
+    setSplitAmount(amount);
   }, [memberSplits]);
+
+  useEffect(() => {
+    calculateSumAmount();
+  }, [selectedMembers]);
+
   return (
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
-        {/* <XStack>
-          <XStack flex={2} /> */}
-        <Button width="80%" variant="outlined" theme="active">
-          Split
+        <Button
+          width={windowWidth * 0.45}
+          variant="outlined"
+          theme="active"
+          backgroundColor="$blue3"
+          disabled={!amount}
+        >
+          Split Amount
         </Button>
-        {/* </XStack> */}
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
         <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>
@@ -146,74 +191,79 @@ const CustomSplit: React.FC<Props> = ({
           gap="$4"
         >
           <Dialog.Title>Amount: {amount}</Dialog.Title>
-
           <Dialog.Description>
-            Make changes to your profile here. Click save when you're done.
+            Remaining split ampount: {splitAmount - sumAmount}
           </Dialog.Description>
-          {selectedMembers?.map((selectedMembers, index) => (
-            // <Text key={index}>{JSON.stringify(selectedMembers)}</Text>
-            <Fieldset gap="$1" horizontal key={index}>
-              {/* <Text key={index}>{JSON.stringify(selectedMembers)}</Text> */}
-              <XStack>
-                <Checkbox
-                  checked={selectedMembers.isIncluded}
-                  onCheckedChange={() =>
-                    handleCheckboxChange(selectedMembers.memberId)
-                  }
-                >
-                  <Checkbox.Indicator>
-                    <Text>X</Text>
-                  </Checkbox.Indicator>
-                </Checkbox>
-                <Label width={160} justifyContent="flex-end" htmlFor="name">
-                  {selectedMembers.memberId}
-                </Label>
-                <Input
-                  flex={1}
-                  id={`amount-${selectedMembers.memberId}`}
-                  value={selectedMembers.amount?.toString()}
-                  onChangeText={(newAmount: string) =>
-                    handleAmountChange(selectedMembers.memberId, newAmount)
-                  }
-                  defaultValue={selectedMembers.amount?.toString()}
-                />
-              </XStack>
-            </Fieldset>
-          ))}
-          {/* <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Name
-            </Label>
-
-            <Input flex={1} id="name" defaultValue="Nate Wienert" />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="username">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
+          <Separator />
+          <View height={windowHeight * 0.45}>
+            <ScrollView>
+              <XStack
+                flexWrap="wrap"
+                backgroundColor={"whitesmoke"}
+                width={windowWidth * 0.95}
+                gap="$2"
               >
-                <Paragraph>Food</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <SelectDemoItem />
-          </Fieldset> */}
+                {selectedMembers?.map((selectedMembers, index) => (
+                  <Fieldset
+                    gap="$1"
+                    horizontal
+                    key={index}
+                    width={windowWidth * 0.88}
+                  >
+                    <XStack justifyContent="space-between">
+                      <Checkbox
+                        checked={selectedMembers.isIncluded}
+                        onCheckedChange={() =>
+                          handleCheckboxChange(selectedMembers.memberId)
+                        }
+                      >
+                        <Checkbox.Indicator>
+                          <Text>X</Text>
+                        </Checkbox.Indicator>
+                      </Checkbox>
+                      <Label
+                        width={windowWidth * 0.4}
+                        justifyContent="center"
+                        htmlFor="name"
+                      >
+                        {selectedMembers.memberId.slice(0, 5)}
+                      </Label>
+                      <Input
+                        disabled={!selectedMembers.isIncluded}
+                        flex={1}
+                        id={`amount-${selectedMembers.memberId.slice(0, 5)}`}
+                        value={selectedMembers.amount?.toString()}
+                        onChangeText={(newAmount: string) =>
+                          handleAmountChange(
+                            selectedMembers.memberId,
+                            parseInt(newAmount)
+                          )
+                        }
+                        defaultValue={selectedMembers.amount?.toString()}
+                        keyboardType="numeric"
+                      />
+                    </XStack>
+                  </Fieldset>
+                ))}
+              </XStack>
+            </ScrollView>
+          </View>
+          <Separator />
           <XStack alignSelf="flex-end" gap="$4">
             {/* <DialogInstance /> */}
+            <Button onPress={onEvenClick}>Even</Button>
             <Dialog.Close displayWhenAdapted asChild>
               <Button
                 theme="active"
                 aria-label="Close"
                 onPress={handleSaveChanges}
               >
-                Save changes
+                Save
               </Button>
             </Dialog.Close>
           </XStack>
           <XStack>
-            <Text>{JSON.stringify(selectedMembers)}</Text>
+            {/* <Text>{JSON.stringify(selectedMembers)}</Text> */}
           </XStack>
           <Unspaced>
             <Dialog.Close asChild>

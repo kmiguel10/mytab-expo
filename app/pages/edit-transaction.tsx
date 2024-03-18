@@ -3,12 +3,11 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import CustomSplit from "@/components/create-transaction/custom-split";
 import MembersDropdown from "@/components/create-transaction/members-dropdown";
 import SplitView from "@/components/create-transaction/split-view";
-import { getMembers } from "@/lib/api";
+import { getCurrentTransaction, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, useWindowDimensions } from "react-native";
 import {
   Button,
   Fieldset,
@@ -18,41 +17,40 @@ import {
   Paragraph,
   Separator,
   TooltipSimple,
-  View,
   XStack,
-  YStack,
+  useWindowDimensions,
 } from "tamagui";
 interface Member {
   userid: string;
+  members: Member[];
   // Add other properties if necessary
 }
 
 interface CreateTransaction {
   billId: any;
-  userId: any;
+  currentUser: string;
   members: Member[]; // Ensure correct type for members
 }
 
-export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
+export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
+    id: null,
     submittedbyid: "",
-    payerid: null,
+    payerid: "",
     amount: 0,
     name: "",
-    notes: null,
+    notes: "",
     split: [],
     isdeleted: false,
   });
   const router = useRouter();
-
-  const { billId, userId } = useLocalSearchParams();
+  const { txnId, currentUser, billId } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
   >([]);
   const [isEven, setIsEven] = useState(true);
-
   const handleNameChange = (txnName: string) => {
     //setName(txnName);
     // transaction.name = name;
@@ -72,29 +70,61 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
 
   const handleAmountChange = (amount: string) => {
     // Convert amount to a number
-    let numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    //const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    let _amount = parseInt(amount.toString());
 
-    if (!numericValue) {
-      numericValue = 0;
+    if (!_amount) {
+      _amount = 0;
     }
 
     // Update transaction state
     setTransaction((prevTransaction) => ({
       ...prevTransaction,
-      amount: numericValue, // Ensure amount is a number
+      amount: _amount, // Ensure amount is a number
     }));
+    initializeSplits(_amount);
   };
 
-  const onCreateTxn = async () => {
-    let _userId = userId.toString();
+  const onEditTxn = async () => {
+    let _userId = currentUser.toString();
     transaction.submittedbyid = _userId;
-    transaction.billid = Number(billId);
+    transaction.billid = parseInt(billId.toString());
+
     const { data, error } = await supabase
       .from("transactions")
-      .insert([transaction])
+      .update([transaction])
+      .eq("id", txnId)
       .select();
 
     if (error) {
+      console.log("TxnId: ", txnId);
+      console.log("Transaction: ", transaction, txnId);
+      console.error("Error inserting data:", error.message, error.details);
+    } else {
+      console.log("Data inserted successfully:", data);
+      // router.replace(`/(bill)/mybill/${billId}`);
+      router.replace({
+        pathname: `/(bill)/mybill/${billId}`,
+        params: { userId: _userId }, // Add userId to params
+      });
+    }
+  };
+
+  /** Soft Delete */
+  const onDeleteTxn = async () => {
+    let _txnId = parseInt(txnId.toString());
+    let _userId = currentUser.toString();
+    transaction.submittedbyid = _userId;
+    transaction.billid = parseInt(billId.toString());
+
+    const { data, error } = await supabase
+      .from("transactions")
+      .update({ isdeleted: true })
+      .eq("id", _txnId.toString())
+      .select();
+
+    if (error) {
+      console.log("Txn id", _txnId);
       console.log("Transaction: ", transaction);
       console.error("Error inserting data:", error.message, error.details);
     } else {
@@ -107,16 +137,8 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     }
   };
 
-  const fetchData = async () => {
-    if (billId) {
-      const membersData = await getMembers(Number(billId));
-      setMembers(membersData);
-      // initializeSplits();
-    }
-  };
-
-  const initializeSplits = () => {
-    let amountNum = transaction.amount;
+  const initializeSplits = (amountNum: number) => {
+    //let amountNum = transaction.amount;
     const splitEvenAmount = (_amount: number) => {
       return _amount / members.length;
     };
@@ -152,19 +174,18 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   useEffect(() => {
-    const fetchDataAndInitializeSplits = async () => {
-      if (billId) {
-        try {
-          const membersData = await getMembers(Number(billId));
-          setMembers(membersData);
-        } catch (error) {
-          console.error("Error fetching members:", error);
+    console.log("txn id", txnId);
+    async function fetchCurrentTransaction() {
+      if (txnId) {
+        const data = await getCurrentTransaction(txnId.toString());
+        console.log("current transaction", data);
+        if (data) {
+          setTransaction(data);
         }
       }
-    };
-
-    fetchDataAndInitializeSplits();
-  }, [billId]);
+    }
+    fetchCurrentTransaction();
+  }, [txnId]);
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
     // Filter out selectedMembers with isIncluded as true
@@ -194,15 +215,26 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   const { width, height } = useWindowDimensions();
 
   useEffect(() => {
+    async function fetchMembers() {
+      if (billId) {
+        const membersData = await getMembers(Number(billId));
+        setMembers(membersData);
+      }
+    }
+    fetchMembers();
+  }, [billId]);
+
+  useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
-      initializeSplits();
+      //initializeSplits();
       initiateIncludedMembers();
     }
-  }, [members, transaction.amount]);
+  }, [members]);
 
   useEffect(() => {
     console.log("Splits", JSON.stringify(transaction.split));
+    console.log("Current user", currentUser);
   }, [transaction.split]);
 
   return (
@@ -218,14 +250,14 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
-        <Form onSubmit={onCreateTxn} rowGap="$3" borderRadius="$6" padding="$3">
+        <Form onSubmit={onEditTxn} rowGap="$3" borderRadius="$4" padding="$3">
           <Fieldset gap="$4" horizontal>
             <Label
               width={160}
               justifyContent="flex-end"
               htmlFor="transactionName"
             >
-              Name
+              Transaction Name
             </Label>
             <Input
               flex={1}
@@ -251,6 +283,39 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               inputMode="numeric"
             />
           </Fieldset>
+          <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="payer">
+              <TooltipSimple
+                label="Pick your favorite"
+                placement="bottom-start"
+              >
+                <Paragraph>Payer</Paragraph>
+              </TooltipSimple>
+            </Label>
+
+            <MembersDropdown
+              members={members}
+              onPayerChange={handlePayerChange}
+              defaultPayer={transaction.payerid || ""}
+            />
+          </Fieldset>
+
+          <Fieldset gap="$4" horizontal>
+            <Label width={160} justifyContent="flex-end" htmlFor="name">
+              Submitted By
+            </Label>
+
+            <Input
+              flex={1}
+              id="submittedBy"
+              defaultValue=""
+              value={transaction.submittedbyid}
+              disabled={true}
+              borderColor={"$colorTransparent"}
+              backgroundColor={"$backgroundTransparent"}
+              borderBlockColor={"$backgroundTransparent"}
+            />
+          </Fieldset>
           {/* <Fieldset gap="$4" horizontal>
         <Label width={160} justifyContent="flex-end" htmlFor="amout">
           Split
@@ -265,39 +330,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
           </Switch>
         </XStack>
       </Fieldset> */}
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-              defaultPayer={userId.toString()}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submittedBy"
-              defaultValue=""
-              value={userId.toString()}
-              disabled={true}
-              borderColor={"$colorTransparent"}
-              backgroundColor={"$backgroundTransparent"}
-              borderBlockColor={"$backgroundTransparent"}
-            />
-          </Fieldset>
           <XStack justifyContent="flex-end">
             <CustomSplit
               memberSplits={transaction.split}
@@ -307,7 +339,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
-
           <Separator />
           <SplitView
             memberSplits={transaction.split}
@@ -316,9 +347,14 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
           />
           <Separator />
 
-          <Form.Trigger asChild>
-            <Button>Create</Button>
-          </Form.Trigger>
+          <XStack gap="$3" justifyContent="space-between">
+            <Button color={"$red10Light"} onPress={onDeleteTxn}>
+              Delete
+            </Button>
+            <Form.Trigger asChild>
+              <Button>Submit</Button>
+            </Form.Trigger>
+          </XStack>
         </Form>
       </BodyContainer>
     </OuterContainer>
@@ -338,4 +374,4 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   );
 };
 
-export default CreateTransactionPage;
+export default EditTransactionPage;

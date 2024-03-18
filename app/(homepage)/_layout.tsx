@@ -1,52 +1,41 @@
-import { useRoute } from "@react-navigation/native";
-import { Link, Tabs, useRouter } from "expo-router";
-import { Pressable } from "react-native";
-import { Text } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
+import { Link, Stack } from "expo-router";
+import { Pressable } from "react-native";
+import { Plus } from "@tamagui/lucide-icons";
 
 export default function TabLayout() {
   const route = useRoute();
   const { id } = route.params as { id: string };
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "black",
-      }}
-    >
-      <Tabs.Screen
+    <Stack>
+      <Stack.Screen
         name="[id]"
         initialParams={{ id }}
         options={{
-          title: "Homepage",
-          tabBarLabel: "Bills",
-          tabBarShowLabel: false,
-          tabBarIcon: () => <Ionicons name="receipt" size={24} color="gray" />,
+          title: "Home",
           headerRight: () => (
             <Link
               href={{
-                pathname: "/(modals)/create-bill",
+                pathname: "/(homepage)/profile",
                 params: { id },
               }}
               asChild
             >
               <Pressable>
-                <Text>Create Bill</Text>
+                <Ionicons name="settings-outline" size={24} color="gray" />
               </Pressable>
             </Link>
           ),
         }}
       />
-      <Tabs.Screen
+      <Stack.Screen
         name="profile"
         initialParams={{ id }}
         options={{
-          title: "Profile",
-          tabBarShowLabel: false,
-          tabBarIcon: () => (
-            <Ionicons name="person-outline" size={24} color="black" />
-          ),
+          title: "Settings",
         }}
       />
-    </Tabs>
+    </Stack>
   );
 }

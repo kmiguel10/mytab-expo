@@ -1,26 +1,35 @@
-import { View, Text } from "react-native";
-import React, { useEffect, useState } from "react";
 import { getMyTabInfo } from "@/lib/api";
-import { Card, H2, XStack, YStack } from "tamagui";
+import { getMyTabHeaderAmounts, roundToNearestTenth } from "@/lib/helpers";
 import { MyTabInfo, SettleCardInfo } from "@/types/global";
-import { getMyTabHeaderAmounts } from "@/lib/helpers";
+import React, { useEffect, useState } from "react";
+import { H3, Text, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
 
 interface Props {
   userId: string;
   billId: number;
+  tabSectionHeight: number;
+  tabSectionWidth: number;
 }
 
-const MyTab: React.FC<Props> = ({ userId, billId }) => {
+const MyTab: React.FC<Props> = ({
+  userId,
+  billId,
+  tabSectionHeight,
+  tabSectionWidth,
+}) => {
   const [myTabInfo, setMyTabInfo] = useState<MyTabInfo[] | null>([]);
   const [owedAmount, setOwedAmount] = useState<number>(0);
   const [debtAmount, setDebtAmount] = useState<number>(0);
-  const [settleMembersInfo, setSettleMembersInfo] = useState<
-    SettleCardInfo[] | null
-  >([]);
+  const [settleMembersInfo, setSettleMembersInfo] = useState<SettleCardInfo[]>(
+    []
+  );
+
+  let headerSectionHeight = tabSectionHeight * 0.15;
+  let cardsSectionHeight = tabSectionHeight * 0.759;
+  let settleAmount = Math.abs(owedAmount - debtAmount);
 
   useEffect(() => {
-    console.log("PARAMS: ", userId, billId);
     async function fetchMyTabInfo() {
       if (userId) {
         const data = await getMyTabInfo(userId, billId);
@@ -51,20 +60,44 @@ const MyTab: React.FC<Props> = ({ userId, billId }) => {
 
   return (
     <View>
-      {/* <Text>MyTab </Text>
-      <Text>{JSON.stringify(myTabInfo)}</Text> */}
-      <XStack gap="$3">
-        <YStack gap="$3">
-          <Text>You are owed:</Text>
-          <H2 color={"$green10Light"}>{owedAmount}</H2>
+      <XStack
+        gap="$5"
+        height={headerSectionHeight}
+        width={tabSectionWidth}
+        padding="$2"
+        paddingLeft="$3"
+        justifyContent="flex-start"
+      >
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
+          {owedAmount - debtAmount <= 0 ? (
+            <Text>You pay</Text>
+          ) : (
+            <Text>You receive</Text>
+          )}
+
+          <H3
+            color={
+              owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
+            }
+          >
+            {roundToNearestTenth(settleAmount)}
+          </H3>
         </YStack>
-        <YStack gap="$3">
-          <Text>You owed:</Text>
-          <H2 color={"$red10Light"}>{debtAmount}</H2>
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
+          <Text>You are owed</Text>
+          <H3 color={"$green10Light"}>{roundToNearestTenth(owedAmount)}</H3>
+        </YStack>
+        <YStack gap="$3" width={tabSectionWidth * 0.25}>
+          <Text>You owe</Text>
+          <H3 color={"$red10Light"}>{roundToNearestTenth(debtAmount)}</H3>
         </YStack>
       </XStack>
-      <XStack>
-        <SettleMemberCard members={settleMembersInfo} />
+      <XStack height={cardsSectionHeight} backgroundColor={"white"}>
+        <SettleMemberCard
+          members={settleMembersInfo}
+          scaledHeight={tabSectionHeight}
+          scaledWidth={tabSectionWidth}
+        />
       </XStack>
     </View>
   );

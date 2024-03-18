@@ -1,28 +1,29 @@
+import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
-import BillTabs from "@/components/my-bill/transactions/bill-tabs";
 import {
   getBillInfo,
   getBillSummaryInfo,
   getMembers,
   getMyTabInfo,
-  getTransactions,
+  getActiveTransactions,
 } from "@/lib/api";
 import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
-import { Button, XStack, useWindowDimensions, View } from "tamagui";
+import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
+import { OuterContainer } from "@/components/containers/outer-container";
+import { HeaderContainer } from "@/components/containers/header-container";
+import { BodyContainer } from "@/components/containers/body-container";
+import { FooterContainer } from "@/components/containers/footer-container";
 
 const Page = () => {
   const { id, userId } = useLocalSearchParams();
-  const { height } = useWindowDimensions();
-
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
-  const windowHeight = Dimensions.get("window").height;
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   /** fetch summary info */
   useEffect(() => {
@@ -35,7 +36,6 @@ const Page = () => {
     fetchSummaryInfo();
     console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id]);
-
   /**Fetch members of the bill */
   useEffect(() => {
     async function fetchMembers() {
@@ -46,11 +46,10 @@ const Page = () => {
     }
     fetchMembers();
   }, [id]);
-
   useEffect(() => {
     async function fetchTransactions() {
       if (userId) {
-        const transactionData: Transaction[] = await getTransactions(
+        const transactionData: Transaction[] = await getActiveTransactions(
           id.toString()
         );
         setTransactions(transactionData);
@@ -58,7 +57,6 @@ const Page = () => {
     }
     fetchTransactions();
   }, [userId]);
-
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -69,7 +67,6 @@ const Page = () => {
     }
     fetchBillInfo();
   }, [id]);
-
   useEffect(() => {
     async function fetchMyTabInfo() {
       if (userId) {
@@ -78,28 +75,33 @@ const Page = () => {
       }
     }
     fetchMyTabInfo();
+    console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
-
   return (
-    <View backgroundColor={"white"}>
-      <XStack height={windowHeight * 0.15} backgroundColor={"white"}>
-        <HeaderInfo
-          members={members}
-          summaryInfo={summaryInfo}
-          billInfo={billInfo}
-        />
-      </XStack>
-
-      <XStack height={windowHeight * 0.62}>
-        <BillTabs
-          transactions={transactions}
-          summaryInfo={summaryInfo}
-          billId={Number(id)}
-          userId={userId?.toString()}
-        />
-      </XStack>
-
-      <XStack alignContent="flex-end">
+    <OuterContainer>
+      <YStack padding="$2" gap="$2">
+        <HeaderContainer height={windowHeight * 0.15}>
+          <HeaderInfo
+            members={members}
+            summaryInfo={summaryInfo}
+            billInfo={billInfo}
+            height={windowHeight * 0.15}
+            width={windowWidth}
+          />
+        </HeaderContainer>
+        <BodyContainer height={windowHeight * 0.62}>
+          <UnderlinedTabs
+            transactions={transactions}
+            summaryInfo={summaryInfo}
+            billId={Number(id)}
+            userId={userId?.toString()}
+            height={windowHeight * 0.62}
+            width={windowWidth * 0.95}
+            members={members}
+          />
+        </BodyContainer>
+      </YStack>
+      <FooterContainer height={windowHeight}>
         <XStack flex={1} />
         <Link
           href={{
@@ -107,16 +109,14 @@ const Page = () => {
             params: {
               billId: id,
               userId: userId?.toString(),
-              members: members,
             },
           }}
           asChild
         >
           <Button>Create Txn</Button>
         </Link>
-      </XStack>
-    </View>
+      </FooterContainer>
+    </OuterContainer>
   );
 };
-
 export default Page;

@@ -64,3 +64,7 @@ export const getMyTabHeaderAmounts = ({
 
   return { owedAmount, debtAmount, settleMembersInfo };
 };
+
+export const roundToNearestTenth = (num: number) => {
+  return Math.round(num * 10) / 10;
+};

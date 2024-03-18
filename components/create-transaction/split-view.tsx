@@ -1,7 +1,17 @@
-import { View, Text, Dimensions } from "react-native";
+import { Dimensions } from "react-native";
 import React from "react";
 import { MemberSplitAmount } from "@/types/global";
-import { Card, CardProps, H6, ListItem, XStack, YStack } from "tamagui";
+import {
+  Card,
+  CardProps,
+  H6,
+  ListItem,
+  ScrollView,
+  View,
+  XStack,
+  YStack,
+  useWindowDimensions,
+} from "tamagui";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
@@ -19,29 +29,31 @@ const SplitView: React.FC<Props> = ({
   const splitEvenAmount = (_amount: number) => {
     return _amount / memberSplits.length;
   };
-  const windowWidth = Dimensions.get("window").width;
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
-    <View>
-      <XStack flexWrap="wrap" gap="$1" alignContent="center">
-        {memberSplits.map((item, index) => (
-          <Card
-            elevate
-            size="$2"
-            bordered
-            key={index}
-            width={windowWidth * 0.3}
-            {...props}
-          >
-            <Card.Header padded>
-              <YStack>
-                <H6>{item.memberId.slice(0, 5)}</H6>
-                <H6>${item.amount}</H6>
-              </YStack>
-            </Card.Header>
-          </Card>
-        ))}
-      </XStack>
+    <View height={windowHeight * 0.35}>
+      <ScrollView>
+        <XStack flexWrap="wrap" gap="$1" alignContent="center">
+          {memberSplits.map((item, index) => (
+            <Card
+              elevate
+              size="$2"
+              bordered
+              key={index}
+              width={windowWidth * 0.44}
+              {...props}
+            >
+              <Card.Header padded>
+                <YStack>
+                  <H6>{item.memberId.slice(0, 5)}</H6>
+                  <H6>${item.amount}</H6>
+                </YStack>
+              </Card.Header>
+            </Card>
+          ))}
+        </XStack>
+      </ScrollView>
     </View>
   );
 };

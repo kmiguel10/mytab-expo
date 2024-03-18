@@ -1,3 +1,4 @@
+import { Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
 export const getMembers = async (billId: number) => {
@@ -58,12 +59,13 @@ export const getBillsForUserId = async (userId: string) => {
   }
 };
 
-export const getTransactions = async (billId: string) => {
+export const getActiveTransactions = async (billId: string) => {
   try {
     const { data: transactions, error } = await supabase
       .from("transactions")
       .select("*")
-      .eq("billid", billId);
+      .eq("billid", billId)
+      .eq("isdeleted", false);
 
     if (error) {
       throw new Error(error.message);
@@ -93,6 +95,7 @@ export const getBillSummaryInfo = async (billId: number) => {
         const { data: transactions, error: transactionsError } = await supabase
           .from("transactions")
           .select("amount")
+          .eq("isdeleted", false)
           .eq("billid", billId)
           .eq("payerid", member.userid);
 
@@ -141,5 +144,29 @@ export const getMyTabInfo = async (userId: string, billId: number) => {
   } catch (error) {
     console.error("There is an error fetching MyTabInfo: ", error);
     return [];
+  }
+};
+
+/** Edit Transaction */
+
+export const getCurrentTransaction = async (
+  transactionId: string
+): Promise<Transaction | null> => {
+  try {
+    console.log("Current Transaction ID: ", transactionId);
+    let { data: currentTransaction, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("id", transactionId);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return currentTransaction ? currentTransaction[0] : null;
+  } catch (error) {
+    console.error(
+      "There is an error fetching current transaction: ",
+      transactionId
+    );
+    return null;
   }
 };
