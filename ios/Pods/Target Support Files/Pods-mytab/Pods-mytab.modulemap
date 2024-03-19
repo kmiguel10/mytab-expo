@@ -1,0 +1,6 @@
+module Pods_mytab {
+  umbrella header "Pods-mytab-umbrella.h"
+
+  export *
+  module * { export * }
+}
