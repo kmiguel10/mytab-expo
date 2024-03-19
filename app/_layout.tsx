@@ -1,4 +1,5 @@
 import "../tamagui-web.css";
+import "expo-dev-client";
 
 import {
   DarkTheme,

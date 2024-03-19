@@ -46,7 +46,9 @@ const HeaderInfo: React.FC<Props> = ({
       <YStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
           <Text>Bill Name</Text>
-          <H4>{billInfo[0]?.name}</H4>
+          <H4 height={height * 0.25} width={windowWidth * 0.35}>
+            {billInfo[0]?.name}
+          </H4>
         </View>
         <View>
           <Text>Members</Text>
@@ -56,7 +58,9 @@ const HeaderInfo: React.FC<Props> = ({
       <YStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
           <Text>Total Amount</Text>
-          <H4>{totalPaid}</H4>
+          <H4 height={height * 0.25} width={windowWidth * 0.35}>
+            {totalPaid}
+          </H4>
         </View>
         <View>
           <Text>Total Count</Text>
