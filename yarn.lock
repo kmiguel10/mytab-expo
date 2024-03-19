@@ -7640,6 +7640,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-apple-authentication@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "expo-apple-authentication@npm:6.3.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 8875bab17ed6393ccf9036de6541a82d67187656b14354c3845e418696215d31f937c7fb63a57b8546a1a0adb66728c770098552b212a876ced6fb1ab9423a3f
+  languageName: node
+  linkType: hard
+
 "expo-asset@npm:~9.0.2":
   version: 9.0.2
   resolution: "expo-asset@npm:9.0.2"
@@ -10503,6 +10512,7 @@ __metadata:
     babel-preset-expo: "npm:^10.0.1"
     burnt: "npm:^0.12.2"
     expo: "npm:~50.0.6"
+    expo-apple-authentication: "npm:^6.3.0"
     expo-dev-client: "npm:~3.3.10"
     expo-font: "npm:~11.10.2"
     expo-linear-gradient: "npm:^12.7.1"
