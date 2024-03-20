@@ -15,6 +15,7 @@ import React from "react";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { BodyContainer } from "@/components/containers/body-container";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode } = useLocalSearchParams();
@@ -22,6 +23,7 @@ const Home = () => {
   const [newBill, setNewBill] = useState<BillData | null>(null);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
+  const { left, top, right } = useSafeAreaInsets();
 
   useEffect(() => {
     async function fetchBills() {
@@ -72,6 +74,12 @@ const Home = () => {
         top={0}
         right={0}
       /> */}
+      <ToastViewport
+        flexDirection="column-reverse"
+        top={top}
+        left={left}
+        right={right}
+      />
       <OuterContainer>
         <YStack padding="$2" gap="$2">
           <YStack
@@ -128,7 +136,7 @@ const Home = () => {
             Single Toast
           </Button> */}
 
-          {/* {newBillId && (
+          {newBillId && (
             <Toast
               onOpenChange={setOpen}
               open={open}
@@ -171,7 +179,7 @@ const Home = () => {
                 Share Bill Code to your friends: {newBill?.billcode}
               </Toast.Description>
             </Toast>
-          )} */}
+          )}
         </FooterContainer>
       </OuterContainer>
     </ToastProvider>
