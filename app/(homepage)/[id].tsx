@@ -1,4 +1,4 @@
-import { Avatar, XStack, YStack } from "tamagui";
+import { Avatar, Button, XStack, YStack } from "tamagui";
 
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
@@ -18,12 +18,15 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { id, newBillId, joinedBillCode } = useLocalSearchParams();
+  const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
+    useLocalSearchParams();
   const [bills, setBills] = useState<BillData[]>([]);
   const [newBill, setNewBill] = useState<BillData | null>(null);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const { left, top, right } = useSafeAreaInsets();
+  const timerRef = React.useRef(0);
+  const [error, setError] = useState("") || null;
 
   useEffect(() => {
     async function fetchBills() {
@@ -60,26 +63,35 @@ const Home = () => {
           setOpen(true);
         }
       }
+      if (errorMessage) {
+        setOpen(true);
+      }
+      if (errorCreateMessage) {
+        setOpen(true);
+      }
     }
 
     fetchBills();
-  }, [id, newBillId, joinedBillCode]);
+    console.log("ERROR", errorMessage);
+    console.log("NEW BILL ID", newBillId);
+    setError(errorMessage?.toString());
+  }, [id, newBillId, joinedBillCode, errorMessage]);
 
   return (
-    <ToastProvider>
-      {/* <ToastViewport
+    <ToastProvider burntOptions={{ from: "bottom" }}>
+      <ToastViewport
         width={"100%"}
         justifyContent="center"
         flexDirection="column-reverse"
         top={0}
         right={0}
-      /> */}
-      <ToastViewport
+      />
+      {/* <ToastViewport
         flexDirection="column-reverse"
         top={top}
         left={left}
         right={right}
-      />
+      /> */}
       <OuterContainer>
         <YStack padding="$2" gap="$2">
           <YStack
@@ -124,7 +136,7 @@ const Home = () => {
           >
             <Button>Create</Button>
           </Link> */}
-          {/* <Button
+          <Button
             onPress={() => {
               setOpen(false);
               window.clearTimeout(timerRef.current);
@@ -134,7 +146,7 @@ const Home = () => {
             }}
           >
             Single Toast
-          </Button> */}
+          </Button>
 
           {newBillId && (
             <Toast
@@ -146,8 +158,8 @@ const Home = () => {
               opacity={1}
               x={0}
               backgroundColor={"$green8"}
-              height={"400"}
-              width={"80%"}
+              height={"500"}
+              width={"85%"}
               justifyContent="center"
             >
               <Toast.Title alignItems="center">
@@ -178,6 +190,26 @@ const Home = () => {
               <Toast.Description>
                 Share Bill Code to your friends: {newBill?.billcode}
               </Toast.Description>
+            </Toast>
+          )}
+          {(errorMessage || errorCreateMessage) && (
+            <Toast
+              onOpenChange={setOpen}
+              open={open}
+              animation="100ms"
+              enterStyle={{ x: -20, opacity: 0 }}
+              exitStyle={{ x: -20, opacity: 0 }}
+              opacity={1}
+              x={0}
+              backgroundColor={"$red8"}
+              height={"400"}
+              width={"80%"}
+              justifyContent="center"
+            >
+              <Toast.Title alignContent="center">
+                {errorMessage ? errorMessage : errorCreateMessage}
+              </Toast.Title>
+              {/* <Toast.Description>{error}</Toast.Description> */}
             </Toast>
           )}
         </FooterContainer>

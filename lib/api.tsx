@@ -42,7 +42,7 @@ export const getBillInfo = async (billId: number) => {
  */
 export const getBillsForUserId = async (userId: string) => {
   try {
-    console.log("Getbills userId", userId);
+    //console.log("Getbills userId", userId);
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
@@ -51,10 +51,10 @@ export const getBillsForUserId = async (userId: string) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Get Bills: ", JSON.stringify(billsData));
+    //console.log("Get Bills: ", JSON.stringify(billsData));
     return billsData;
   } catch (error) {
-    console.error("Error fetching bills:", error);
+    //console.error("Error fetching bills:", error);
     return [];
   }
 };

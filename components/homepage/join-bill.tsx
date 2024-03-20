@@ -1,9 +1,8 @@
-import { View, Text } from "react-native";
-import React, { useState } from "react";
-import { AlertDialog, Button, Input, XStack, YStack } from "tamagui";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { AlertDialog, Button, Input, XStack, YStack } from "tamagui";
 
 const JoinBill = () => {
   const { id } = useLocalSearchParams();
@@ -32,8 +31,17 @@ const JoinBill = () => {
         params: { joinedBillCode: joinedBillData?.billid ?? null }, // Add userId to params
       });
     } else {
-      console.error("Error joining bill: ", error);
+      //console.error("Error joining bill: ", error);
       //display error here , or just create a , there is an error toast
+      //Send error message
+      if (error) {
+        router.replace({
+          pathname: `/(homepage)/${id}`,
+          params: { errorMessage: "Error joining bill" },
+          // params: { errorMessage: error.message },
+          // Add userId to params
+        });
+      }
     }
   };
   /**
