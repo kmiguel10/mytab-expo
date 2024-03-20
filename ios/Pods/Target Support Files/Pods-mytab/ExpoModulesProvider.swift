@@ -7,6 +7,7 @@
 
 import ExpoModulesCore
 import Burnt
+import ExpoAppleAuthentication
 import EXConstants
 import ExpoFileSystem
 import ExpoKeepAwake
@@ -25,6 +26,7 @@ public class ExpoModulesProvider: ModulesProvider {
     #if EXPO_CONFIGURATION_DEBUG
     return [
       BurntModule.self,
+      AppleAuthenticationModule.self,
       ConstantsModule.self,
       FileSystemModule.self,
       KeepAwakeModule.self,
@@ -43,6 +45,7 @@ public class ExpoModulesProvider: ModulesProvider {
     #else
     return [
       BurntModule.self,
+      AppleAuthenticationModule.self,
       ConstantsModule.self,
       FileSystemModule.self,
       KeepAwakeModule.self,

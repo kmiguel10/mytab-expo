@@ -22,14 +22,16 @@ const Page = () => {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+    console.log("Session user", session?.user.id);
   }, []);
-  console.log("Session user", session?.user.id);
+
   return (
     <YStack flex={1} borderRadius="$4" padding="$2">
       <Paragraph size="$2" fontWeight="800">
         This will be the log in page with modal and register Use supabase
         authentication to login with email or iphone or phonenumber
       </Paragraph>
+      <Text>TEST</Text>
 
       {session && session.user ? (
         // <Redirect href={`/(homepage)/${session.user.id}`} />

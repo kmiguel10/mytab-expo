@@ -47,4 +47,4 @@ with_node \
   generate-modules-provider  \
   --target "/Users/kentmiguel/Documents/projects/mytab-expo-router/ios/Pods/Target Support Files/Pods-mytab/ExpoModulesProvider.swift" \
   --platform "apple" \
-  --packages "burnt" "expo-constants" "expo-dev-launcher" "expo-dev-menu" "expo-file-system" "expo-keep-awake" "expo-linear-gradient" "expo-router" "expo-system-ui" "expo-web-browser"
+  --packages "burnt" "expo-apple-authentication" "expo-constants" "expo-dev-launcher" "expo-dev-menu" "expo-file-system" "expo-keep-awake" "expo-linear-gradient" "expo-router" "expo-system-ui" "expo-web-browser"
