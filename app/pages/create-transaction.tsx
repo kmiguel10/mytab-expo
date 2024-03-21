@@ -71,18 +71,22 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   const handleAmountChange = (amount: string) => {
-    // Convert amount to a number
-    let numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    // Remove any non-numeric characters except for periods
+    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
 
-    if (!numericValue) {
-      numericValue = 0;
+    // Check if the numeric value is a valid number
+    if (!isNaN(numericValue)) {
+      // Update transaction state with the parsed numeric value
+      setTransaction((prevTransaction) => ({
+        ...prevTransaction,
+        amount: numericValue,
+      }));
+    } else {
+      setTransaction((prevTransaction) => ({
+        ...prevTransaction,
+        amount: 0,
+      }));
     }
-
-    // Update transaction state
-    setTransaction((prevTransaction) => ({
-      ...prevTransaction,
-      amount: numericValue, // Ensure amount is a number
-    }));
   };
 
   const onCreateTxn = async () => {
@@ -219,6 +223,22 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomLeftRadius={"$11"}
       >
         <Form onSubmit={onCreateTxn} rowGap="$3" borderRadius="$6" padding="$3">
+          <Fieldset gap="$4" horizontal justifyContent="center">
+            <Input
+              id="amount-input"
+              placeholder="0"
+              defaultValue={"0"}
+              keyboardType="numeric"
+              value={transaction.amount.toString()}
+              onChangeText={handleAmountChange}
+              inputMode="decimal"
+              size={"$12"}
+              backgroundColor={"$backgroundTransparent"}
+              borderWidth="0"
+              autoFocus={true}
+              clearTextOnFocus
+            />
+          </Fieldset>
           <Fieldset gap="$4" horizontal>
             <Label
               width={160}
@@ -229,28 +249,14 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
             </Label>
             <Input
               flex={1}
-              id="transactionInput"
+              id="transaction-name"
               placeholder="Enter Name"
               defaultValue=""
               value={transaction.name}
               onChangeText={handleNameChange}
             />
           </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amount">
-              Amount
-            </Label>
-            <Input
-              flex={1}
-              id="amount-input"
-              placeholder="Enter a number"
-              defaultValue={"0"}
-              keyboardType="numeric"
-              value={transaction.amount.toString()}
-              onChangeText={handleAmountChange}
-              inputMode="numeric"
-            />
-          </Fieldset>
+
           {/* <Fieldset gap="$4" horizontal>
         <Label width={160} justifyContent="flex-end" htmlFor="amout">
           Split
@@ -283,14 +289,18 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
           </Fieldset>
 
           <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
+            <Label
+              width={160}
+              justifyContent="flex-end"
+              htmlFor="submitted-by-label"
+            >
               Submitted By
             </Label>
 
             <Input
               flex={1}
-              id="submittedBy"
-              defaultValue=""
+              id="submitted-by-input"
+              defaultValue={userId.toString()}
               value={userId.toString()}
               disabled={true}
               borderColor={"$colorTransparent"}
@@ -307,7 +317,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
-
           <Separator />
           <SplitView
             memberSplits={transaction.split}

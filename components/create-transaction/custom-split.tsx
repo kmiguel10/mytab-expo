@@ -130,7 +130,6 @@ const CustomSplit: React.FC<Props> = ({
     // console.log("Custom Split Component");
     // console.log("Amount: ", amount);
     // console.log("member splits: ", JSON.stringify(memberSplits));
-    console.log("windowHeight", windowHeight);
     initializeSelectedSplits();
     setSplitAmount(amount);
   }, [memberSplits]);

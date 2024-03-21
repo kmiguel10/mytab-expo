@@ -32,7 +32,7 @@ const SplitView: React.FC<Props> = ({
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
-    <View height={windowHeight * 0.35}>
+    <View height={windowHeight * 0.265}>
       <ScrollView>
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
           {memberSplits.map((item, index) => (

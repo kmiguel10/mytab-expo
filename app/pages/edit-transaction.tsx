@@ -251,6 +251,32 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomLeftRadius={"$11"}
       >
         <Form onSubmit={onEditTxn} rowGap="$3" borderRadius="$4" padding="$3">
+          <Fieldset gap="$4" horizontal justifyContent="center">
+            {/* <Input
+              flex={1}
+              id="amount-input"
+              placeholder="Enter a number"
+              defaultValue={"0"}
+              keyboardType="numeric"
+              value={transaction.amount.toString()}
+              onChangeText={handleAmountChange}
+              inputMode="numeric"
+            /> */}
+            <Input
+              id="amount-input"
+              placeholder="0"
+              defaultValue={"0"}
+              keyboardType="numeric"
+              value={transaction.amount.toString()}
+              onChangeText={handleAmountChange}
+              inputMode="decimal"
+              size={"$12"}
+              backgroundColor={"$backgroundTransparent"}
+              borderWidth="0"
+              autoFocus={true}
+              clearTextOnFocus
+            />
+          </Fieldset>
           <Fieldset gap="$4" horizontal>
             <Label
               width={160}
@@ -261,28 +287,14 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
             </Label>
             <Input
               flex={1}
-              id="transactionInput"
+              id="transaction-name"
               placeholder="Enter Name"
               defaultValue=""
               value={transaction.name}
               onChangeText={handleNameChange}
             />
           </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amount">
-              Amount
-            </Label>
-            <Input
-              flex={1}
-              id="amount-input"
-              placeholder="Enter a number"
-              defaultValue={"0"}
-              keyboardType="numeric"
-              value={transaction.amount.toString()}
-              onChangeText={handleAmountChange}
-              inputMode="numeric"
-            />
-          </Fieldset>
+
           <Fieldset gap="$4" horizontal>
             <Label width={160} justifyContent="flex-end" htmlFor="payer">
               <TooltipSimple
