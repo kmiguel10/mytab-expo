@@ -271,7 +271,7 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               />
             </Fieldset>
           </XStack>
-          <XStack justifyContent="flex-end">
+          <XStack justifyContent="flex-end" paddingTop="$4">
             <CustomSplit
               memberSplits={transaction.split}
               amount={transaction.amount}

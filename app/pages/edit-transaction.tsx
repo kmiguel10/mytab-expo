@@ -295,7 +295,7 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
             </Fieldset>
           </XStack>
 
-          <XStack justifyContent="flex-end">
+          <XStack justifyContent="flex-end" paddingTop="$4">
             <CustomSplit
               memberSplits={transaction.split}
               amount={transaction.amount}
@@ -315,7 +315,6 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
             isEven={isEven}
           />
           <Separator />
-
           <XStack gap="$3" justifyContent="space-between">
             <Button color={"$red10Light"} onPress={onDeleteTxn}>
               Delete

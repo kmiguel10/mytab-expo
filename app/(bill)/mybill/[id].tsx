@@ -132,7 +132,7 @@ const Page = () => {
           }}
           asChild
         >
-          <Button>Create Transaction</Button>
+          <Button>Add Transaction</Button>
         </Link>
       </FooterContainer>
       {(txnName || errorCreateMsg) && (

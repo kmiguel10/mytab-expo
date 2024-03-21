@@ -44,11 +44,6 @@ const CustomSplit: React.FC<Props> = ({
 
   const initializeSelectedSplits = () => {
     setSelectedMembers(includedMembers);
-
-    console.log(
-      "Selected members (custom split): ",
-      JSON.stringify(selectedMembers)
-    );
   };
 
   const handleAmountChange = (memberId: string, newAmount: number) => {
