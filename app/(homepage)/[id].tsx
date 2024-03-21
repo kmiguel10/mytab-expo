@@ -78,7 +78,7 @@ const Home = () => {
   }, [id, newBillId, joinedBillCode, errorMessage]);
 
   return (
-    <ToastProvider burntOptions={{ from: "bottom" }}>
+    <OuterContainer>
       <ToastViewport
         width={"100%"}
         justifyContent="center"
@@ -86,46 +86,39 @@ const Home = () => {
         top={0}
         right={0}
       />
-      {/* <ToastViewport
-        flexDirection="column-reverse"
-        top={top}
-        left={left}
-        right={right}
-      /> */}
-      <OuterContainer>
-        <YStack padding="$2" gap="$2">
-          <YStack
-            justifyContent="flex-start"
-            gap="$3"
-            height={windowHeight * 0.15}
-            backgroundColor={"white"}
-            paddingVertical="$4"
-            paddingHorizontal="$4"
-            borderRadius="$6"
-          >
-            <Avatar circular size="$6">
-              <Avatar.Image
-                accessibilityLabel="Nate Wienert"
-                src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-              />
-              <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-            </Avatar>
-            <Text>User id: {id.slice(0, 5)}</Text>
-          </YStack>
-          <BodyContainer height={windowHeight * 0.62}>
-            <TabsAdvancedUnderline
-              bills={bills}
-              userId={id.toString()}
-              height={windowHeight * 0.62}
-              width={windowWidth * 0.95}
+      <YStack padding="$2" gap="$2">
+        <YStack
+          justifyContent="flex-start"
+          gap="$3"
+          height={windowHeight * 0.15}
+          backgroundColor={"white"}
+          paddingVertical="$4"
+          paddingHorizontal="$4"
+          borderRadius="$6"
+        >
+          <Avatar circular size="$6">
+            <Avatar.Image
+              accessibilityLabel="Nate Wienert"
+              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
             />
-          </BodyContainer>
+            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
+          </Avatar>
+          <Text>User id: {id.slice(0, 5)}</Text>
         </YStack>
+        <BodyContainer height={windowHeight * 0.62}>
+          <TabsAdvancedUnderline
+            bills={bills}
+            userId={id.toString()}
+            height={windowHeight * 0.62}
+            width={windowWidth * 0.95}
+          />
+        </BodyContainer>
+      </YStack>
 
-        <FooterContainer justifyContent="space-between" height={windowHeight}>
-          <JoinBill />
-          <CreateBill />
-          {/* <Link
+      <FooterContainer justifyContent="space-between" height={windowHeight}>
+        <JoinBill />
+        <CreateBill />
+        {/* <Link
             href={{
               pathname: "/(modals)/create-bill",
               params: {
@@ -136,85 +129,84 @@ const Home = () => {
           >
             <Button>Create</Button>
           </Link> */}
-          <Button
-            onPress={() => {
-              setOpen(false);
-              window.clearTimeout(timerRef.current);
-              timerRef.current = window.setTimeout(() => {
-                setOpen(true);
-              }, 150);
-            }}
-          >
-            Single Toast
-          </Button>
+        <Button
+          onPress={() => {
+            setOpen(false);
+            window.clearTimeout(timerRef.current);
+            timerRef.current = window.setTimeout(() => {
+              setOpen(true);
+            }, 150);
+          }}
+        >
+          Single Toast
+        </Button>
 
-          {newBillId && (
-            <Toast
-              onOpenChange={setOpen}
-              open={open}
-              animation="100ms"
-              enterStyle={{ x: -20, opacity: 0 }}
-              exitStyle={{ x: -20, opacity: 0 }}
-              opacity={1}
-              x={0}
-              backgroundColor={"$green8"}
-              height={"500"}
-              width={"85%"}
-              justifyContent="center"
-            >
-              <Toast.Title alignItems="center">
-                Successfully created {newBill?.name} Bill
-              </Toast.Title>
-              <Toast.Description>
-                Share Bill Code to your friends: {newBill?.billcode}
-              </Toast.Description>
-            </Toast>
-          )}
-          {joinedBillCode && (
-            <Toast
-              onOpenChange={setOpen}
-              open={open}
-              animation="100ms"
-              enterStyle={{ x: -20, opacity: 0 }}
-              exitStyle={{ x: -20, opacity: 0 }}
-              opacity={1}
-              x={0}
-              backgroundColor={"$green8"}
-              height={"400"}
-              width={"80%"}
-              justifyContent="center"
-            >
-              <Toast.Title alignItems="center">
-                You joined " {newBill?.name} "
-              </Toast.Title>
-              <Toast.Description>
-                Share Bill Code to your friends: {newBill?.billcode}
-              </Toast.Description>
-            </Toast>
-          )}
-          {(errorMessage || errorCreateMessage) && (
-            <Toast
-              onOpenChange={setOpen}
-              open={open}
-              animation="100ms"
-              enterStyle={{ x: -20, opacity: 0 }}
-              exitStyle={{ x: -20, opacity: 0 }}
-              opacity={1}
-              x={0}
-              backgroundColor={"$red8"}
-              height={"400"}
-              width={"80%"}
-              justifyContent="center"
-            >
-              <Toast.Title alignContent="center">
-                {errorMessage ? errorMessage : errorCreateMessage}
-              </Toast.Title>
-              {/* <Toast.Description>{error}</Toast.Description> */}
-            </Toast>
-          )}
-        </FooterContainer>
-      </OuterContainer>
-    </ToastProvider>
+        {newBillId && (
+          <Toast
+            onOpenChange={setOpen}
+            open={open}
+            animation="100ms"
+            enterStyle={{ x: -20, opacity: 0 }}
+            exitStyle={{ x: -20, opacity: 0 }}
+            opacity={1}
+            x={0}
+            backgroundColor={"$green8"}
+            height={"500"}
+            width={"85%"}
+            justifyContent="center"
+          >
+            <Toast.Title alignItems="center">
+              Successfully created {newBill?.name} Bill
+            </Toast.Title>
+            <Toast.Description>
+              Share Bill Code to your friends: {newBill?.billcode}
+            </Toast.Description>
+          </Toast>
+        )}
+        {joinedBillCode && (
+          <Toast
+            onOpenChange={setOpen}
+            open={open}
+            animation="100ms"
+            enterStyle={{ x: -20, opacity: 0 }}
+            exitStyle={{ x: -20, opacity: 0 }}
+            opacity={1}
+            x={0}
+            backgroundColor={"$green8"}
+            height={"400"}
+            width={"80%"}
+            justifyContent="center"
+          >
+            <Toast.Title alignItems="center">
+              You joined " {newBill?.name} "
+            </Toast.Title>
+            <Toast.Description>
+              Share Bill Code to your friends: {newBill?.billcode}
+            </Toast.Description>
+          </Toast>
+        )}
+        {(errorMessage || errorCreateMessage) && (
+          <Toast
+            onOpenChange={setOpen}
+            open={open}
+            animation="100ms"
+            enterStyle={{ x: -20, opacity: 0 }}
+            exitStyle={{ x: -20, opacity: 0 }}
+            opacity={1}
+            x={0}
+            backgroundColor={"$red8"}
+            height={"400"}
+            width={"80%"}
+            justifyContent="center"
+          >
+            <Toast.Title alignContent="center">
+              {errorMessage ? errorMessage : errorCreateMessage}
+            </Toast.Title>
+            {/* <Toast.Description>{error}</Toast.Description> */}
+          </Toast>
+        )}
+      </FooterContainer>
+    </OuterContainer>
   );
 };
 

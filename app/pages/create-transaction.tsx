@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import {
   Button,
   Fieldset,
@@ -21,6 +21,7 @@ import {
   View,
   XStack,
   YStack,
+  Text,
 } from "tamagui";
 interface Member {
   userid: string;
@@ -101,13 +102,20 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     if (error) {
       console.log("Transaction: ", transaction);
       console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorCreateMsg: error.message }, // Add userId to params
       });
+    } else {
+      console.log("Transaction created successfully:", data);
+      // router.replace(`/(bill)/mybill/${billId}`);
+      if (data) {
+        const createdTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, txnName: createdTxn.name }, // Add userId to params
+        });
+      }
     }
   };
 
@@ -175,12 +183,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     const includedMembers = selectedMembers.filter(
       (member) => member.isIncluded
     );
-
-    // Create an array containing memberId and amount for each included member
-    // const split = includedMembers.map((member) => ({
-    //   memberId: member.memberId,
-    //   amount: member.amount,
-    // }));
     const split = selectedMembers.map((member) => ({
       isIncluded: member.isIncluded,
       memberId: member.memberId,
@@ -210,7 +212,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   }, [transaction.split]);
 
   return (
-    // <ScrollView>
     <OuterContainer
       padding="$2"
       gap="$2"
@@ -222,7 +223,13 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
-        <Form onSubmit={onCreateTxn} rowGap="$3" borderRadius="$6" padding="$3">
+        <Form
+          onSubmit={onCreateTxn}
+          rowGap="$3"
+          borderRadius="$6"
+          padding="$3"
+          justifyContent="center"
+        >
           <Fieldset gap="$4" horizontal justifyContent="center">
             <Input
               id="amount-input"
@@ -239,75 +246,31 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               clearTextOnFocus
             />
           </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label
-              width={160}
-              justifyContent="flex-end"
-              htmlFor="transactionName"
-            >
-              Name
-            </Label>
-            <Input
-              flex={1}
-              id="transaction-name"
-              placeholder="Enter Name"
-              defaultValue=""
-              value={transaction.name}
-              onChangeText={handleNameChange}
-            />
-          </Fieldset>
-
-          {/* <Fieldset gap="$4" horizontal>
-        <Label width={160} justifyContent="flex-end" htmlFor="amout">
-          Split
-        </Label>
-        <XStack width={200} alignItems="center" gap="$4">
-          <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
-            Even
-          </Label>
-          <Separator minHeight={20} vertical />
-          <Switch>
-            <Switch.Thumb animation="quick" />
-          </Switch>
-        </XStack>
-      </Fieldset> */}
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-              defaultPayer={userId.toString()}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label
-              width={160}
-              justifyContent="flex-end"
-              htmlFor="submitted-by-label"
-            >
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submitted-by-input"
-              defaultValue={userId.toString()}
-              value={userId.toString()}
-              disabled={true}
-              borderColor={"$colorTransparent"}
-              backgroundColor={"$backgroundTransparent"}
-              borderBlockColor={"$backgroundTransparent"}
-            />
-          </Fieldset>
+          <XStack justifyContent="space-between" gap={"$2"}>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Transaction name:
+              </Text>
+              <Input
+                id="transaction-name"
+                placeholder="Enter name"
+                defaultValue=""
+                value={transaction.name}
+                onChangeText={handleNameChange}
+                backgroundColor={"$backgroundTransparent"}
+              />
+            </Fieldset>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Paid by:
+              </Text>
+              <MembersDropdown
+                members={members}
+                onPayerChange={handlePayerChange}
+                defaultPayer={userId.toString()}
+              />
+            </Fieldset>
+          </XStack>
           <XStack justifyContent="flex-end">
             <CustomSplit
               memberSplits={transaction.split}
@@ -317,14 +280,18 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
-          <Separator />
+          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+            <Separator />
+            <Text fontSize={"$2"}>Current Split</Text>
+            <Separator />
+          </XStack>
+
           <SplitView
             memberSplits={transaction.split}
             amount={transaction.amount.toString()}
             isEven={isEven}
           />
           <Separator />
-
           <Form.Trigger asChild>
             <Button>Create</Button>
           </Form.Trigger>

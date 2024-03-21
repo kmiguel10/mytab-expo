@@ -142,13 +142,12 @@ const CustomSplit: React.FC<Props> = ({
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
         <Button
-          width={windowWidth * 0.45}
           variant="outlined"
           theme="active"
           backgroundColor="$blue3"
           disabled={!amount}
         >
-          Split Amount
+          Split
         </Button>
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">

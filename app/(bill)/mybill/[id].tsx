@@ -15,15 +15,17 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import { HeaderContainer } from "@/components/containers/header-container";
 import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
+import { Toast, ToastViewport } from "@tamagui/toast";
 
 const Page = () => {
-  const { id, userId } = useLocalSearchParams();
+  const { id, userId, txnName, errorCreateMsg } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const [open, setOpen] = useState(false);
 
   /** fetch summary info */
   useEffect(() => {
@@ -77,8 +79,25 @@ const Page = () => {
     fetchMyTabInfo();
     console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
+
+  //Gets txnCreateData
+  useEffect(() => {
+    console.log("Passed txnName", txnName);
+    if (txnName || errorCreateMsg) {
+      setOpen(true);
+      console.log("BILL txnName: ", txnName);
+    }
+  }, [txnName, errorCreateMsg]);
+
   return (
     <OuterContainer>
+      <ToastViewport
+        width={"100%"}
+        justifyContent="center"
+        flexDirection="column-reverse"
+        top={0}
+        right={0}
+      />
       <YStack padding="$2" gap="$2">
         <HeaderContainer height={windowHeight * 0.15}>
           <HeaderInfo
@@ -113,9 +132,31 @@ const Page = () => {
           }}
           asChild
         >
-          <Button>Create Txn</Button>
+          <Button>Create Transaction</Button>
         </Link>
       </FooterContainer>
+      {(txnName || errorCreateMsg) && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={txnName ? "$green8Light" : "$red8Light"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title textAlign="left">
+            {txnName ? "Transaction created" : "Failed creating transaction"}
+          </Toast.Title>
+          <Toast.Description>
+            {txnName ? `You entered: ${txnName}` : `Error: ${errorCreateMsg}`}
+          </Toast.Description>
+        </Toast>
+      )}
     </OuterContainer>
   );
 };

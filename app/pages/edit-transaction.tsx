@@ -19,6 +19,7 @@ import {
   TooltipSimple,
   XStack,
   useWindowDimensions,
+  Text,
 } from "tamagui";
 interface Member {
   userid: string;
@@ -252,16 +253,6 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       >
         <Form onSubmit={onEditTxn} rowGap="$3" borderRadius="$4" padding="$3">
           <Fieldset gap="$4" horizontal justifyContent="center">
-            {/* <Input
-              flex={1}
-              id="amount-input"
-              placeholder="Enter a number"
-              defaultValue={"0"}
-              keyboardType="numeric"
-              value={transaction.amount.toString()}
-              onChangeText={handleAmountChange}
-              inputMode="numeric"
-            /> */}
             <Input
               id="amount-input"
               placeholder="0"
@@ -277,71 +268,33 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
               clearTextOnFocus
             />
           </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label
-              width={160}
-              justifyContent="flex-end"
-              htmlFor="transactionName"
-            >
-              Transaction Name
-            </Label>
-            <Input
-              flex={1}
-              id="transaction-name"
-              placeholder="Enter Name"
-              defaultValue=""
-              value={transaction.name}
-              onChangeText={handleNameChange}
-            />
-          </Fieldset>
+          <XStack justifyContent="space-between" gap={"$2"}>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Transaction name:
+              </Text>
+              <Input
+                flex={1}
+                id="transaction-name"
+                placeholder="Enter Name"
+                defaultValue=""
+                value={transaction.name}
+                onChangeText={handleNameChange}
+                backgroundColor={"$backgroundTransparent"}
+              />
+            </Fieldset>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Paid by:
+              </Text>
+              <MembersDropdown
+                members={members}
+                onPayerChange={handlePayerChange}
+                defaultPayer={transaction.payerid || ""}
+              />
+            </Fieldset>
+          </XStack>
 
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-              defaultPayer={transaction.payerid || ""}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submittedBy"
-              defaultValue=""
-              value={transaction.submittedbyid}
-              disabled={true}
-              borderColor={"$colorTransparent"}
-              backgroundColor={"$backgroundTransparent"}
-              borderBlockColor={"$backgroundTransparent"}
-            />
-          </Fieldset>
-          {/* <Fieldset gap="$4" horizontal>
-        <Label width={160} justifyContent="flex-end" htmlFor="amout">
-          Split
-        </Label>
-        <XStack width={200} alignItems="center" gap="$4">
-          <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
-            Even
-          </Label>
-          <Separator minHeight={20} vertical />
-          <Switch>
-            <Switch.Thumb animation="quick" />
-          </Switch>
-        </XStack>
-      </Fieldset> */}
           <XStack justifyContent="flex-end">
             <CustomSplit
               memberSplits={transaction.split}
@@ -351,7 +304,11 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
-          <Separator />
+          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+            <Separator />
+            <Text fontSize={"$2"}>Current Split</Text>
+            <Separator />
+          </XStack>
           <SplitView
             memberSplits={transaction.split}
             amount={transaction.amount.toString()}
