@@ -42,7 +42,7 @@ const HeaderInfo: React.FC<Props> = ({
     0
   );
   return (
-    <XStack justifyContent="space-evenly" gap="$2">
+    <XStack justifyContent="space-evenly" gap="$3" padding="$2">
       <YStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
           <Text>Bill Name</Text>
@@ -59,11 +59,11 @@ const HeaderInfo: React.FC<Props> = ({
         <View>
           <Text>Total Amount</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
-            {totalPaid}
+            ${totalPaid}
           </H4>
         </View>
         <View>
-          <Text>Total Count</Text>
+          <Text>Transactions</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
             {txnCount}
           </H4>

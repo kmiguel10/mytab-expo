@@ -33,7 +33,7 @@ const TransactionInfoCard: React.FC<Props> = ({
       <XStack
         flex={1}
         flexWrap="wrap"
-        space="$1"
+        gap="$1"
         backgroundColor={"transparent"}
         justifyContent="center"
         paddingBottom="$2"
