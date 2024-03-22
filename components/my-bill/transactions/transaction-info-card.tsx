@@ -22,11 +22,10 @@ interface Props extends CardProps {
   currentUser: string;
 }
 
-const TransactionInfoCard: React.FC<Props> = ({
-  transactions,
-  currentUser,
-  ...props
-}) => {
+const TransactionInfoCard: React.ForwardRefRenderFunction<
+  HTMLDivElement,
+  Props
+> = ({ transactions, currentUser, ...props }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   return (
     <ScrollView>
