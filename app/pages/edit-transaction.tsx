@@ -6,6 +6,7 @@ import SplitView from "@/components/create-transaction/split-view";
 import { getCurrentTransaction, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
+import { SendHorizontal, Trash2 } from "@tamagui/lucide-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,13 +14,10 @@ import {
   Fieldset,
   Form,
   Input,
-  Label,
-  Paragraph,
   Separator,
-  TooltipSimple,
+  Text,
   XStack,
   useWindowDimensions,
-  Text,
 } from "tamagui";
 interface Member {
   userid: string;
@@ -98,16 +96,18 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("TxnId: ", txnId);
-      console.log("Transaction: ", transaction, txnId);
-      console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorEditMsg: error.message }, //
       });
+    } else {
+      if (data) {
+        const editedTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, editedTxnName: editedTxn.name },
+        });
+      }
     }
   };
 
@@ -125,16 +125,18 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("Txn id", _txnId);
-      console.log("Transaction: ", transaction);
-      console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorDeleteMsg: error.message }, //
       });
+    } else {
+      if (data) {
+        const _deletedTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, deletedTxnName: _deletedTxn.name },
+        });
+      }
     }
   };
 
@@ -316,11 +318,18 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
           />
           <Separator />
           <XStack gap="$3" justifyContent="space-between">
-            <Button color={"$red10Light"} onPress={onDeleteTxn}>
-              Delete
-            </Button>
+            <Button
+              color={"$red10Light"}
+              onPress={onDeleteTxn}
+              icon={<Trash2 size={"$1"} />}
+              width={width * 0.25}
+            />
             <Form.Trigger asChild>
-              <Button>Submit</Button>
+              <Button
+                color={"$blue10Light"}
+                width={width * 0.25}
+                icon={<SendHorizontal size={"$1"} />}
+              />
             </Form.Trigger>
           </XStack>
         </Form>

@@ -1,4 +1,4 @@
-import { X } from "@tamagui/lucide-icons";
+import { X, Smile, UserCheck, Axe } from "@tamagui/lucide-icons";
 
 import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
 import { useEffect, useState } from "react";
@@ -141,6 +141,7 @@ const CustomSplit: React.FC<Props> = ({
           theme="active"
           backgroundColor="$blue3"
           disabled={!amount}
+          icon={<Axe size={"$1.5"} />}
         >
           Split
         </Button>
@@ -203,15 +204,16 @@ const CustomSplit: React.FC<Props> = ({
                     key={index}
                     width={windowWidth * 0.88}
                   >
-                    <XStack justifyContent="space-between">
+                    <XStack justifyContent="space-between" gap="$2">
                       <Checkbox
+                        size={"$6"}
                         checked={selectedMembers.isIncluded}
                         onCheckedChange={() =>
                           handleCheckboxChange(selectedMembers.memberId)
                         }
                       >
                         <Checkbox.Indicator>
-                          <Text>X</Text>
+                          <UserCheck size={"$1.5"} />
                         </Checkbox.Indicator>
                       </Checkbox>
                       <Label

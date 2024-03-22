@@ -14,14 +14,9 @@ import {
   Fieldset,
   Form,
   Input,
-  Label,
-  Paragraph,
   Separator,
-  TooltipSimple,
-  View,
-  XStack,
-  YStack,
   Text,
+  XStack,
 } from "tamagui";
 interface Member {
   userid: string;
@@ -100,20 +95,16 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("Transaction: ", transaction);
-      console.error("Error inserting data:", error.message, error.details);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId, errorCreateMsg: error.message }, // Add userId to params
+        params: { userId: _userId, errorCreateMsg: error.message }, //
       });
     } else {
-      console.log("Transaction created successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       if (data) {
         const createdTxn: Transaction = data[0];
         router.replace({
           pathname: `/(bill)/mybill/${billId}`,
-          params: { userId: _userId, txnName: createdTxn.name }, // Add userId to params
+          params: { userId: _userId, txnName: createdTxn.name },
         });
       }
     }

@@ -18,7 +18,16 @@ import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
 
 const Page = () => {
-  const { id, userId, txnName, errorCreateMsg } = useLocalSearchParams();
+  const {
+    id,
+    userId,
+    txnName,
+    errorCreateMsg,
+    errorEditMsg,
+    editedTxnName,
+    errorDeleteMsg,
+    deletedTxnName,
+  } = useLocalSearchParams();
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
@@ -82,12 +91,24 @@ const Page = () => {
 
   //Gets txnCreateData
   useEffect(() => {
-    console.log("Passed txnName", txnName);
-    if (txnName || errorCreateMsg) {
+    if (
+      txnName ||
+      errorCreateMsg ||
+      editedTxnName ||
+      errorEditMsg ||
+      deletedTxnName ||
+      errorDeleteMsg
+    ) {
       setOpen(true);
-      console.log("BILL txnName: ", txnName);
     }
-  }, [txnName, errorCreateMsg]);
+  }, [
+    txnName,
+    errorCreateMsg,
+    editedTxnName,
+    errorEditMsg,
+    errorDeleteMsg,
+    deletedTxnName,
+  ]);
 
   return (
     <OuterContainer>
@@ -154,6 +175,58 @@ const Page = () => {
           </Toast.Title>
           <Toast.Description>
             {txnName ? `You entered: ${txnName}` : `Error: ${errorCreateMsg}`}
+          </Toast.Description>
+        </Toast>
+      )}
+      {(editedTxnName || errorEditMsg) && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={editedTxnName ? "$green8Light" : "$red8Light"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title textAlign="left">
+            {editedTxnName
+              ? "Transaction edited"
+              : "Failed editing transaction"}
+          </Toast.Title>
+          <Toast.Description>
+            {editedTxnName
+              ? `You edited: ${editedTxnName}`
+              : `Error: ${errorEditMsg}`}
+          </Toast.Description>
+        </Toast>
+      )}
+      {(deletedTxnName || errorDeleteMsg) && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={deletedTxnName ? "$green8Light" : "$red8Light"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title textAlign="left">
+            {deletedTxnName
+              ? "Transaction deleted"
+              : "Failed deleting transaction"}
+          </Toast.Title>
+          <Toast.Description>
+            {deletedTxnName
+              ? `You deleted: ${deletedTxnName}`
+              : `Error: ${errorDeleteMsg}`}
           </Toast.Description>
         </Toast>
       )}
