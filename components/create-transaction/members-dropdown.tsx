@@ -66,7 +66,7 @@ export default function MembersDropdown({
       disablePreventBodyScroll
       {...props}
     >
-      <Select.Trigger width="51%">
+      <Select.Trigger>
         <Select.Value placeholder={defaultPayer} />
       </Select.Trigger>
 

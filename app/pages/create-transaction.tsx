@@ -8,19 +8,15 @@ import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import {
   Button,
   Fieldset,
   Form,
   Input,
-  Label,
-  Paragraph,
   Separator,
-  TooltipSimple,
-  View,
+  Text,
   XStack,
-  YStack,
 } from "tamagui";
 interface Member {
   userid: string;
@@ -71,18 +67,22 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   const handleAmountChange = (amount: string) => {
-    // Convert amount to a number
-    let numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+    // Remove any non-numeric characters except for periods
+    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
 
-    if (!numericValue) {
-      numericValue = 0;
+    // Check if the numeric value is a valid number
+    if (!isNaN(numericValue)) {
+      // Update transaction state with the parsed numeric value
+      setTransaction((prevTransaction) => ({
+        ...prevTransaction,
+        amount: numericValue,
+      }));
+    } else {
+      setTransaction((prevTransaction) => ({
+        ...prevTransaction,
+        amount: 0,
+      }));
     }
-
-    // Update transaction state
-    setTransaction((prevTransaction) => ({
-      ...prevTransaction,
-      amount: numericValue, // Ensure amount is a number
-    }));
   };
 
   const onCreateTxn = async () => {
@@ -95,15 +95,18 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("Transaction: ", transaction);
-      console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorCreateMsg: error.message }, //
       });
+    } else {
+      if (data) {
+        const createdTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, txnName: createdTxn.name },
+        });
+      }
     }
   };
 
@@ -171,12 +174,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     const includedMembers = selectedMembers.filter(
       (member) => member.isIncluded
     );
-
-    // Create an array containing memberId and amount for each included member
-    // const split = includedMembers.map((member) => ({
-    //   memberId: member.memberId,
-    //   amount: member.amount,
-    // }));
     const split = selectedMembers.map((member) => ({
       isIncluded: member.isIncluded,
       memberId: member.memberId,
@@ -206,7 +203,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
   }, [transaction.split]);
 
   return (
-    // <ScrollView>
     <OuterContainer
       padding="$2"
       gap="$2"
@@ -218,87 +214,55 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
-        <Form onSubmit={onCreateTxn} rowGap="$3" borderRadius="$6" padding="$3">
-          <Fieldset gap="$4" horizontal>
-            <Label
-              width={160}
-              justifyContent="flex-end"
-              htmlFor="transactionName"
-            >
-              Name
-            </Label>
+        <Form
+          onSubmit={onCreateTxn}
+          rowGap="$3"
+          borderRadius="$6"
+          padding="$3"
+          justifyContent="center"
+        >
+          <Fieldset gap="$4" horizontal justifyContent="center">
             <Input
-              flex={1}
-              id="transactionInput"
-              placeholder="Enter Name"
-              defaultValue=""
-              value={transaction.name}
-              onChangeText={handleNameChange}
-            />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amount">
-              Amount
-            </Label>
-            <Input
-              flex={1}
               id="amount-input"
-              placeholder="Enter a number"
+              placeholder="0"
               defaultValue={"0"}
               keyboardType="numeric"
               value={transaction.amount.toString()}
               onChangeText={handleAmountChange}
-              inputMode="numeric"
-            />
-          </Fieldset>
-          {/* <Fieldset gap="$4" horizontal>
-        <Label width={160} justifyContent="flex-end" htmlFor="amout">
-          Split
-        </Label>
-        <XStack width={200} alignItems="center" gap="$4">
-          <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
-            Even
-          </Label>
-          <Separator minHeight={20} vertical />
-          <Switch>
-            <Switch.Thumb animation="quick" />
-          </Switch>
-        </XStack>
-      </Fieldset> */}
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-              defaultPayer={userId.toString()}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submittedBy"
-              defaultValue=""
-              value={userId.toString()}
-              disabled={true}
-              borderColor={"$colorTransparent"}
+              inputMode="decimal"
+              size={"$12"}
               backgroundColor={"$backgroundTransparent"}
-              borderBlockColor={"$backgroundTransparent"}
+              borderWidth="0"
+              autoFocus={true}
+              clearTextOnFocus
             />
           </Fieldset>
-          <XStack justifyContent="flex-end">
+          <XStack justifyContent="space-between" gap={"$2"}>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Transaction name:
+              </Text>
+              <Input
+                id="transaction-name"
+                placeholder="Enter name"
+                defaultValue=""
+                value={transaction.name}
+                onChangeText={handleNameChange}
+                backgroundColor={"$backgroundTransparent"}
+              />
+            </Fieldset>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Paid by:
+              </Text>
+              <MembersDropdown
+                members={members}
+                onPayerChange={handlePayerChange}
+                defaultPayer={userId.toString()}
+              />
+            </Fieldset>
+          </XStack>
+          <XStack justifyContent="flex-end" paddingTop="$4">
             <CustomSplit
               memberSplits={transaction.split}
               amount={transaction.amount}
@@ -307,15 +271,18 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
+          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+            <Separator />
+            <Text fontSize={"$2"}>Current Split</Text>
+            <Separator />
+          </XStack>
 
-          <Separator />
           <SplitView
             memberSplits={transaction.split}
             amount={transaction.amount.toString()}
             isEven={isEven}
           />
           <Separator />
-
           <Form.Trigger asChild>
             <Button>Create</Button>
           </Form.Trigger>

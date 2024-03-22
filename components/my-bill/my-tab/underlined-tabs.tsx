@@ -201,6 +201,9 @@ const UnderlinedTabs: React.FC<Props> = ({
                 <TransactionInfoCard
                   transactions={transactions}
                   currentUser={userId}
+                  animation="bouncy"
+                  hoverStyle={{ scale: 0.925 }}
+                  pressStyle={{ scale: 0.875 }}
                 />
               )}
               {currentTab === "Summary" && (

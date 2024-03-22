@@ -1,4 +1,4 @@
-import { X } from "@tamagui/lucide-icons";
+import { X, Smile, UserCheck, Axe } from "@tamagui/lucide-icons";
 
 import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
 import { useEffect, useState } from "react";
@@ -44,11 +44,6 @@ const CustomSplit: React.FC<Props> = ({
 
   const initializeSelectedSplits = () => {
     setSelectedMembers(includedMembers);
-
-    console.log(
-      "Selected members (custom split): ",
-      JSON.stringify(selectedMembers)
-    );
   };
 
   const handleAmountChange = (memberId: string, newAmount: number) => {
@@ -130,7 +125,6 @@ const CustomSplit: React.FC<Props> = ({
     // console.log("Custom Split Component");
     // console.log("Amount: ", amount);
     // console.log("member splits: ", JSON.stringify(memberSplits));
-    console.log("windowHeight", windowHeight);
     initializeSelectedSplits();
     setSplitAmount(amount);
   }, [memberSplits]);
@@ -143,13 +137,13 @@ const CustomSplit: React.FC<Props> = ({
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
         <Button
-          width={windowWidth * 0.45}
           variant="outlined"
           theme="active"
           backgroundColor="$blue3"
           disabled={!amount}
+          icon={<Axe size={"$1.5"} />}
         >
-          Split Amount
+          Split
         </Button>
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
@@ -210,15 +204,16 @@ const CustomSplit: React.FC<Props> = ({
                     key={index}
                     width={windowWidth * 0.88}
                   >
-                    <XStack justifyContent="space-between">
+                    <XStack justifyContent="space-between" gap="$2">
                       <Checkbox
+                        size={"$6"}
                         checked={selectedMembers.isIncluded}
                         onCheckedChange={() =>
                           handleCheckboxChange(selectedMembers.memberId)
                         }
                       >
                         <Checkbox.Indicator>
-                          <Text>X</Text>
+                          <UserCheck size={"$1.5"} />
                         </Checkbox.Indicator>
                       </Checkbox>
                       <Label

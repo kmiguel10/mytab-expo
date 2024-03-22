@@ -1,29 +1,41 @@
 import { Transaction } from "@/types/global";
 import { Link } from "expo-router";
 import React from "react";
-import { Dimensions, Text } from "react-native";
-import { Card, CardProps, H6, ScrollView, XStack } from "tamagui";
+import { Dimensions } from "react-native";
+import {
+  Card,
+  CardProps,
+  H6,
+  ScrollView,
+  XStack,
+  YStack,
+  useWindowDimensions,
+  Text,
+  H3,
+  H4,
+  View,
+  H5,
+} from "tamagui";
 
 interface Props extends CardProps {
   transactions: Transaction[];
-
   currentUser: string;
 }
 
-const TransactionInfoCard: React.FC<Props> = ({
-  transactions,
-  currentUser,
-  ...props
-}) => {
-  const windowWidth = Dimensions.get("window").width;
+const TransactionInfoCard: React.ForwardRefRenderFunction<
+  HTMLDivElement,
+  Props
+> = ({ transactions, currentUser, ...props }) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   return (
     <ScrollView>
       <XStack
         flex={1}
         flexWrap="wrap"
-        space="$1"
+        gap="$1"
         backgroundColor={"transparent"}
         justifyContent="center"
+        paddingBottom="$2"
       >
         {transactions.map((txn, index) => (
           <XStack
@@ -46,23 +58,28 @@ const TransactionInfoCard: React.FC<Props> = ({
               {/* <Text>Tab Two: {currentUser}</Text> */}
               <Card
                 elevate
-                size="$3"
+                size="$2.5"
                 bordered
                 key={index}
-                height={100}
                 backgroundColor={"transparent"}
                 width={windowWidth * 0.46}
                 {...props}
               >
-                <Card.Header padded>
-                  <XStack justifyContent="space-between">
-                    <H6>{txn.name}</H6>
-                    <H6>${txn.amount}</H6>
-                  </XStack>
+                <Card.Header>
+                  <View gap="$2">
+                    <XStack justifyContent="flex-end" padding="$2">
+                      <H4 height={windowHeight * 0.03} alignContent="flex-end">
+                        ${txn.amount}
+                      </H4>
+                    </XStack>
+                    <YStack padding="$2" gap={"$1"}>
+                      <H5 height={windowHeight * 0.03}>{txn.name}</H5>
+                      <Text height={windowHeight * 0.03}>
+                        Paid By: {txn.payerid?.slice(0, 5)}
+                      </Text>
+                    </YStack>
+                  </View>
                 </Card.Header>
-                <Card.Footer padded>
-                  <Text>Paid By: {txn.payerid?.slice(0, 5)}</Text>
-                </Card.Footer>
               </Card>
             </Link>
           </XStack>

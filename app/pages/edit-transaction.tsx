@@ -6,6 +6,7 @@ import SplitView from "@/components/create-transaction/split-view";
 import { getCurrentTransaction, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { SelectedMemberSplitAmount, Transaction } from "@/types/global";
+import { SendHorizontal, Trash2 } from "@tamagui/lucide-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,10 +14,8 @@ import {
   Fieldset,
   Form,
   Input,
-  Label,
-  Paragraph,
   Separator,
-  TooltipSimple,
+  Text,
   XStack,
   useWindowDimensions,
 } from "tamagui";
@@ -97,16 +96,18 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("TxnId: ", txnId);
-      console.log("Transaction: ", transaction, txnId);
-      console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorEditMsg: error.message }, //
       });
+    } else {
+      if (data) {
+        const editedTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, editedTxnName: editedTxn.name },
+        });
+      }
     }
   };
 
@@ -124,16 +125,18 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      console.log("Txn id", _txnId);
-      console.log("Transaction: ", transaction);
-      console.error("Error inserting data:", error.message, error.details);
-    } else {
-      console.log("Data inserted successfully:", data);
-      // router.replace(`/(bill)/mybill/${billId}`);
       router.replace({
         pathname: `/(bill)/mybill/${billId}`,
-        params: { userId: _userId }, // Add userId to params
+        params: { userId: _userId, errorDeleteMsg: error.message }, //
       });
+    } else {
+      if (data) {
+        const _deletedTxn: Transaction = data[0];
+        router.replace({
+          pathname: `/(bill)/mybill/${billId}`,
+          params: { userId: _userId, deletedTxnName: _deletedTxn.name },
+        });
+      }
     }
   };
 
@@ -174,7 +177,6 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   useEffect(() => {
-    console.log("txn id", txnId);
     async function fetchCurrentTransaction() {
       if (txnId) {
         const data = await getCurrentTransaction(txnId.toString());
@@ -251,86 +253,50 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
         borderBottomLeftRadius={"$11"}
       >
         <Form onSubmit={onEditTxn} rowGap="$3" borderRadius="$4" padding="$3">
-          <Fieldset gap="$4" horizontal>
-            <Label
-              width={160}
-              justifyContent="flex-end"
-              htmlFor="transactionName"
-            >
-              Transaction Name
-            </Label>
+          <Fieldset gap="$4" horizontal justifyContent="center">
             <Input
-              flex={1}
-              id="transactionInput"
-              placeholder="Enter Name"
-              defaultValue=""
-              value={transaction.name}
-              onChangeText={handleNameChange}
-            />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="amount">
-              Amount
-            </Label>
-            <Input
-              flex={1}
               id="amount-input"
-              placeholder="Enter a number"
+              placeholder="0"
               defaultValue={"0"}
               keyboardType="numeric"
               value={transaction.amount.toString()}
               onChangeText={handleAmountChange}
-              inputMode="numeric"
-            />
-          </Fieldset>
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="payer">
-              <TooltipSimple
-                label="Pick your favorite"
-                placement="bottom-start"
-              >
-                <Paragraph>Payer</Paragraph>
-              </TooltipSimple>
-            </Label>
-
-            <MembersDropdown
-              members={members}
-              onPayerChange={handlePayerChange}
-              defaultPayer={transaction.payerid || ""}
-            />
-          </Fieldset>
-
-          <Fieldset gap="$4" horizontal>
-            <Label width={160} justifyContent="flex-end" htmlFor="name">
-              Submitted By
-            </Label>
-
-            <Input
-              flex={1}
-              id="submittedBy"
-              defaultValue=""
-              value={transaction.submittedbyid}
-              disabled={true}
-              borderColor={"$colorTransparent"}
+              inputMode="decimal"
+              size={"$12"}
               backgroundColor={"$backgroundTransparent"}
-              borderBlockColor={"$backgroundTransparent"}
+              borderWidth="0"
+              autoFocus={true}
+              clearTextOnFocus
             />
           </Fieldset>
-          {/* <Fieldset gap="$4" horizontal>
-        <Label width={160} justifyContent="flex-end" htmlFor="amout">
-          Split
-        </Label>
-        <XStack width={200} alignItems="center" gap="$4">
-          <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
-            Even
-          </Label>
-          <Separator minHeight={20} vertical />
-          <Switch>
-            <Switch.Thumb animation="quick" />
-          </Switch>
-        </XStack>
-      </Fieldset> */}
-          <XStack justifyContent="flex-end">
+          <XStack justifyContent="space-between" gap={"$2"}>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Transaction name:
+              </Text>
+              <Input
+                flex={1}
+                id="transaction-name"
+                placeholder="Enter Name"
+                defaultValue=""
+                value={transaction.name}
+                onChangeText={handleNameChange}
+                backgroundColor={"$backgroundTransparent"}
+              />
+            </Fieldset>
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+              <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Paid by:
+              </Text>
+              <MembersDropdown
+                members={members}
+                onPayerChange={handlePayerChange}
+                defaultPayer={transaction.payerid || ""}
+              />
+            </Fieldset>
+          </XStack>
+
+          <XStack justifyContent="flex-end" paddingTop="$4">
             <CustomSplit
               memberSplits={transaction.split}
               amount={transaction.amount}
@@ -339,20 +305,30 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
               includedMembers={includedMembers}
             />
           </XStack>
-          <Separator />
+          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+            <Separator />
+            <Text fontSize={"$2"}>Current Split</Text>
+            <Separator />
+          </XStack>
           <SplitView
             memberSplits={transaction.split}
             amount={transaction.amount.toString()}
             isEven={isEven}
           />
           <Separator />
-
           <XStack gap="$3" justifyContent="space-between">
-            <Button color={"$red10Light"} onPress={onDeleteTxn}>
-              Delete
-            </Button>
+            <Button
+              color={"$red10Light"}
+              onPress={onDeleteTxn}
+              icon={<Trash2 size={"$1"} />}
+              width={width * 0.25}
+            />
             <Form.Trigger asChild>
-              <Button>Submit</Button>
+              <Button
+                color={"$blue10Light"}
+                width={width * 0.25}
+                icon={<SendHorizontal size={"$1"} />}
+              />
             </Form.Trigger>
           </XStack>
         </Form>
