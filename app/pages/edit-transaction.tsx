@@ -177,7 +177,6 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
   };
 
   useEffect(() => {
-    console.log("txn id", txnId);
     async function fetchCurrentTransaction() {
       if (txnId) {
         const data = await getCurrentTransaction(txnId.toString());
