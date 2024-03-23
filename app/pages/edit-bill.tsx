@@ -1,6 +1,6 @@
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
-import { getBillInfo } from "@/lib/api";
+import { getBillInfo, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -19,6 +19,7 @@ export const EditBillPage = () => {
   const { width, height } = useWindowDimensions();
   const { id, billId, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const router = useRouter();
 
   //button handlers
@@ -51,8 +52,8 @@ export const EditBillPage = () => {
     if (data) {
       console.log("Locked bill: ", data);
       router.replace({
-        pathname: "/(homepage)/[id]",
-        params: { id: userId.toString() },
+        pathname: `/(bill)/mybill/${id}`,
+        params: { userId: userId.toString() },
       });
     } else if (error) {
     }
@@ -70,8 +71,8 @@ export const EditBillPage = () => {
       if (data) {
         console.log("submitted bill: ", data);
         router.replace({
-          pathname: "/(homepage)/[id]",
-          params: { id: userId.toString() },
+          pathname: `/(bill)/mybill/${id}`,
+          params: { userId: userId.toString() },
         });
       } else if (error) {
         console.log("ERROR", error);
@@ -99,6 +100,21 @@ export const EditBillPage = () => {
     console.log("userId", userId);
   }, [id, userId]);
 
+  useEffect(() => {
+    const fetchDataAndInitializeSplits = async () => {
+      if (id) {
+        try {
+          const membersData = await getMembers(Number(id));
+          setMembers(membersData);
+        } catch (error) {
+          console.error("Error fetching members:", error);
+        }
+      }
+    };
+
+    fetchDataAndInitializeSplits();
+  }, [id]);
+
   return (
     <OuterContainer
       padding="$2"
@@ -120,6 +136,7 @@ export const EditBillPage = () => {
           </Fieldset>
         </Form>
         <Text>{JSON.stringify(billInfo)}</Text>
+        <Text>{JSON.stringify(members)}</Text>
         <XStack justifyContent="space-between">
           <Button onPress={onDelete}>Delete</Button>
           <Button onPress={onLock}>Lock</Button>

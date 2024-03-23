@@ -1,18 +1,14 @@
+import { BillInfo } from "@/types/global";
 import React from "react";
 import {
-  View,
-  Text,
-  Card,
   CardProps,
-  H2,
-  H3,
   H4,
-  H5,
+  Text,
+  View,
   XStack,
   YStack,
   useWindowDimensions,
 } from "tamagui";
-import { BillInfo } from "@/types/global";
 import MembersView from "../transactions/members-view";
 
 interface Props extends CardProps {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, ScrollView, View, XStack, YStack } from "tamagui";
+import { Avatar, ScrollView, XStack } from "tamagui";
 
 interface Props {
   members: any[];

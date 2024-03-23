@@ -1,15 +1,12 @@
-import { useRoute } from "@react-navigation/native";
-import { Stack, Tabs, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { FontAwesome6 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { Button, Text } from "tamagui";
-import { Home, Settings2 } from "@tamagui/lucide-icons";
-import { Link } from "expo-router";
-import { Pressable } from "react-native";
-import { Session } from "@supabase/supabase-js";
+import { getBillInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import { BillInfo } from "@/types/global";
+import { Session } from "@supabase/supabase-js";
+import { Home, Settings2 } from "@tamagui/lucide-icons";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable } from "react-native";
+import { Text, View } from "tamagui";
 
 const Layout = () => {
   const router = useRouter();
@@ -17,6 +14,7 @@ const Layout = () => {
 
   const [session, setSession] = useState<Session | null>(null);
   const [sessionUserId, setSessionUserId] = useState("");
+  const [isBillLocked, setIsBillLocked] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -37,6 +35,16 @@ const Layout = () => {
     console.log("sessionUserId", sessionUserId);
   }, [session]);
 
+  useEffect(() => {
+    async function fetchBillInfo() {
+      if (id) {
+        const data: BillInfo[] | null = await getBillInfo(Number(id));
+        setIsBillLocked(data[0].isLocked);
+      }
+    }
+    fetchBillInfo();
+  }, [id, userId]);
+
   //Create functions with params to route to Homepage and Bill Settings
   return (
     <Stack>
@@ -44,6 +52,20 @@ const Layout = () => {
         name="mybill"
         options={{
           title: "",
+          headerTitle: () =>
+            isBillLocked ? (
+              <View
+                backgroundColor={"$red4Light"}
+                paddingHorizontal={"$2"}
+                paddingVertical={"$1"}
+                alignItems="center"
+                borderRadius={"$12"}
+              >
+                <Text fontSize={"$1"}>Locked</Text>
+              </View>
+            ) : (
+              ""
+            ),
           headerShown: true,
           headerLeft: () => (
             <Text onPress={() => router.back()}>
