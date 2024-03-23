@@ -83,6 +83,8 @@ type BillInfo = {
   createdat: string;
   issettled: boolean;
   amount: number;
+  isActive: boolean;
+  isLocked: boolean;
 };
 
 type SummaryInfo = {

@@ -27,7 +27,6 @@ export const getBillInfo = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(`Get member info ${billId}: `, JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching bill: ", error);
@@ -46,7 +45,8 @@ export const getBillsForUserId = async (userId: string) => {
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
-      .eq("userid", userId);
+      .eq("userid", userId)
+      .eq("isdeleted", false);
 
     if (error) {
       throw new Error(error.message);

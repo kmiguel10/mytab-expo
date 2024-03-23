@@ -67,6 +67,10 @@ function RootLayoutNav() {
               name="pages/create-transaction"
               options={{ title: "Create Transaction" }}
             />
+            <Stack.Screen
+              name="pages/edit-transaction"
+              options={{ title: "Edit this Transaction" }}
+            />
             {/* <Stack.Screen
               name="pages/edit-transaction"
               options={{ title: "Edit Transaction" }}
@@ -80,6 +84,15 @@ function RootLayoutNav() {
               options={{
                 presentation: "modal",
                 title: "Create Bill",
+                // headerLeft: () => (
+                //   <Button onPress={() => router.back()}>Home</Button>
+                // ),
+              }}
+            />
+            <Stack.Screen
+              name="pages/edit-bill"
+              options={{
+                title: "Bill Settings",
                 // headerLeft: () => (
                 //   <Button onPress={() => router.back()}>Home</Button>
                 // ),

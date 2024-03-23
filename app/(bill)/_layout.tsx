@@ -1,52 +1,75 @@
 import { useRoute } from "@react-navigation/native";
-import { Stack, Tabs } from "expo-router";
-import React from "react";
+import { Stack, Tabs, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Button, Text } from "tamagui";
+import { Home, Settings2 } from "@tamagui/lucide-icons";
+import { Link } from "expo-router";
+import { Pressable } from "react-native";
+import { Session } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 const Layout = () => {
   const router = useRouter();
-  const route = useRoute();
-  const { id } = route.params as { id: string };
+  const { id, billId, userId } = useLocalSearchParams();
+
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionUserId, setSessionUserId] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    console.log("Session user", session?.user.id);
+    console.log("SESSION", session);
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      setSessionUserId(session?.user.id);
+    }
+    console.log("sessionUserId", sessionUserId);
+  }, [session]);
+
+  //Create functions with params to route to Homepage and Bill Settings
   return (
-    // <Tabs>
-    //   <Tabs.Screen
-    //     name="mybill"
-    //     options={{
-    //       title: "Bill",
-    //       headerShown: true,
-    //       tabBarShowLabel: true,
-    //       tabBarIcon: () => (
-    //         <Ionicons name="list-circle-sharp" size={32} color="black" />
-    //       ),
-    //       headerLeft: () => <Text onPress={() => router.back()}>Home</Text>,
-    //     }}
-    //     initialParams={{ id: id }}
-    //   ></Tabs.Screen>
-    //   <Tabs.Screen
-    //     name="mytab"
-    //     options={{
-    //       tabBarLabel: "My Tab",
-    //       headerShown: true,
-    //       tabBarShowLabel: true,
-    //       tabBarIcon: () => (
-    //         <FontAwesome6 name="money-bill-transfer" size={30} color="black" />
-    //       ),
-    //     }}
-    //     initialParams={{ id: id }}
-    //   ></Tabs.Screen>
-    // </Tabs>
     <Stack>
       <Stack.Screen
         name="mybill"
         options={{
-          title: "Bill",
+          title: "",
           headerShown: true,
-          headerLeft: () => <Text onPress={() => router.back()}>Home</Text>,
+          headerLeft: () => (
+            <Text onPress={() => router.back()}>
+              <Home />
+              {/* <Settings2 /> */}
+            </Text>
+          ),
+          headerRight: () => (
+            <Link
+              href={{
+                pathname: "/pages/edit-bill",
+                params: {
+                  id: id,
+                  billId: billId,
+                  userId: sessionUserId,
+                },
+              }}
+              asChild
+            >
+              <Pressable>
+                <Settings2 />
+              </Pressable>
+            </Link>
+          ),
         }}
-        initialParams={{ id: id }}
+        initialParams={{ id: id, billId: billId, userId: userId }}
       />
     </Stack>
   );
