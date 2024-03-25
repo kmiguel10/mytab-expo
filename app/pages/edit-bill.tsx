@@ -1,3 +1,5 @@
+import EditMembers from "@/components/bill-settings/edit-members";
+import LockSwitch from "@/components/bill-settings/lock-switch";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { getBillInfo, getMembers } from "@/lib/api";
@@ -19,7 +21,8 @@ export const EditBillPage = () => {
   const { width, height } = useWindowDimensions();
   const { id, billId, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
+  // const [members, setMembers] = useState<any[]>([]);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const router = useRouter();
 
   //button handlers
@@ -100,20 +103,21 @@ export const EditBillPage = () => {
     console.log("userId", userId);
   }, [id, userId]);
 
-  useEffect(() => {
-    const fetchDataAndInitializeSplits = async () => {
-      if (id) {
-        try {
-          const membersData = await getMembers(Number(id));
-          setMembers(membersData);
-        } catch (error) {
-          console.error("Error fetching members:", error);
-        }
-      }
-    };
+  //Gets members
+  // useEffect(() => {
+  //   const fetchDataAndInitializeSplits = async () => {
+  //     if (id) {
+  //       try {
+  //         const membersData = await getMembers(Number(id));
+  //         setMembers(membersData);
+  //       } catch (error) {
+  //         console.error("Error fetching members:", error);
+  //       }
+  //     }
+  //   };
 
-    fetchDataAndInitializeSplits();
-  }, [id]);
+  //   fetchDataAndInitializeSplits();
+  // }, [id]);
 
   return (
     <OuterContainer
@@ -128,19 +132,37 @@ export const EditBillPage = () => {
         borderBottomLeftRadius={"$11"}
       >
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <Fieldset>
-            <Input
-              defaultValue={billInfo[0]?.name}
-              onChangeText={handleBillNameChange}
-            ></Input>
-          </Fieldset>
+          <XStack justifyContent="space-between">
+            <Fieldset horizontal={false} gap={"$2"} width={width * 0.6}>
+              {/* <Text paddingLeft="$1.5" fontSize={"$1"}>
+                Transaction name:
+              </Text> */}
+              <Input
+                defaultValue={billInfo[0]?.name}
+                onChangeText={handleBillNameChange}
+              ></Input>
+            </Fieldset>
+            <Button onPress={onSubmit}>Save</Button>
+          </XStack>
         </Form>
-        <Text>{JSON.stringify(billInfo)}</Text>
-        <Text>{JSON.stringify(members)}</Text>
-        <XStack justifyContent="space-between">
+        <XStack padding="$3" justifyContent="flex-end">
+          <LockSwitch
+            size="$2"
+            userId={userId.toString()}
+            billId={parseInt(id.toString())}
+            isLocked={billInfo[0]?.isLocked}
+          />
+          {/* <Button onPress={onLock}>Lock</Button> */}
+        </XStack>
+        {/* <Text>{JSON.stringify(billInfo)}</Text> */}
+        <EditMembers
+          billId={parseInt(id.toString())}
+          ownerId={billInfo[0]?.ownerid}
+          height={height * 0.5}
+        />
+
+        <XStack justifyContent="space-between" padding="$3">
           <Button onPress={onDelete}>Delete</Button>
-          <Button onPress={onLock}>Lock</Button>
-          <Button onPress={onSubmit}>Submit</Button>
         </XStack>
       </BodyContainer>
     </OuterContainer>

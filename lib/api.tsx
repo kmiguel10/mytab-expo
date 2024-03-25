@@ -5,7 +5,8 @@ export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("userid,isMemberIncluded")
+      .select("memberid, userid, isMemberIncluded")
+      .eq("isMemberIncluded", true)
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
@@ -46,7 +47,8 @@ export const getBillsForUserId = async (userId: string) => {
       .from("members")
       .select("*")
       .eq("userid", userId)
-      .eq("isdeleted", false);
+      .eq("isdeleted", false)
+      .eq("isMemberIncluded", true);
 
     if (error) {
       throw new Error(error.message);

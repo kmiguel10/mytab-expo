@@ -22,13 +22,9 @@ const Page = () => {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-    console.log("Session user", session?.user.id);
-    console.log("SESSION", session);
   }, []);
 
-  useEffect(() => {
-    console.log("SESSION", session?.user.id);
-  }, [session]);
+  useEffect(() => {}, [session]);
 
   return (
     <YStack flex={1} borderRadius="$4" padding="$2">

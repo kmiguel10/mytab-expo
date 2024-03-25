@@ -24,15 +24,12 @@ const Layout = () => {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-    console.log("Session user", session?.user.id);
-    console.log("SESSION", session);
   }, []);
 
   useEffect(() => {
     if (session) {
       setSessionUserId(session?.user.id);
     }
-    console.log("sessionUserId", sessionUserId);
   }, [session]);
 
   useEffect(() => {

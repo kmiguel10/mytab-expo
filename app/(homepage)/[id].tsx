@@ -72,8 +72,6 @@ const Home = () => {
     }
 
     fetchBills();
-    console.log("ERROR", errorMessage);
-    console.log("NEW BILL ID", newBillId);
     setError(errorMessage?.toString());
   }, [id, newBillId, joinedBillCode, errorMessage]);
 

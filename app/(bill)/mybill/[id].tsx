@@ -153,7 +153,7 @@ const Page = () => {
           }}
           asChild
         >
-          <Button>Add Transaction</Button>
+          <Button disabled={billInfo[0]?.isLocked}>Add Transaction</Button>
         </Link>
       </FooterContainer>
       {(txnName || errorCreateMsg) && (
