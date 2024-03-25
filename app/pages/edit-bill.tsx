@@ -21,7 +21,6 @@ export const EditBillPage = () => {
   const { width, height } = useWindowDimensions();
   const { id, billId, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
-  // const [members, setMembers] = useState<any[]>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const router = useRouter();
 
@@ -102,22 +101,6 @@ export const EditBillPage = () => {
     fetchBillInfo();
     console.log("userId", userId);
   }, [id, userId]);
-
-  //Gets members
-  // useEffect(() => {
-  //   const fetchDataAndInitializeSplits = async () => {
-  //     if (id) {
-  //       try {
-  //         const membersData = await getMembers(Number(id));
-  //         setMembers(membersData);
-  //       } catch (error) {
-  //         console.error("Error fetching members:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchDataAndInitializeSplits();
-  // }, [id]);
 
   return (
     <OuterContainer

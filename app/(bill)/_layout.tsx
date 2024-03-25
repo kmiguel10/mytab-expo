@@ -15,6 +15,9 @@ const Layout = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionUserId, setSessionUserId] = useState("");
   const [isBillLocked, setIsBillLocked] = useState(false);
+  const handleHomeButtonClick = () => {
+    router.push(`/(homepage)/${sessionUserId}`);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -65,10 +68,9 @@ const Layout = () => {
             ),
           headerShown: true,
           headerLeft: () => (
-            <Text onPress={() => router.back()}>
+            <Pressable onPress={handleHomeButtonClick}>
               <Home />
-              {/* <Settings2 /> */}
-            </Text>
+            </Pressable>
           ),
           headerRight: () => (
             <Link
