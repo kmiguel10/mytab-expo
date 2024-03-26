@@ -40,6 +40,14 @@ export const ConfirmToggleLock: React.FC<Props> = ({
     }
   };
 
+  const lockPrompt =
+    "Members won't be able to add, edit, and delete transactions while bill is locked. You can always unlock it. Do you want to continue?";
+  const unlockPrompt =
+    "Members will be able to add, edit, and delete transactions while bill is unlocked. You can always unlock it. Do you want to continue?";
+
+  const lockTitle = "Locking bill...";
+  const unlockTitle = "Unlocking bill...";
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -85,10 +93,11 @@ export const ConfirmToggleLock: React.FC<Props> = ({
           y={0}
         >
           <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+            <AlertDialog.Title>
+              {lock ? unlockTitle : lockTitle}
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              Members won't be able to add, edit, and delete transactions while
-              bill is locked. You can always unlock it. Do you want to continue?
+              {lock ? unlockPrompt : lockPrompt}
             </AlertDialog.Description>
 
             <XStack gap="$3" justifyContent="flex-end">
