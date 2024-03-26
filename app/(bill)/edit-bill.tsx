@@ -1,3 +1,5 @@
+import ConfirmDeleteBill from "@/components/bill-settings/confirm-delete-bill";
+import ConfirmSaveName from "@/components/bill-settings/confirm-save-name";
 import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
 import { BodyContainer } from "@/components/containers/body-container";
@@ -72,10 +74,10 @@ export const EditBillPage = () => {
 
       if (data) {
         console.log("submitted bill: ", data);
-        router.replace({
-          pathname: `/(bill)/mybill/${id}`,
-          params: { userId: userId.toString() },
-        });
+        // router.replace({
+        //   pathname: `/(bill)/mybill/${id}`,
+        //   params: { userId: userId.toString() },
+        // });
       } else if (error) {
         console.log("ERROR", error);
       }
@@ -125,7 +127,12 @@ export const EditBillPage = () => {
                 onChangeText={handleBillNameChange}
               ></Input>
             </Fieldset>
-            <Button onPress={onSubmit}>Save</Button>
+            {/* <Button onPress={onSubmit}>Save</Button> */}
+            <ConfirmSaveName
+              name={billInfo[0]?.name}
+              billId={billInfo[0]?.billid}
+              userId={userId.toString()}
+            />
           </XStack>
         </Form>
         <XStack padding="$3" justifyContent="flex-end">
@@ -145,7 +152,11 @@ export const EditBillPage = () => {
         />
 
         <XStack justifyContent="space-between" padding="$3">
-          <Button onPress={onDelete}>Delete</Button>
+          {/* <Button onPress={onDelete}>Delete</Button> */}
+          <ConfirmDeleteBill
+            billId={billInfo[0]?.billid}
+            userId={userId.toString()}
+          />
         </XStack>
       </BodyContainer>
     </OuterContainer>

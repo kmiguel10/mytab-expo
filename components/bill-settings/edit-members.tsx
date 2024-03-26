@@ -64,12 +64,6 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
                   title={member.userid}
                   iconAfter={
                     <XStack gap="$2">
-                      {/* <Button
-                        onPress={() => console.log("Trash")}
-                        size={"$2"}
-                        icon={<Trash size={"$1"} color={"$red10Light"} />}
-                        backgroundColor={"$red4Light"}
-                      /> */}
                       <ConfirmationDialog user={member} />
                     </XStack>
                   }

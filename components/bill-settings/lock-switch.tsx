@@ -5,6 +5,7 @@ import { Lock, Unlock } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Label, Separator, SizeTokens, Switch, XStack, Text } from "tamagui";
+import ConfirmToggleLock from "./confirm-toggle-lock";
 
 interface Props {
   size: SizeTokens;
@@ -51,6 +52,7 @@ export const LockSwitch: React.FC<Props> = ({
       }
     }
     fetchBillInfo();
+    console.log("LOCK", lock);
   }, [id, userId, lock]);
 
   return (
@@ -72,7 +74,7 @@ export const LockSwitch: React.FC<Props> = ({
       {lock ? <Lock size={"$1"} /> : <Unlock size={"$1"} />}
 
       <Separator minHeight={20} vertical />
-      <Switch id={id} size={size} onCheckedChange={onToggleLock}>
+      {/* <Switch id={id} size={size} onCheckedChange={onToggleLock}>
         <Switch.Thumb
           animation={[
             "bouncy",
@@ -83,7 +85,14 @@ export const LockSwitch: React.FC<Props> = ({
             },
           ]}
         />
-      </Switch>
+      </Switch> */}
+      <ConfirmToggleLock
+        billId={billId}
+        userId={userId}
+        lock={lock}
+        setLock={setlock}
+        size={size.toString()}
+      />
     </XStack>
   );
 };

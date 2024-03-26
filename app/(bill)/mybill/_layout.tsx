@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
 import React, { useEffect } from "react";
-import { Tabs, Stack, useLocalSearchParams } from "expo-router";
+import { Tabs, Stack, useLocalSearchParams, router } from "expo-router";
+import { Button } from "tamagui";
 
 const BillLayout = () => {
   const { id, billId, userId } = useLocalSearchParams();

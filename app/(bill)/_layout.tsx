@@ -2,11 +2,11 @@ import { getBillInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { Session } from "@supabase/supabase-js";
-import { Home, Settings2 } from "@tamagui/lucide-icons";
+import { ArrowBigLeft, Home, Settings2 } from "@tamagui/lucide-icons";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import { Text, View } from "tamagui";
+import { Button, Text, View } from "tamagui";
 
 const Layout = () => {
   const router = useRouter();
@@ -15,8 +15,21 @@ const Layout = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionUserId, setSessionUserId] = useState("");
   const [isBillLocked, setIsBillLocked] = useState(false);
+  const [billName, setBillName] = useState("");
+  let [counter, setCounter] = useState(0);
   const handleHomeButtonClick = () => {
+    setCounter(counter++);
     router.push(`/(homepage)/${sessionUserId}`);
+  };
+
+  const handleReturnToMyBill = () => {
+    console.log("counter", counter);
+    setCounter(counter++);
+    router.push({
+      pathname: `/(bill)/mybill/${id}`,
+      params: { userId: sessionUserId },
+    });
+    setCounter(counter++);
   };
 
   useEffect(() => {
@@ -40,10 +53,11 @@ const Layout = () => {
       if (id) {
         const data: BillInfo[] | null = await getBillInfo(Number(id));
         setIsBillLocked(data[0].isLocked);
+        setBillName(data[0].name);
       }
     }
     fetchBillInfo();
-  }, [id, userId]);
+  }, [id, userId, counter]);
 
   //Create functions with params to route to Homepage and Bill Settings
   return (
@@ -75,7 +89,7 @@ const Layout = () => {
           headerRight: () => (
             <Link
               href={{
-                pathname: "/pages/edit-bill",
+                pathname: "/(bill)/edit-bill",
                 params: {
                   id: id,
                   billId: billId,
@@ -91,6 +105,29 @@ const Layout = () => {
           ),
         }}
         initialParams={{ id: id, billId: billId, userId: userId }}
+      />
+      <Stack.Screen
+        name="edit-bill"
+        options={{
+          title: "Bill Settings",
+          headerLeft: () => (
+            // <Link
+            //   href={{
+            //     pathname: `/(bill)/mybill/${id}`,
+            //     params: { userId: sessionUserId },
+            //   }}
+            //   asChild
+            // >
+            //   <Pressable>
+            //     <ArrowBigLeft />
+            //   </Pressable>
+            // </Link>
+            <Pressable onPress={handleReturnToMyBill}>
+              {/* <ArrowBigLeft /> */}
+              <Text>{billName.slice(0, 5)}...</Text>
+            </Pressable>
+          ),
+        }}
       />
     </Stack>
   );

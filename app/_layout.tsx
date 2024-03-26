@@ -89,15 +89,15 @@ function RootLayoutNav() {
                 // ),
               }}
             />
-            <Stack.Screen
-              name="pages/edit-bill"
+            {/* <Stack.Screen
+              name="(bill)/edit-bill"
               options={{
                 title: "Bill Settings",
                 // headerLeft: () => (
                 //   <Button onPress={() => router.back()}>Home</Button>
                 // ),
               }}
-            />
+            /> */}
 
             {/* <Stack.Screen
             name="(modals)/create-transaction"
