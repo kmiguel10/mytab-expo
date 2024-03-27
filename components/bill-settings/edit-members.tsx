@@ -11,6 +11,7 @@ import {
 } from "tamagui";
 import ConfirmationDialog from "./confirmation-dialog";
 import JoinRequests from "./join-requests";
+import CurrentMembers from "./current-members";
 
 interface Props {
   billId: number;
@@ -65,29 +66,10 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           />
         )}
 
-        <Text>Members</Text>
-        <YStack gap="$1.5">
-          {includedMembers.map((member, index) => (
-            <YGroup
-              alignSelf="center"
-              bordered
-              width={"100%"}
-              size="$5"
-              padding={"$1"}
-            >
-              <YGroup.Item>
-                <ListItem
-                  title={member.userid}
-                  iconAfter={
-                    <XStack gap="$2">
-                      <ConfirmationDialog user={member} />
-                    </XStack>
-                  }
-                />
-              </YGroup.Item>
-            </YGroup>
-          ))}
-        </YStack>
+        <CurrentMembers
+          includedMembers={includedMembers}
+          fetchMembersData={fetchMembersData}
+        />
       </ScrollView>
       {/* <Text>{JSON.stringify(members)}</Text> */}
     </View>

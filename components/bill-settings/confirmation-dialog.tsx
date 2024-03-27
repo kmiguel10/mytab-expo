@@ -10,9 +10,13 @@ interface Member {
 }
 interface Props {
   user: Member;
+  fetchMembersData: () => void;
 }
 
-export const ConfirmationDialog: React.FC<Props> = ({ user }) => {
+export const ConfirmationDialog: React.FC<Props> = ({
+  user,
+  fetchMembersData,
+}) => {
   const onDeleteUser = async () => {
     console.log("Delete user");
     const { data, error } = await supabase
@@ -24,6 +28,7 @@ export const ConfirmationDialog: React.FC<Props> = ({ user }) => {
     /** owner must not be deleted */
     if (data) {
       console.log("Great user is excluded");
+      fetchMembersData();
     } else if (error) {
       console.error("Error", error);
     }
