@@ -4,7 +4,7 @@ import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/homepage/join-bill";
 import { getBillsForUserId } from "@/lib/api";
-import { BillData } from "@/types/global";
+import { BillData, MemberData } from "@/types/global";
 import { Toast, ToastProvider, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
-  const [bills, setBills] = useState<BillData[]>([]);
+  const [bills, setBills] = useState<MemberData[]>([]);
   const [newBill, setNewBill] = useState<BillData | null>(null);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
@@ -33,7 +33,11 @@ const Home = () => {
       if (!id) return;
 
       const billsData = await getBillsForUserId(id.toString());
-      setBills(billsData);
+      const filteredBillsData = billsData.filter(
+        (member) =>
+          member.isMemberIncluded === true || member.isRequestSent === true
+      );
+      setBills(filteredBillsData);
 
       if (newBillId || joinedBillCode) {
         let newBill: BillData = {
@@ -116,18 +120,7 @@ const Home = () => {
       <FooterContainer justifyContent="space-between" height={windowHeight}>
         <JoinBill />
         <CreateBill />
-        {/* <Link
-            href={{
-              pathname: "/(modals)/create-bill",
-              params: {
-                id,
-              },
-            }}
-            asChild
-          >
-            <Button>Create</Button>
-          </Link> */}
-        <Button
+        {/* <Button
           onPress={() => {
             setOpen(false);
             window.clearTimeout(timerRef.current);
@@ -137,7 +130,7 @@ const Home = () => {
           }}
         >
           Single Toast
-        </Button>
+        </Button> */}
 
         {newBillId && (
           <Toast

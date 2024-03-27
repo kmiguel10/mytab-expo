@@ -1,12 +1,12 @@
 import { View, Text, Dimensions } from "react-native";
 import React from "react";
 import { ScrollView, SizableText, Tabs, XStack } from "tamagui";
-import { BillData } from "@/types/global";
+import { BillData, MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import BillCard from "./bill-card";
 
 interface Props {
-  bills: BillData[];
+  bills: MemberData[];
   userId: string;
 }
 

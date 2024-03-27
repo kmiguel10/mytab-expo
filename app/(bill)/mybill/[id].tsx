@@ -137,7 +137,6 @@ const Page = () => {
             userId={userId?.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
-            members={members}
           />
         </BodyContainer>
       </YStack>

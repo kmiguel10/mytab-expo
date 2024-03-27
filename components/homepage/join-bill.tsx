@@ -33,8 +33,10 @@ const JoinBill = () => {
     } else {
       //console.error("Error joining bill: ", error);
       //display error here , or just create a , there is an error toast
+
       //Send error message
       if (error) {
+        console.error("error", error);
         router.replace({
           pathname: `/(homepage)/${id}`,
           params: { errorMessage: "Error joining bill" },
