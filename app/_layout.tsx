@@ -67,6 +67,10 @@ function RootLayoutNav() {
               name="pages/create-transaction"
               options={{ title: "Create Transaction" }}
             />
+            <Stack.Screen
+              name="pages/edit-transaction"
+              options={{ title: "Edit this Transaction" }}
+            />
             {/* <Stack.Screen
               name="pages/edit-transaction"
               options={{ title: "Edit Transaction" }}
@@ -85,6 +89,15 @@ function RootLayoutNav() {
                 // ),
               }}
             />
+            {/* <Stack.Screen
+              name="(bill)/edit-bill"
+              options={{
+                title: "Bill Settings",
+                // headerLeft: () => (
+                //   <Button onPress={() => router.back()}>Home</Button>
+                // ),
+              }}
+            /> */}
 
             {/* <Stack.Screen
             name="(modals)/create-transaction"

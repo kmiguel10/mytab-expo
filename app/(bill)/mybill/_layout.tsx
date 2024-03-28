@@ -1,9 +1,13 @@
 import { View, Text } from "react-native";
-import React from "react";
-import { Tabs, Stack, useLocalSearchParams } from "expo-router";
+import React, { useEffect } from "react";
+import { Tabs, Stack, useLocalSearchParams, router } from "expo-router";
+import { Button } from "tamagui";
 
 const BillLayout = () => {
-  const { id } = useLocalSearchParams();
+  const { id, billId, userId } = useLocalSearchParams();
+  useEffect(() => {
+    console.log("[id, billId, userId]);:", id, billId, userId);
+  }, [id, billId, userId]);
   {
     /** NEED to decide whether tabs or just buttons is best  */
   }

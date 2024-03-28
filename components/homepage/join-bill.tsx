@@ -33,14 +33,39 @@ const JoinBill = () => {
     } else {
       //console.error("Error joining bill: ", error);
       //display error here , or just create a , there is an error toast
+
       //Send error message
       if (error) {
-        router.replace({
-          pathname: `/(homepage)/${id}`,
-          params: { errorMessage: "Error joining bill" },
-          // params: { errorMessage: error.message },
-          // Add userId to params
-        });
+        console.error("error", error);
+        console.error("error", error.code);
+
+        const { data, error: _error } = await supabase
+          .from("members")
+          .update({ isMemberIncluded: false, isRequestSent: true })
+          .eq("userid", id)
+          .eq("billcode", code)
+          .select();
+
+        if (data) {
+          console.log("Success update", data);
+          console.log("Data: ", data);
+          console.log("Error: ", error);
+          const joinedBillData: BillData = data[0] as BillData;
+          // router.replace(`/(homepage)/${id}`);
+          // Edit toast for Success request sent toast
+          router.replace({
+            pathname: `/(homepage)/${id}`,
+            params: { joinedBillCode: joinedBillData?.billid ?? null }, // Add userId to params
+          });
+        } else {
+          console.error(_error);
+          router.replace({
+            pathname: `/(homepage)/${id}`,
+            params: { errorMessage: "Error joining bill" },
+            // params: { errorMessage: error.message },
+            // Add userId to params
+          });
+        }
       }
     }
   };

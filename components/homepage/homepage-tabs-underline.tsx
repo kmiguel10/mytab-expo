@@ -1,4 +1,4 @@
-import { BillData } from "@/types/global";
+import { BillData, MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { LayoutRectangle } from "react-native";
@@ -15,10 +15,11 @@ import {
   XStack,
   YStack,
   styled,
+  Text,
 } from "tamagui";
 import BillCard from "./bill-card";
 interface Props {
-  bills: BillData[];
+  bills: MemberData[];
   userId: string;
   height: number;
   width: number;
@@ -175,6 +176,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                           params: { userId: userId },
                         }}
                         asChild
+                        disabled={item.isRequestSent && item.ownerid !== userId}
                       >
                         <BillCard
                           animation="bouncy"

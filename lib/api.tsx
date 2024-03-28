@@ -5,7 +5,25 @@ export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("userid")
+      .select("memberid, userid, isMemberIncluded, isRequestSent")
+      .eq("isMemberIncluded", true)
+      .eq("billid", billId);
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log("Get members: ", JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    return [];
+  }
+};
+
+export const getMembersAndRequests = async (billId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("members")
+      .select("memberid, userid, isMemberIncluded, isRequestSent")
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
@@ -27,7 +45,6 @@ export const getBillInfo = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(`Get member info ${billId}: `, JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching bill: ", error);
@@ -46,12 +63,13 @@ export const getBillsForUserId = async (userId: string) => {
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
-      .eq("userid", userId);
+      .eq("userid", userId)
+      .eq("isdeleted", false);
 
     if (error) {
       throw new Error(error.message);
     }
-    //console.log("Get Bills: ", JSON.stringify(billsData));
+    console.log("Get Bills by member: ", JSON.stringify(billsData));
     return billsData;
   } catch (error) {
     //console.error("Error fetching bills:", error);

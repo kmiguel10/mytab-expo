@@ -1,8 +1,10 @@
 typescript;
 
 type Member = {
-  memberId: number;
-  memberName: string;
+  memberid: string;
+  userid: string;
+  isMemberIncluded: boolean;
+  isRequestSent: boolean;
 };
 
 type Bill = {
@@ -55,6 +57,21 @@ type Member = {
   memberId: string;
 };
 
+type MemberData = {
+  memberid?: string; // UUID
+  userid?: string | null; // UUID or NULL
+  billid: number; // BigSerial
+  billcode?: string | null; // Character Varying(6) or NULL
+  ownerid?: string | null; // UUID or NULL
+  name?: string | null; // Text or NULL
+  amount?: number | null; // Numeric or NULL
+  isBillActive?: boolean; // Boolean or NULL
+  isMemberIncluded: boolean; // Boolean or NULL
+  isLocked: boolean; // Boolean (Not nullable)
+  isdeleted: boolean; // Boolean (Not nullable)
+  isRequestSent: boolean; // Boolean or NULL
+};
+
 type Split = {
   amount: number;
   memberId: string;
@@ -83,6 +100,8 @@ type BillInfo = {
   createdat: string;
   issettled: boolean;
   amount: number;
+  isActive: boolean;
+  isLocked: boolean;
 };
 
 type SummaryInfo = {
@@ -114,6 +133,7 @@ export type {
   Transaction,
   MemberSplitAmount,
   SelectedMemberSplitAmount,
+  MemberData,
   BillData,
   BillInfo,
   SummaryInfo,

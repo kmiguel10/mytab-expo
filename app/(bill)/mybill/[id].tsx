@@ -137,7 +137,6 @@ const Page = () => {
             userId={userId?.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
-            members={members}
           />
         </BodyContainer>
       </YStack>
@@ -153,7 +152,7 @@ const Page = () => {
           }}
           asChild
         >
-          <Button>Add Transaction</Button>
+          <Button disabled={billInfo[0]?.isLocked}>Add Transaction</Button>
         </Link>
       </FooterContainer>
       {(txnName || errorCreateMsg) && (

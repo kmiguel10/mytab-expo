@@ -110,14 +110,6 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
     }
   };
 
-  const fetchData = async () => {
-    if (billId) {
-      const membersData = await getMembers(Number(billId));
-      setMembers(membersData);
-      // initializeSplits();
-    }
-  };
-
   const initializeSplits = () => {
     let amountNum = transaction.amount;
     const splitEvenAmount = (_amount: number) => {

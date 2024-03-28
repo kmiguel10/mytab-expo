@@ -29,7 +29,6 @@ interface Props {
   userId: string;
   height: number;
   width: number;
-  members: Member[];
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -39,7 +38,6 @@ const UnderlinedTabs: React.FC<Props> = ({
   userId,
   height,
   width,
-  members,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
