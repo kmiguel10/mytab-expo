@@ -19,6 +19,7 @@ interface Props {
 
 const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
   const [localRequests, setLocalRequests] = useState<Member[]>([]);
+
   const onAccept = async (memberId: string) => {
     const { data, error } = await supabase
       .from("members")
@@ -28,6 +29,10 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
 
     if (data) {
       console.log("data", data);
+      // Remove the accepted member from localRequests
+      setLocalRequests((prevRequests) =>
+        prevRequests.filter((member) => member.memberid !== memberId)
+      );
       fetchMembersData();
       //activate toast here
     } else {
@@ -35,11 +40,30 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
     }
   };
 
-  const onDecline = () => {};
+  const onDecline = async (memberId: string) => {
+    const { data, error } = await supabase
+      .from("members")
+      .update({ isMemberIncluded: false, isRequestSent: false })
+      .eq("memberid", memberId)
+      .select();
+
+    if (data) {
+      console.log("data", data);
+      // Remove the declined member from localRequests
+      setLocalRequests((prevRequests) =>
+        prevRequests.filter((member) => member.memberid !== memberId)
+      );
+      fetchMembersData();
+      //activate toast here
+    } else {
+      console.error("Error", error);
+    }
+  };
 
   useEffect(() => {
     setLocalRequests(requests);
-  }, [localRequests]);
+    fetchMembersData();
+  }, [requests]);
 
   return (
     <View>
@@ -52,6 +76,7 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
             width={"100%"}
             size="$5"
             padding={"$1"}
+            key={member.memberid}
           >
             <YGroup.Item>
               <ListItem
@@ -61,15 +86,15 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
                     <Button size="$2" onPress={() => onAccept(member.memberid)}>
                       Accept
                     </Button>
-                    <Button size="$2" onPress={onDecline}>
+                    <Button
+                      size="$2"
+                      onPress={() => onDecline(member.memberid)}
+                    >
                       Decline
                     </Button>
-                    {/* <ConfirmationDialog user={member} /> */}
                   </XStack>
                 }
               />
-              {/* <Button>Accept</Button>
-                    <Button>Decline</Button> */}
             </YGroup.Item>
           </YGroup>
         ))}

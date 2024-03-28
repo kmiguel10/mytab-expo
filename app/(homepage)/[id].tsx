@@ -169,11 +169,11 @@ const Home = () => {
             justifyContent="center"
           >
             <Toast.Title alignItems="center">
-              You joined " {newBill?.name} "
+              You sent a request to join " {newBill?.name} "
             </Toast.Title>
-            <Toast.Description>
+            {/* <Toast.Description>
               Share Bill Code to your friends: {newBill?.billcode}
-            </Toast.Description>
+            </Toast.Description> */}
           </Toast>
         )}
         {(errorMessage || errorCreateMessage) && (

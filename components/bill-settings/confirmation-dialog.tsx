@@ -11,11 +11,17 @@ interface Member {
 interface Props {
   user: Member;
   fetchMembersData: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setProcessError: React.Dispatch<React.SetStateAction<boolean>>;
+  setDeletedMember: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const ConfirmationDialog: React.FC<Props> = ({
   user,
   fetchMembersData,
+  setOpen,
+  setProcessError,
+  setDeletedMember,
 }) => {
   const onDeleteUser = async () => {
     console.log("Delete user");
@@ -27,10 +33,13 @@ export const ConfirmationDialog: React.FC<Props> = ({
 
     /** owner must not be deleted */
     if (data) {
-      console.log("Great user is excluded");
+      console.log("Great user is excluded", data);
       fetchMembersData();
+      setOpen(true);
+      setDeletedMember(data[0].memberid);
     } else if (error) {
       console.error("Error", error);
+      setProcessError(true);
     }
   };
   return (
