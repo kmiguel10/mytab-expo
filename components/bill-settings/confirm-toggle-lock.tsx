@@ -15,6 +15,8 @@ interface Props {
   lock: boolean;
   size: string;
   setLock: (lock: boolean) => void; // Function to update lock state in parent
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setToggleError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ConfirmToggleLock: React.FC<Props> = ({
@@ -23,6 +25,8 @@ export const ConfirmToggleLock: React.FC<Props> = ({
   lock,
   size,
   setLock, // Receive setLock function from parent
+  setOpen,
+  setToggleError,
 }) => {
   const router = useRouter();
 
@@ -35,8 +39,11 @@ export const ConfirmToggleLock: React.FC<Props> = ({
 
     if (data) {
       setLock(data[0].isLocked); // Update lock state in parent
+      setOpen(true);
     } else if (error) {
       console.error("Error toggling lock:", error);
+      setOpen(true);
+      setToggleError(true);
     }
   };
 

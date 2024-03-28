@@ -7,7 +7,9 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import { getBillInfo, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
+import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
 import { useEffect, useState } from "react";
 import {
   useWindowDimensions,
@@ -92,6 +94,11 @@ export const EditBillPage = () => {
       }))
     );
   };
+
+  const [open, setOpen] = useState(false);
+  const [saveNameError, setSaveNameError] = useState(false);
+  const timerRef = React.useRef(0);
+
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -116,6 +123,13 @@ export const EditBillPage = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
+        <ToastViewport
+          width={"100%"}
+          justifyContent="center"
+          flexDirection="column-reverse"
+          top={0}
+          right={0}
+        />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
           <XStack justifyContent="space-between">
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.6}>
@@ -132,6 +146,8 @@ export const EditBillPage = () => {
               name={billInfo[0]?.name}
               billId={billInfo[0]?.billid}
               userId={userId.toString()}
+              setOpen={setOpen}
+              setSaveNameError={setSaveNameError}
             />
           </XStack>
         </Form>
@@ -157,10 +173,62 @@ export const EditBillPage = () => {
             billId={billInfo[0]?.billid}
             userId={userId.toString()}
           />
+          <Button
+            onPress={() => {
+              setOpen(false);
+              window.clearTimeout(timerRef.current);
+              timerRef.current = window.setTimeout(() => {
+                setOpen(true);
+              }, 150);
+            }}
+          >
+            Single Toast
+          </Button>
         </XStack>
+        <SaveNameToast
+          setOpen={setOpen}
+          open={open}
+          billName={billInfo[0]?.name}
+          saveNameError={saveNameError}
+        />
       </BodyContainer>
     </OuterContainer>
   );
 };
 
 export default EditBillPage;
+
+interface SaveNameToastProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  open: boolean;
+  billName: string;
+  saveNameError: boolean;
+}
+
+const SaveNameToast: React.FC<SaveNameToastProps> = ({
+  setOpen,
+  open,
+  billName,
+  saveNameError,
+}) => {
+  const successMsg = `Bill name changed to ${billName}`;
+  const errorMsg = "Error changing bill name";
+  return (
+    <Toast
+      onOpenChange={setOpen}
+      open={open}
+      animation="100ms"
+      enterStyle={{ x: -20, opacity: 0 }}
+      exitStyle={{ x: -20, opacity: 0 }}
+      opacity={1}
+      x={0}
+      backgroundColor={saveNameError ? "$red8Light" : "$green8Light"}
+      width={"80%"}
+      justifyContent="center"
+    >
+      <Toast.Title textAlign="left">
+        {saveNameError ? errorMsg : successMsg}
+      </Toast.Title>
+    </Toast>
+  );
+};

@@ -1,17 +1,10 @@
 import { getMembersAndRequests } from "@/lib/api";
 import { useEffect, useState } from "react";
-import {
-  ListItem,
-  ScrollView,
-  Text,
-  View,
-  XStack,
-  YGroup,
-  YStack,
-} from "tamagui";
-import ConfirmationDialog from "./confirmation-dialog";
-import JoinRequests from "./join-requests";
+import { Button, ScrollView, View } from "tamagui";
 import CurrentMembers from "./current-members";
+import JoinRequests from "./join-requests";
+import { Toast, ToastViewport } from "@tamagui/toast";
+import React from "react";
 
 interface Props {
   billId: number;
@@ -52,10 +45,14 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
       }
     }
   };
+
+  const [open, setOpen] = useState(false);
+  const timerRef = React.useRef(0);
   //Get included members
   useEffect(() => {
     fetchMembersData();
   }, [billId]);
+
   return (
     <View height={height} padding="$3">
       <ScrollView>
@@ -71,7 +68,33 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           fetchMembersData={fetchMembersData}
         />
       </ScrollView>
-      {/* <Text>{JSON.stringify(members)}</Text> */}
+      <Toast
+        onOpenChange={setOpen}
+        open={open}
+        animation="100ms"
+        enterStyle={{ x: -20, opacity: 0 }}
+        exitStyle={{ x: -20, opacity: 0 }}
+        opacity={1}
+        x={0}
+        backgroundColor={"$green8Light"}
+        height={"400"}
+        width={"80%"}
+        justifyContent="center"
+      >
+        <Toast.Title textAlign="left">{"Transaction created"}</Toast.Title>
+        <Toast.Description>{`You entered:`}</Toast.Description>
+      </Toast>
+      <Button
+        onPress={() => {
+          setOpen(false);
+          window.clearTimeout(timerRef.current);
+          timerRef.current = window.setTimeout(() => {
+            setOpen(true);
+          }, 150);
+        }}
+      >
+        Single Toast
+      </Button>
     </View>
   );
 };

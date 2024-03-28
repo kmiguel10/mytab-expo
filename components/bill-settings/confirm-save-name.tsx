@@ -12,10 +12,18 @@ interface Props {
   name: string;
   billId: number;
   userId: string;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSaveNameError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 //pass: name, billId, userId
 
-export const ConfirmSaveName: React.FC<Props> = ({ name, billId, userId }) => {
+export const ConfirmSaveName: React.FC<Props> = ({
+  name,
+  billId,
+  userId,
+  setOpen,
+  setSaveNameError,
+}) => {
   const onSubmit = async () => {
     if (name) {
       const { data, error } = await supabase
@@ -26,19 +34,22 @@ export const ConfirmSaveName: React.FC<Props> = ({ name, billId, userId }) => {
 
       if (data) {
         console.log("submitted bill: ", data);
+        setOpen(true);
+        setSaveNameError(false);
         // router.replace({
         //   pathname: `/(bill)/mybill/${billId}`,
         //   params: { userId: userId.toString() },
         // });
       } else if (error) {
         console.log("ERROR", error);
+        setSaveNameError(true);
       }
     }
   };
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <Button onPress={onSubmit}>Save</Button>
+        <Button>Save</Button>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>
