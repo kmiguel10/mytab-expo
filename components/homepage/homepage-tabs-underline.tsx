@@ -176,7 +176,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                           params: { userId: userId },
                         }}
                         asChild
-                        disabled={item.isRequestSent}
+                        disabled={item.isRequestSent && item.ownerid !== userId}
                       >
                         <BillCard
                           animation="bouncy"

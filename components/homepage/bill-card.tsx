@@ -42,9 +42,9 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
           <H4>${bill.amount}</H4>
         </XStack>
         <Text theme="alt2">{membership}</Text>
-        {bill.isMemberIncluded == false && bill.isRequestSent == true && (
-          <Text theme="alt2">Pending</Text>
-        )}
+        {membership === "Member" &&
+          bill.isMemberIncluded == false &&
+          bill.isRequestSent == true && <Text theme="alt2">Pending</Text>}
       </Card.Header>
 
       <Card.Footer padding="$3">
