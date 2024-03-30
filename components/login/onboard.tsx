@@ -175,7 +175,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
           <Text>{userId}</Text>
           <Text>{JSON.stringify(profileInfo)}</Text>
           <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-            {/* <View>
+            <View>
               <Avatar
                 size={200}
                 url={avatarUrl}
@@ -184,7 +184,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   updateProfile({ avatar_url: url });
                 }}
               />
-            </View> */}
+            </View>
 
             <XStack>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
