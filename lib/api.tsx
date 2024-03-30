@@ -1,4 +1,4 @@
-import { Transaction } from "@/types/global";
+import { ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
 export const getMembers = async (billId: number) => {
@@ -166,7 +166,6 @@ export const getMyTabInfo = async (userId: string, billId: number) => {
 };
 
 /** Edit Transaction */
-
 export const getCurrentTransaction = async (
   transactionId: string
 ): Promise<Transaction | null> => {
@@ -185,6 +184,46 @@ export const getCurrentTransaction = async (
       "There is an error fetching current transaction: ",
       transactionId
     );
+    return null;
+  }
+};
+
+export const getProfileInfo = async (
+  userId: string
+): Promise<ProfileInfo | null> => {
+  try {
+    console.log(" *** Fetch Profile Data in Onboarding ***");
+
+    let { data: profile, error } = await supabase
+      .from("profiles")
+      .select("displayName,lastName,firstName,avatar_url,email")
+      .eq("id", userId);
+
+    console.log(" *** Fetch Profile Data in Onboarding ***");
+    console.log(profile);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (profile && profile.length > 0) {
+      // Extract the first item from the profile array
+      const profileData = profile[0];
+      // Assign the retrieved data to the ProfileInfo type
+      const profileInfo: ProfileInfo = {
+        displayName: profileData.displayName,
+        lastName: profileData.lastName,
+        firstName: profileData.firstName,
+        avatar_url: profileData.avatar_url,
+        email: profileData.email,
+      };
+      return profileInfo;
+    } else {
+      // If profile is empty or null, return null
+      return null;
+    }
+  } catch (error) {
+    console.error("There is an error fetching profile info: ", userId);
     return null;
   }
 };

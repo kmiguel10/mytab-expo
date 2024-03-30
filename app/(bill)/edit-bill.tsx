@@ -173,7 +173,7 @@ export const EditBillPage = () => {
             billId={billInfo[0]?.billid}
             userId={userId.toString()}
           />
-          <Button
+          {/* <Button
             onPress={() => {
               setOpen(false);
               window.clearTimeout(timerRef.current);
@@ -183,7 +183,7 @@ export const EditBillPage = () => {
             }}
           >
             Single Toast
-          </Button>
+          </Button> */}
         </XStack>
         <SaveNameToast
           setOpen={setOpen}

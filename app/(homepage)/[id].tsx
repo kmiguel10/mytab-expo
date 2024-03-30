@@ -3,8 +3,8 @@ import { Avatar, Button, XStack, YStack } from "tamagui";
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/homepage/join-bill";
-import { getBillsForUserId } from "@/lib/api";
-import { BillData, MemberData } from "@/types/global";
+import { getBillsForUserId, getProfileInfo } from "@/lib/api";
+import { BillData, MemberData, ProfileInfo } from "@/types/global";
 import { Toast, ToastProvider, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -22,6 +22,7 @@ const Home = () => {
     useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
   const [newBill, setNewBill] = useState<BillData | null>(null);
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const { left, top, right } = useSafeAreaInsets();
@@ -79,6 +80,19 @@ const Home = () => {
     setError(errorMessage?.toString());
   }, [id, newBillId, joinedBillCode, errorMessage]);
 
+  useEffect(() => {
+    const fetchprofileInfo = async () => {
+      try {
+        const profile: ProfileInfo | null = await getProfileInfo(id.toString());
+        setProfileInfo(profile);
+      } catch (error) {
+        console.error("Error fetching profile info:", error);
+        setProfileInfo(null);
+      }
+    };
+    fetchprofileInfo();
+  }, [id]);
+
   return (
     <OuterContainer>
       <ToastViewport
@@ -105,7 +119,7 @@ const Home = () => {
             />
             <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
           </Avatar>
-          <Text>User id: {id.slice(0, 5)}</Text>
+          <Text>{profileInfo?.displayName}</Text>
         </YStack>
         <BodyContainer height={windowHeight * 0.62}>
           <TabsAdvancedUnderline

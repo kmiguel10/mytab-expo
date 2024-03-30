@@ -126,6 +126,14 @@ type SettleCardInfo = {
   settleAmount: number;
 };
 
+type ProfileInfo = {
+  displayName: string;
+  lastName: string;
+  firstName: string;
+  avatar_url: string;
+  email: string;
+};
+
 export type {
   Member,
   Bill,
@@ -139,4 +147,5 @@ export type {
   SummaryInfo,
   MyTabInfo,
   SettleCardInfo,
+  ProfileInfo,
 };

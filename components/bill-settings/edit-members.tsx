@@ -84,7 +84,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
         <Toast.Title textAlign="left">{"Transaction created"}</Toast.Title>
         <Toast.Description>{`You entered:`}</Toast.Description>
       </Toast>
-      <Button
+      {/* <Button
         onPress={() => {
           setOpen(false);
           window.clearTimeout(timerRef.current);
@@ -94,7 +94,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
         }}
       >
         Single Toast
-      </Button>
+      </Button> */}
     </View>
   );
 };
