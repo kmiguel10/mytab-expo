@@ -1,9 +1,11 @@
 import { BillData, MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle } from "react-native";
+import { LayoutRectangle, TouchableOpacity } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
+
+import { useNavigation } from "@react-navigation/native";
 
 import {
   AnimatePresence,
@@ -79,6 +81,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
+
   return (
     <Tabs
       value={currentTab}
@@ -172,11 +175,11 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                     >
                       <Link
                         href={{
-                          pathname: `/(bill)/mybill/${item.billid}`,
+                          pathname: `/(bill)/${item.billid}`,
                           params: { userId: userId },
                         }}
-                        asChild
                         disabled={item.isRequestSent && item.ownerid !== userId}
+                        asChild
                       >
                         <BillCard
                           animation="bouncy"

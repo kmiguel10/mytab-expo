@@ -192,14 +192,12 @@ export const getProfileInfo = async (
   userId: string
 ): Promise<ProfileInfo | null> => {
   try {
-    console.log(" *** Fetch Profile Data in Onboarding ***");
-
+    console.log("getProfileInfo userId ", userId);
     let { data: profile, error } = await supabase
       .from("profiles")
       .select("displayName,lastName,firstName,avatar_url,email")
       .eq("id", userId);
 
-    console.log(" *** Fetch Profile Data in Onboarding ***");
     console.log(profile);
 
     if (error) {

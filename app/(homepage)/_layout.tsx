@@ -1,31 +1,62 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native";
-import { Link, Stack } from "expo-router";
-import { Pressable } from "react-native";
-import { Plus } from "@tamagui/lucide-icons";
 import { supabase } from "@/lib/supabase";
-import { Button, Text } from "tamagui";
+import { Ionicons } from "@expo/vector-icons";
+import { Session } from "@supabase/supabase-js";
+import { Home } from "@tamagui/lucide-icons";
+import { Link, Stack, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Pressable } from "react-native";
+import { Text } from "tamagui";
 
 export default function TabLayout() {
-  const route = useRoute();
-  const { id } = route.params as { id: string };
+  const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionUserId, setSessionUserId] = useState("");
+
   /** Functions */
   const signOutUser = async () => {
     await supabase.auth.signOut();
-    console.log("USER SIGNED OUT");
+    console.log("*** User signed out");
   };
+
+  const handleHomeButtonClick = () => {
+    if (sessionUserId) {
+      router.replace({
+        pathname: "/(homepage)/[id]",
+        params: { id: sessionUserId },
+      });
+    } else {
+      console.error("UserId does not exist");
+    }
+  };
+
+  /** Use Effects */
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      setSessionUserId(session?.user.id);
+    }
+  }, [session]);
+
   return (
     <Stack>
       <Stack.Screen
         name="[id]"
-        initialParams={{ id }}
+        initialParams={{ id: sessionUserId }}
         options={{
           title: "Home",
           headerRight: () => (
             <Link
               href={{
                 pathname: "/(homepage)/profile",
-                params: { id },
+                params: { id: sessionUserId },
               }}
               asChild
             >
@@ -39,7 +70,6 @@ export default function TabLayout() {
       />
       <Stack.Screen
         name="profile"
-        initialParams={{ id }}
         options={{
           title: "Settings",
           headerRight: () => (
@@ -48,13 +78,9 @@ export default function TabLayout() {
             </Link>
           ),
           headerLeft: () => (
-            <Link href={`/(homepage)/${id}`} replace asChild>
-              <Text onPress={signOutUser}>Home</Text>
-            </Link>
-            //      router.replace({
-            //   pathname: "/(homepage)/[id]",
-            //   params: { id: userId.toString() },
-            // });
+            <Pressable onPress={handleHomeButtonClick}>
+              <Home />
+            </Pressable>
           ),
         }}
       />

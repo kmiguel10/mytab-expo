@@ -17,7 +17,7 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
 
-const Page = () => {
+const BillScreen = () => {
   const {
     id,
     userId,
@@ -28,6 +28,7 @@ const Page = () => {
     errorDeleteMsg,
     deletedTxnName,
   } = useLocalSearchParams();
+
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
@@ -57,6 +58,8 @@ const Page = () => {
     }
     fetchMembers();
   }, [id]);
+
+  //Need to be able to reflect current transaction upon creating a new txn
   useEffect(() => {
     async function fetchTransactions() {
       if (userId) {
@@ -67,7 +70,7 @@ const Page = () => {
       }
     }
     fetchTransactions();
-  }, [userId]);
+  }, [userId, txnName]);
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -78,6 +81,7 @@ const Page = () => {
     }
     fetchBillInfo();
   }, [id]);
+
   useEffect(() => {
     async function fetchMyTabInfo() {
       if (userId) {
@@ -86,7 +90,6 @@ const Page = () => {
       }
     }
     fetchMyTabInfo();
-    console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
 
   //Gets txnCreateData
@@ -232,4 +235,4 @@ const Page = () => {
     </OuterContainer>
   );
 };
-export default Page;
+export default BillScreen;

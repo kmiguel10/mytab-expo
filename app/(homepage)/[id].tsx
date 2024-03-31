@@ -27,11 +27,12 @@ const Home = () => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const { left, top, right } = useSafeAreaInsets();
+
   const timerRef = React.useRef(0);
   const [error, setError] = useState("") || null;
 
   useEffect(() => {
+    console.log("*** Homepage: Fetch bills for user", id);
     async function fetchBills() {
       if (!id) return;
 

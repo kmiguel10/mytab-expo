@@ -23,13 +23,13 @@ interface Member {
   // Add other properties if necessary
 }
 
-interface CreateTransaction {
+interface Props {
   billId: any;
   userId: any;
   members: Member[]; // Ensure correct type for members
 }
 
-export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
+export const CreateTransactionPage: React.FC<Props> = () => {
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
     submittedbyid: "",
@@ -96,14 +96,14 @@ export const CreateTransactionPage: React.FC<CreateTransaction> = () => {
 
     if (error) {
       router.replace({
-        pathname: `/(bill)/mybill/${billId}`,
+        pathname: `/(bill)/${billId}`,
         params: { userId: _userId, errorCreateMsg: error.message }, //
       });
     } else {
       if (data) {
         const createdTxn: Transaction = data[0];
-        router.replace({
-          pathname: `/(bill)/mybill/${billId}`,
+        router.navigate({
+          pathname: `/(bill)/${billId}`,
           params: { userId: _userId, txnName: createdTxn.name },
         });
       }

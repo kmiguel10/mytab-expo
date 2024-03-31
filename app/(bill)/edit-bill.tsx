@@ -21,9 +21,9 @@ import {
   Input,
 } from "tamagui";
 
-export const EditBillPage = () => {
+export const EditBill = () => {
   const { width, height } = useWindowDimensions();
-  const { id, billId, userId } = useLocalSearchParams();
+  const { id, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const router = useRouter();
@@ -58,7 +58,7 @@ export const EditBillPage = () => {
     if (data) {
       console.log("Locked bill: ", data);
       router.replace({
-        pathname: `/(bill)/mybill/${id}`,
+        pathname: `/(bill)/${id}`,
         params: { userId: userId.toString() },
       });
     } else if (error) {
@@ -196,7 +196,7 @@ export const EditBillPage = () => {
   );
 };
 
-export default EditBillPage;
+export default EditBill;
 
 interface SaveNameToastProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;

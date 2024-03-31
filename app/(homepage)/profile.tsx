@@ -23,7 +23,7 @@ import Avatar from "@/components/login/avatar";
 import { getProfileInfo } from "@/lib/api";
 import { FooterContainer } from "@/components/containers/footer-container";
 
-export default function TabTwoScreen() {
+export default function Profile() {
   const { id: userId } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
@@ -132,6 +132,7 @@ export default function TabTwoScreen() {
 
   /** useEffects */
   useEffect(() => {
+    console.log("Profile userId: ", userId);
     const fetchprofileInfo = async () => {
       try {
         const profile: ProfileInfo | null = await getProfileInfo(
