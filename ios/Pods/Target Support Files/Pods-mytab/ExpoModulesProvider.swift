@@ -10,6 +10,7 @@ import Burnt
 import ExpoAppleAuthentication
 import EXConstants
 import ExpoFileSystem
+import ExpoImagePicker
 import ExpoKeepAwake
 import ExpoLinearGradient
 import ExpoHead
@@ -29,6 +30,7 @@ public class ExpoModulesProvider: ModulesProvider {
       AppleAuthenticationModule.self,
       ConstantsModule.self,
       FileSystemModule.self,
+      ImagePickerModule.self,
       KeepAwakeModule.self,
       LinearGradientModule.self,
       ExpoHeadModule.self,
@@ -48,6 +50,7 @@ public class ExpoModulesProvider: ModulesProvider {
       AppleAuthenticationModule.self,
       ConstantsModule.self,
       FileSystemModule.self,
+      ImagePickerModule.self,
       KeepAwakeModule.self,
       LinearGradientModule.self,
       ExpoHeadModule.self,
