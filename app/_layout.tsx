@@ -57,10 +57,7 @@ function RootLayoutNav() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <ToastProvider>
           <Stack>
-            <Stack.Screen
-              name="index"
-              options={{ title: "Log In / Sign up" }}
-            />
+            <Stack.Screen name="index" options={{ title: "Welcome" }} />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
             <Stack.Screen

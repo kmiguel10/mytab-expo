@@ -7,6 +7,7 @@ import {
   Fieldset,
   Input,
   View,
+  YStack,
 } from "tamagui";
 import { OuterContainer } from "../containers/outer-container";
 import { BodyContainer } from "../containers/body-container";
@@ -172,83 +173,83 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
           borderBottomRightRadius={"$11"}
           borderBottomLeftRadius={"$11"}
         >
-          <Text>{userId}</Text>
-          <Text>{JSON.stringify(profileInfo)}</Text>
           <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-            <View>
-              <Avatar
-                size={200}
-                url={avatarUrl}
-                onUpload={(url: string) => {
-                  setAvatarUrl(url);
-                  updateProfile({ avatar_url: url });
-                }}
-              />
-            </View>
-
-            <XStack>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Display name *
-                </Text>
-                <Input
-                  id="display-name"
-                  placeholder="Display Name"
-                  defaultValue=""
-                  value={profileInfo?.displayName}
-                  onChangeText={handleDisplayNameChange}
-                  backgroundColor={"$backgroundTransparent"}
+            <YStack height={height * 0.75} gap={"$2"}>
+              <View paddingVertical={"$5"}>
+                <Avatar
+                  size={200}
+                  url={avatarUrl}
+                  onUpload={(url: string) => {
+                    setAvatarUrl(url);
+                    updateProfile({ avatar_url: url });
+                  }}
                 />
-              </Fieldset>
-            </XStack>
+              </View>
+              <XStack>
+                <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
+                  <Text paddingLeft="$1.5" fontSize={"$1"}>
+                    Display name *
+                  </Text>
+                  <Input
+                    id="display-name"
+                    placeholder="Display Name"
+                    defaultValue=""
+                    value={profileInfo?.displayName}
+                    onChangeText={handleDisplayNameChange}
+                    backgroundColor={"$backgroundTransparent"}
+                  />
+                </Fieldset>
+              </XStack>
+              <XStack justifyContent="space-between">
+                <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                  <Text paddingLeft="$1.5" fontSize={"$1"}>
+                    First name
+                  </Text>
+                  <Input
+                    id="first-name"
+                    placeholder="First Name"
+                    defaultValue=""
+                    value={profileInfo?.firstName}
+                    onChangeText={handleFirstNameChange}
+                    backgroundColor={"$backgroundTransparent"}
+                  />
+                </Fieldset>
+                <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                  <Text paddingLeft="$1.5" fontSize={"$1"}>
+                    Last Name
+                  </Text>
+                  <Input
+                    id="last-name"
+                    placeholder="Last Name"
+                    defaultValue=""
+                    value={profileInfo?.lastName}
+                    onChangeText={handleLastNameChange}
+                    backgroundColor={"$backgroundTransparent"}
+                  />
+                </Fieldset>
+              </XStack>
+              <XStack>
+                <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
+                  <Text paddingLeft="$1.5" fontSize={"$1"}>
+                    Email
+                  </Text>
+                  <Input
+                    id="email"
+                    placeholder="Email"
+                    defaultValue={profileInfo?.email}
+                    value={profileInfo?.email}
+                    backgroundColor={"$gray"}
+                    disabled
+                  />
+                </Fieldset>
+              </XStack>
+            </YStack>
             <XStack justifyContent="space-between">
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  First name
-                </Text>
-                <Input
-                  id="first-name"
-                  placeholder="First Name"
-                  defaultValue=""
-                  value={profileInfo?.firstName}
-                  onChangeText={handleFirstNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-                />
-              </Fieldset>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Last Name
-                </Text>
-                <Input
-                  id="last-name"
-                  placeholder="Last Name"
-                  defaultValue=""
-                  value={profileInfo?.lastName}
-                  onChangeText={handleLastNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-                />
-              </Fieldset>
+              <Button onPress={signOutUser}>Sign out</Button>
+              <Form.Trigger asChild>
+                <Button> Save</Button>
+              </Form.Trigger>
             </XStack>
-            <XStack>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Email
-                </Text>
-                <Input
-                  id="email"
-                  placeholder="Email"
-                  defaultValue={profileInfo?.email}
-                  value={profileInfo?.email}
-                  backgroundColor={"$gray"}
-                  disabled
-                />
-              </Fieldset>
-            </XStack>
-
-            <Form.Trigger asChild>
-              <Button> Save</Button>
-            </Form.Trigger>
-            <Button onPress={signOutUser}>Sign out</Button>
           </Form>
         </BodyContainer>
       ) : (

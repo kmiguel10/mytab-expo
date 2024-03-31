@@ -3,10 +3,17 @@ import { useRoute } from "@react-navigation/native";
 import { Link, Stack } from "expo-router";
 import { Pressable } from "react-native";
 import { Plus } from "@tamagui/lucide-icons";
+import { supabase } from "@/lib/supabase";
+import { Button, Text } from "tamagui";
 
 export default function TabLayout() {
   const route = useRoute();
   const { id } = route.params as { id: string };
+  /** Functions */
+  const signOutUser = async () => {
+    await supabase.auth.signOut();
+    console.log("USER SIGNED OUT");
+  };
   return (
     <Stack>
       <Stack.Screen
@@ -27,6 +34,7 @@ export default function TabLayout() {
               </Pressable>
             </Link>
           ),
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen
@@ -34,6 +42,20 @@ export default function TabLayout() {
         initialParams={{ id }}
         options={{
           title: "Settings",
+          headerRight: () => (
+            <Link href={"/"} replace asChild>
+              <Text onPress={signOutUser}>Sign out</Text>
+            </Link>
+          ),
+          headerLeft: () => (
+            <Link href={`/(homepage)/${id}`} replace asChild>
+              <Text onPress={signOutUser}>Home</Text>
+            </Link>
+            //      router.replace({
+            //   pathname: "/(homepage)/[id]",
+            //   params: { id: userId.toString() },
+            // });
+          ),
         }}
       />
     </Stack>

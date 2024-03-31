@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-import { StyleSheet, View, Alert, Image, Button } from "react-native";
+import { StyleSheet, View, Alert, Image, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "@/lib/supabase";
-
+import { Avatar as AvatarTamagui, XStack, Button } from "tamagui";
 interface Props {
   size: number;
   url: string | null;
-  onUpload: (filePath: string) => void;
+  onUpload?: (filePath: string) => void;
 }
 
 export default function Avatar({ url, size = 150, onUpload }: Props) {
@@ -17,6 +17,8 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
 
   useEffect(() => {
     if (url) downloadImage(url);
+    console.log("URL", url);
+    console.log("avatar_url: ", avatarUrl);
   }, [url]);
 
   async function downloadImage(path: string) {
@@ -81,7 +83,9 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
         throw uploadError;
       }
 
-      onUpload(data.path);
+      if (onUpload) {
+        onUpload(data.path);
+      }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message);
@@ -96,40 +100,36 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
   return (
     <View>
       {avatarUrl ? (
-        <Image
-          source={{ uri: avatarUrl }}
-          accessibilityLabel="Avatar"
-          style={[avatarSize, styles.avatar, styles.image]}
-        />
+        <XStack alignItems="center" justifyContent="space-between">
+          <AvatarTamagui circular size="$6">
+            <AvatarTamagui.Image
+              accessibilityLabel={"avatar"}
+              src={avatarUrl}
+            />
+            <AvatarTamagui.Fallback delayMs={600} backgroundColor="$blue10" />
+          </AvatarTamagui>
+          {onUpload && (
+            <View>
+              <Button onPress={uploadAvatar} disabled={uploading}>
+                {uploading ? "Uploading ..." : "Upload image"}
+              </Button>
+            </View>
+          )}
+        </XStack>
       ) : (
-        <View style={[avatarSize, styles.avatar, styles.noImage]} />
+        <XStack alignItems="center" justifyContent="space-between">
+          <AvatarTamagui circular size="$6">
+            {/* <AvatarTamagui.Image accessibilityLabel={"test"} src={avatarUrl} /> */}
+            <AvatarTamagui.Fallback delayMs={600} backgroundColor="$blue10" />
+          </AvatarTamagui>
+          <View>
+            <Button onPress={uploadAvatar} disabled={uploading}>
+              {uploading ? "Uploading ..." : "Upload image"}
+            </Button>
+          </View>
+        </XStack>
+        // <View style={[avatarSize, styles.avatar, styles.noImage]} />
       )}
-      <View>
-        <Button
-          title={uploading ? "Uploading ..." : "Upload"}
-          onPress={uploadAvatar}
-          disabled={uploading}
-        />
-      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  avatar: {
-    borderRadius: 5,
-    overflow: "hidden",
-    maxWidth: "100%",
-  },
-  image: {
-    objectFit: "cover",
-    paddingTop: 0,
-  },
-  noImage: {
-    backgroundColor: "#333",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "rgb(200, 200, 200)",
-    borderRadius: 5,
-  },
-});

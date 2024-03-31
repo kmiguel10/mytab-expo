@@ -1,4 +1,4 @@
-import { Avatar, Button, XStack, YStack } from "tamagui";
+import { Button, XStack, YStack } from "tamagui";
 
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
@@ -16,6 +16,7 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { BodyContainer } from "@/components/containers/body-container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Avatar from "@/components/login/avatar";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
@@ -24,6 +25,7 @@ const Home = () => {
   const [newBill, setNewBill] = useState<BillData | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const { left, top, right } = useSafeAreaInsets();
   const timerRef = React.useRef(0);
@@ -84,7 +86,11 @@ const Home = () => {
     const fetchprofileInfo = async () => {
       try {
         const profile: ProfileInfo | null = await getProfileInfo(id.toString());
-        setProfileInfo(profile);
+
+        if (profile) {
+          setProfileInfo(profile);
+          setAvatarUrl(profile?.avatar_url);
+        }
       } catch (error) {
         console.error("Error fetching profile info:", error);
         setProfileInfo(null);
@@ -112,13 +118,14 @@ const Home = () => {
           paddingHorizontal="$4"
           borderRadius="$6"
         >
-          <Avatar circular size="$6">
+          {/* <Avatar circular size="$6">
             <Avatar.Image
-              accessibilityLabel="Nate Wienert"
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+              accessibilityLabel={profileInfo?.displayName}
+              src={profileInfo?.avatar_url}
             />
             <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar>
+          </Avatar> */}
+          <Avatar size={200} url={avatarUrl} />
           <Text>{profileInfo?.displayName}</Text>
         </YStack>
         <BodyContainer height={windowHeight * 0.62}>
