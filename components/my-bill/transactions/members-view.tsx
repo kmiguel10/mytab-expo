@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Avatar, ScrollView, XStack } from "tamagui";
 
 interface Props {
@@ -7,6 +7,10 @@ interface Props {
 }
 
 const MembersView: React.FC<Props> = ({ members, height }) => {
+  useEffect(() => {
+    console.log("Header member", members);
+  }, [members]);
+
   return (
     <XStack gap={1} height={height * 0.25}>
       <ScrollView horizontal={true}>

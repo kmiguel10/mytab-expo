@@ -41,6 +41,7 @@ const CreateBill = () => {
       //console.error("Error creating bill: ", error);
       //display error here , or just create a , there is an error toast
       if (error) {
+        console.error("Error creating bill", error);
         router.replace({
           pathname: `/(homepage)/${id}`,
           params: { errorCreateMessage: "Error creating bill" },

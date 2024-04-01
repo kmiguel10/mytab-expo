@@ -125,14 +125,14 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      router.replace({
+      router.navigate({
         pathname: `/(bill)/${billId}`,
         params: { userId: _userId, errorDeleteMsg: error.message }, //
       });
     } else {
       if (data) {
         const _deletedTxn: Transaction = data[0];
-        router.replace({
+        router.navigate({
           pathname: `/(bill)/${billId}`,
           params: { userId: _userId, deletedTxnName: _deletedTxn.name },
         });

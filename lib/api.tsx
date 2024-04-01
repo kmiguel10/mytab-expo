@@ -11,7 +11,7 @@ export const getMembers = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Get members: ", JSON.stringify(data));
+    console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -28,7 +28,7 @@ export const getMembersAndRequests = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Get members: ", JSON.stringify(data));
+    console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);

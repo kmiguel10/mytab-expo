@@ -48,6 +48,7 @@ const BillScreen = () => {
     fetchSummaryInfo();
     console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id]);
+
   /**Fetch members of the bill */
   useEffect(() => {
     async function fetchMembers() {
@@ -70,7 +71,7 @@ const BillScreen = () => {
       }
     }
     fetchTransactions();
-  }, [userId, txnName]);
+  }, [userId, txnName, deletedTxnName]);
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -112,6 +113,10 @@ const BillScreen = () => {
     errorDeleteMsg,
     deletedTxnName,
   ]);
+
+  useEffect(() => {
+    console.log("id,userId", id, userId);
+  }, [id, userId]);
 
   return (
     <OuterContainer>

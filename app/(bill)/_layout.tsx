@@ -41,9 +41,9 @@ const Layout = () => {
   const handleReturnToMyBill = () => {
     console.log("counter", counter);
     setCounter(counter++);
-    router.replace({
+    router.navigate({
       pathname: `/(bill)/[id]`,
-      params: { id: id },
+      params: { id: id, userId: sessionUserId },
     });
     setCounter(counter++);
   };
