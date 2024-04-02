@@ -5,6 +5,7 @@ import CurrentMembers from "./current-members";
 import JoinRequests from "./join-requests";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import React from "react";
+import { Member } from "@/types/global";
 
 interface Props {
   billId: number;
@@ -12,12 +13,12 @@ interface Props {
   height: number;
 }
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-  isRequestSent: boolean;
-}
+// interface Member {
+//   memberid: string;
+//   userid: string;
+//   isMemberIncluded: boolean;
+//   isRequestSent: boolean;
+// }
 
 const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
   const [members, setMembers] = useState<Member[]>([]);

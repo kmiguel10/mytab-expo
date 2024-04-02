@@ -5,15 +5,19 @@ import * as ImagePicker from "expo-image-picker";
 import { supabase } from "@/lib/supabase";
 import { Avatar as AvatarTamagui, XStack, Button } from "tamagui";
 interface Props {
-  size: number;
   url: string | null;
+  isMemberIcon: boolean;
   onUpload?: (filePath: string) => void;
 }
 
-export default function Avatar({ url, size = 150, onUpload }: Props) {
+export default function Avatar({
+  url,
+
+  isMemberIcon = false,
+  onUpload,
+}: Props) {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const avatarSize = { height: size, width: size };
 
   useEffect(() => {
     if (url) downloadImage(url);
@@ -101,7 +105,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
     <View>
       {avatarUrl ? (
         <XStack alignItems="center" justifyContent="space-between">
-          <AvatarTamagui circular size="$6">
+          <AvatarTamagui circular size={isMemberIcon ? "$3" : "$6"}>
             <AvatarTamagui.Image
               accessibilityLabel={"avatar"}
               src={avatarUrl}

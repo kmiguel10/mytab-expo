@@ -4,7 +4,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { AlertDialog, Button, Input, XStack, YStack } from "tamagui";
 
-const JoinBill = () => {
+interface Props {
+  avatarUrl: string | null;
+}
+
+const JoinBill: React.FC<Props> = ({ avatarUrl }) => {
   const { id } = useLocalSearchParams();
   const [code, setCode] = useState("");
   const router = useRouter();
@@ -17,7 +21,7 @@ const JoinBill = () => {
     }
     let { data, error } = await supabase
       .from("members")
-      .insert([{ userid: id, billcode: code }])
+      .insert([{ userid: id, billcode: code, avatar_url: avatarUrl }])
       .eq("billcode", code)
       .select();
 
@@ -35,6 +39,7 @@ const JoinBill = () => {
       //display error here , or just create a , there is an error toast
 
       //Send error message
+      //NOTE: use upsert here
       if (error) {
         console.error("error", error);
         console.error("error", error.code);

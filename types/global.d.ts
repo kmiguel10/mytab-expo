@@ -5,6 +5,7 @@ type Member = {
   userid: string;
   isMemberIncluded: boolean;
   isRequestSent: boolean;
+  avatar_url: string;
 };
 
 type Bill = {

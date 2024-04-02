@@ -7,7 +7,7 @@ import {
   getMyTabInfo,
   getActiveTransactions,
 } from "@/lib/api";
-import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
+import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
@@ -16,6 +16,7 @@ import { HeaderContainer } from "@/components/containers/header-container";
 import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
+import MembersView from "@/components/my-bill/transactions/members-view";
 
 const BillScreen = () => {
   const {
@@ -29,7 +30,7 @@ const BillScreen = () => {
     deletedTxnName,
   } = useLocalSearchParams();
 
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
@@ -148,8 +149,12 @@ const BillScreen = () => {
           />
         </BodyContainer>
       </YStack>
-      <FooterContainer height={windowHeight}>
-        <XStack flex={1} />
+      <FooterContainer
+        height={windowHeight}
+        justifyContent="space-between"
+        alignContent="center"
+      >
+        <MembersView members={members} height={windowHeight} />
         <Link
           href={{
             pathname: "/pages/create-transaction",

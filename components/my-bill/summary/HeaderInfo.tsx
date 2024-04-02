@@ -1,4 +1,4 @@
-import { BillInfo } from "@/types/global";
+import { BillInfo, Member } from "@/types/global";
 import React from "react";
 import {
   CardProps,
@@ -14,7 +14,7 @@ import MembersView from "../transactions/members-view";
 interface Props extends CardProps {
   summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
   billInfo: BillInfo[];
-  members: any[];
+  members: Member[];
   height: number;
   width: number;
 }
@@ -38,20 +38,21 @@ const HeaderInfo: React.FC<Props> = ({
     0
   );
   return (
-    <XStack justifyContent="space-evenly" gap="$3" padding="$2">
-      <YStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
+    <YStack justifyContent="space-evenly" gap="$3" padding="$2">
+      <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
           <Text>Bill Name</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
             {billInfo[0]?.name}
           </H4>
         </View>
-        <View>
+
+        {/* <View>
           <Text>Members</Text>
           <MembersView members={members} height={height} />
-        </View>
-      </YStack>
-      <YStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
+        </View> */}
+      </XStack>
+      <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
           <Text>Total Amount</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
@@ -64,7 +65,7 @@ const HeaderInfo: React.FC<Props> = ({
             {txnCount}
           </H4>
         </View>
-      </YStack>
+      </XStack>
       {/* <Card elevate size="$4" bordered flex={1} {...props}>
         <Card.Header padded></Card.Header>
         <H4>{totalPaid}</H4>
@@ -77,7 +78,7 @@ const HeaderInfo: React.FC<Props> = ({
       {/* <Text>
           {totalPaid} | {txnCount}
         </Text> */}
-    </XStack>
+    </YStack>
   );
 };
 

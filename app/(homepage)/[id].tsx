@@ -119,14 +119,7 @@ const Home = () => {
           paddingHorizontal="$4"
           borderRadius="$6"
         >
-          {/* <Avatar circular size="$6">
-            <Avatar.Image
-              accessibilityLabel={profileInfo?.displayName}
-              src={profileInfo?.avatar_url}
-            />
-            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar> */}
-          <Avatar size={200} url={avatarUrl} />
+          <Avatar url={avatarUrl} isMemberIcon={false} />
           <Text>{profileInfo?.displayName}</Text>
         </YStack>
         <BodyContainer height={windowHeight * 0.62}>
@@ -140,7 +133,7 @@ const Home = () => {
       </YStack>
 
       <FooterContainer justifyContent="space-between" height={windowHeight}>
-        <JoinBill />
+        <JoinBill avatarUrl={avatarUrl} />
         <CreateBill />
         {/* <Button
           onPress={() => {
