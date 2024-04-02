@@ -170,12 +170,12 @@ export default function Profile() {
           <YStack height={height * 0.75} gap={"$2"}>
             <View paddingVertical={"$5"}>
               <Avatar
-                size={200}
                 url={avatarUrl}
                 onUpload={(url: string) => {
                   setAvatarUrl(url);
                   updateProfile({ avatar_url: url });
                 }}
+                isMemberIcon={false}
               />
             </View>
             <XStack>

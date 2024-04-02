@@ -1,4 +1,4 @@
-import { ProfileInfo, Transaction } from "@/types/global";
+import { MemberData, ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
 export const getMembers = async (billId: number) => {
@@ -73,6 +73,65 @@ export const getBillsForUserId = async (userId: string) => {
     return billsData;
   } catch (error) {
     //console.error("Error fetching bills:", error);
+    return [];
+  }
+};
+
+/**
+ * Gets all of the bills in which the user is a member of with an array of members and their URLS
+ * @param userId - of the current user
+ * @returns bills where user is a member
+ */
+export const getBillsForUserIdWithUrls = async (
+  userId: string
+): Promise<MemberData[]> => {
+  try {
+    const { data: billsData, error } = await supabase
+      .from("members")
+      .select("*")
+      .eq("userid", userId)
+      .eq("isdeleted", false);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!billsData || billsData.length === 0) {
+      return [];
+    }
+
+    const billIds: number[] = billsData.map((bill: MemberData) => bill.billid);
+
+    const { data: memberData, error: memberError } = await supabase
+      .from("members")
+      .select("avatar_url, userid, billid")
+      .in("billid", billIds)
+      .eq("isMemberIncluded", true);
+
+    if (memberError) {
+      throw new Error(memberError.message);
+    }
+
+    const memberUrlsMap: Record<number, string[]> = {};
+
+    if (memberData && memberData.length > 0) {
+      memberData.forEach((member: { avatar_url: string; billid: number }) => {
+        if (!memberUrlsMap[member.billid]) {
+          memberUrlsMap[member.billid] = [];
+        }
+        memberUrlsMap[member.billid].push(member.avatar_url);
+      });
+    }
+
+    const billsWithUrls: MemberData[] = billsData.map((bill: MemberData) => ({
+      ...bill,
+      memberUrls: memberUrlsMap[bill.billid] || [],
+    }));
+
+    console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
+    return billsWithUrls;
+  } catch (error) {
+    console.error("Error fetching bills:", error);
     return [];
   }
 };

@@ -7,9 +7,10 @@ import {
   XStack,
   Button,
   Text,
-  Avatar,
+  View,
 } from "tamagui";
 import { BillData, MemberData } from "@/types/global";
+import Avatar from "../login/avatar";
 
 interface Props extends CardProps {
   bill: MemberData;
@@ -57,26 +58,14 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
         )}
 
         <XStack justifyContent="center">
-          <Avatar circular size="$2">
-            <Avatar.Image
-              accessibilityLabel="Nate Wienert"
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-            />
-            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar>
-          <Avatar circular size="$2">
-            <Avatar.Image
-              accessibilityLabel="Nate Wienert"
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-            />
-            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar>
-          <Avatar circular size="$2">
-            <Avatar.Fallback delayMs={600} backgroundColor="$blue10" />
-          </Avatar>
-          <Text>...more</Text>
+          {bill.memberUrls.map((url, index) => (
+            <View>
+              <Avatar url={url} isMemberIcon={true} />
+            </View>
+          ))}
         </XStack>
       </Card.Footer>
+      {/* <Text>{JSON.stringify(bill)}</Text> */}
       <Card.Background></Card.Background>
     </Card>
   );

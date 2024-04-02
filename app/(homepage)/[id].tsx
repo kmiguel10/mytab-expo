@@ -3,7 +3,11 @@ import { Button, XStack, YStack } from "tamagui";
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/homepage/join-bill";
-import { getBillsForUserId, getProfileInfo } from "@/lib/api";
+import {
+  getBillsForUserId,
+  getProfileInfo,
+  getBillsForUserIdWithUrls,
+} from "@/lib/api";
 import { BillData, MemberData, ProfileInfo } from "@/types/global";
 import { Toast, ToastProvider, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
@@ -22,7 +26,7 @@ const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
-  const [newBill, setNewBill] = useState<BillData | null>(null);
+  const [newBill, setNewBill] = useState<MemberData | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -36,7 +40,7 @@ const Home = () => {
     async function fetchBills() {
       if (!id) return;
 
-      const billsData = await getBillsForUserId(id.toString());
+      const billsData = await getBillsForUserIdWithUrls(id.toString());
       const filteredBillsData = billsData.filter(
         (member) =>
           member.isMemberIncluded === true || member.isRequestSent === true
@@ -44,26 +48,58 @@ const Home = () => {
       setBills(filteredBillsData);
 
       if (newBillId || joinedBillCode) {
-        let newBill: BillData = {
+        let newBill: MemberData = {
           memberid: "",
           userid: "",
           billid: 0,
           billcode: "",
           ownerid: "",
           name: "",
-          createdAt: new Date(),
-          isDeleted: false,
-          isSettled: false,
           amount: 0,
+          isBillActive: false,
+          isMemberIncluded: false,
+          isLocked: false,
+          isdeleted: false,
+          isRequestSent: false,
+          memberUrls: [],
         };
+
         if (newBillId) {
           newBill = billsData?.find(
             (bill) => bill?.billid === parseInt(newBillId.toString())
-          );
+          ) ?? {
+            memberid: "",
+            userid: "",
+            billid: 0,
+            billcode: "",
+            ownerid: "",
+            name: "",
+            amount: 0,
+            isBillActive: false,
+            isMemberIncluded: false,
+            isLocked: false,
+            isdeleted: false,
+            isRequestSent: false,
+            memberUrls: [],
+          };
         } else {
           newBill = billsData?.find(
             (bill) => bill?.billid === parseInt(joinedBillCode.toString())
-          );
+          ) ?? {
+            memberid: "",
+            userid: "",
+            billid: 0,
+            billcode: "",
+            ownerid: "",
+            name: "",
+            amount: 0,
+            isBillActive: false,
+            isMemberIncluded: false,
+            isLocked: false,
+            isdeleted: false,
+            isRequestSent: false,
+            memberUrls: [],
+          };
         }
 
         if (newBill) {

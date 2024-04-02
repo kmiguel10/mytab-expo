@@ -71,6 +71,7 @@ type MemberData = {
   isLocked: boolean; // Boolean (Not nullable)
   isdeleted: boolean; // Boolean (Not nullable)
   isRequestSent: boolean; // Boolean or NULL
+  memberUrls: string[];
 };
 
 type Split = {
