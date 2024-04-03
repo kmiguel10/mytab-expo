@@ -257,7 +257,7 @@ export const getProfileInfo = async (
       .select("displayName,lastName,firstName,avatar_url,email")
       .eq("id", userId);
 
-    console.log(profile);
+    console.log("Profile info data", profile);
 
     if (error) {
       throw new Error(error.message);

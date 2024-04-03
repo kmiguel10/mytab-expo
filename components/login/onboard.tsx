@@ -56,7 +56,9 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
           params: { id: userId },
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log("Error onboarding user", error);
+    }
   };
 
   const signOutUser = async () => {
@@ -177,12 +179,12 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
             <YStack height={height * 0.75} gap={"$2"}>
               <View paddingVertical={"$5"}>
                 <Avatar
-                  size={200}
                   url={avatarUrl}
                   onUpload={(url: string) => {
                     setAvatarUrl(url);
                     updateProfile({ avatar_url: url });
                   }}
+                  isMemberIcon={false}
                 />
               </View>
               <XStack>

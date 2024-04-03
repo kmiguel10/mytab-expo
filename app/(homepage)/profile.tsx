@@ -63,10 +63,6 @@ export default function Profile() {
       //   setLoading(true);
       //   if (!session?.user) throw new Error("No user on the session!");
 
-      const updates = {
-        avatar_url,
-      };
-
       //   let { error } = await supabase.from("profiles").upsert(updates);
       console.log("avatar_url", avatar_url);
       const { data, error } = await supabase
