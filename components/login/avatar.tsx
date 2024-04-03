@@ -126,11 +126,13 @@ export default function Avatar({
             {/* <AvatarTamagui.Image accessibilityLabel={"test"} src={avatarUrl} /> */}
             <AvatarTamagui.Fallback delayMs={600} backgroundColor="$blue10" />
           </AvatarTamagui>
-          <View>
-            <Button onPress={uploadAvatar} disabled={uploading}>
-              {uploading ? "Uploading ..." : "Upload image"}
-            </Button>
-          </View>
+          {onUpload && (
+            <View>
+              <Button onPress={uploadAvatar} disabled={uploading}>
+                {uploading ? "Uploading ..." : "Upload image"}
+              </Button>
+            </View>
+          )}
         </XStack>
         // <View style={[avatarSize, styles.avatar, styles.noImage]} />
       )}

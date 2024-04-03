@@ -44,7 +44,7 @@ const Page = () => {
 
   return (
     <View>
-      {session && session.user && profileInfo?.displayName ? (
+      {session && session.user && profileInfo?.email ? (
         <Onboard userId={session.user.id.toString()} />
       ) : (
         <Auth />
