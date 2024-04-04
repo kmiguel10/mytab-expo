@@ -21,6 +21,7 @@ import { FooterContainer } from "@/components/containers/footer-container";
 import { BodyContainer } from "@/components/containers/body-container";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Avatar from "@/components/login/avatar";
+import { HeaderContainer } from "@/components/containers/header-container";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
@@ -146,7 +147,18 @@ const Home = () => {
         right={0}
       />
       <YStack padding="$2" gap="$2">
-        <YStack
+        <HeaderContainer
+          justifyContent="flex-start"
+          gap="$3"
+          height={windowHeight * 0.15}
+          backgroundColor={"white"}
+          paddingVertical="$4"
+          paddingHorizontal="$4"
+        >
+          <Avatar url={avatarUrl} isMemberIcon={false} />
+          <Text>{profileInfo?.displayName}</Text>
+        </HeaderContainer>
+        {/* <YStack
           justifyContent="flex-start"
           gap="$3"
           height={windowHeight * 0.15}
@@ -157,7 +169,7 @@ const Home = () => {
         >
           <Avatar url={avatarUrl} isMemberIcon={false} />
           <Text>{profileInfo?.displayName}</Text>
-        </YStack>
+        </YStack> */}
         <BodyContainer height={windowHeight * 0.62}>
           <TabsAdvancedUnderline
             bills={bills}
