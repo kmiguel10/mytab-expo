@@ -126,7 +126,8 @@ const JoinBill: React.FC<Props> = ({ avatarUrl, buttonWidth, buttonSize }) => {
                 <StyledButton
                   width={buttonWidth}
                   size={buttonSize}
-                  active={code ? true : false}
+                  active={!!code}
+                  disabled={!code}
                   onPress={joinAsMember}
                 >
                   Join
