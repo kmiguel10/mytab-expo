@@ -169,8 +169,12 @@ const Home = () => {
       </YStack>
 
       <FooterContainer justifyContent="space-between" height={windowHeight}>
-        <JoinBill avatarUrl={avatarUrl} />
-        <CreateBill />
+        <JoinBill
+          avatarUrl={avatarUrl}
+          buttonWidth={windowWidth * 0.25}
+          buttonSize={"$3.5"}
+        />
+        <CreateBill buttonWidth={windowWidth * 0.25} buttonSize={"$3.5"} />
         {/* <Button
           onPress={() => {
             setOpen(false);
@@ -182,72 +186,71 @@ const Home = () => {
         >
           Single Toast
         </Button> */}
-
-        {newBillId && (
-          <Toast
-            onOpenChange={setOpen}
-            open={open}
-            animation="100ms"
-            enterStyle={{ x: -20, opacity: 0 }}
-            exitStyle={{ x: -20, opacity: 0 }}
-            opacity={1}
-            x={0}
-            backgroundColor={"$green8"}
-            height={"500"}
-            width={"85%"}
-            justifyContent="center"
-          >
-            <Toast.Title alignItems="center">
-              Successfully created {newBill?.name} Bill
-            </Toast.Title>
-            <Toast.Description>
-              Share Bill Code to your friends: {newBill?.billcode}
-            </Toast.Description>
-          </Toast>
-        )}
-        {joinedBillCode && (
-          <Toast
-            onOpenChange={setOpen}
-            open={open}
-            animation="100ms"
-            enterStyle={{ x: -20, opacity: 0 }}
-            exitStyle={{ x: -20, opacity: 0 }}
-            opacity={1}
-            x={0}
-            backgroundColor={"$green8"}
-            height={"400"}
-            width={"80%"}
-            justifyContent="center"
-          >
-            <Toast.Title alignItems="center">
-              You sent a request to join " {newBill?.name} "
-            </Toast.Title>
-            {/* <Toast.Description>
+      </FooterContainer>
+      {newBillId && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={"$green8"}
+          height={"500"}
+          width={"85%"}
+          justifyContent="center"
+        >
+          <Toast.Title alignItems="center">
+            Successfully created {newBill?.name} Bill
+          </Toast.Title>
+          <Toast.Description>
+            Share Bill Code to your friends: {newBill?.billcode}
+          </Toast.Description>
+        </Toast>
+      )}
+      {joinedBillCode && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={"$green8"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title alignItems="center">
+            You sent a request to join " {newBill?.name} "
+          </Toast.Title>
+          {/* <Toast.Description>
               Share Bill Code to your friends: {newBill?.billcode}
             </Toast.Description> */}
-          </Toast>
-        )}
-        {(errorMessage || errorCreateMessage) && (
-          <Toast
-            onOpenChange={setOpen}
-            open={open}
-            animation="100ms"
-            enterStyle={{ x: -20, opacity: 0 }}
-            exitStyle={{ x: -20, opacity: 0 }}
-            opacity={1}
-            x={0}
-            backgroundColor={"$red8"}
-            height={"400"}
-            width={"80%"}
-            justifyContent="center"
-          >
-            <Toast.Title alignContent="center">
-              {errorMessage ? errorMessage : errorCreateMessage}
-            </Toast.Title>
-            {/* <Toast.Description>{error}</Toast.Description> */}
-          </Toast>
-        )}
-      </FooterContainer>
+        </Toast>
+      )}
+      {(errorMessage || errorCreateMessage) && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={"$red8"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title alignContent="center">
+            {errorMessage ? errorMessage : errorCreateMessage}
+          </Toast.Title>
+          {/* <Toast.Description>{error}</Toast.Description> */}
+        </Toast>
+      )}
     </OuterContainer>
   );
 };

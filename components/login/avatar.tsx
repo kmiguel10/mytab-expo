@@ -4,6 +4,7 @@ import { StyleSheet, View, Alert, Image, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "@/lib/supabase";
 import { Avatar as AvatarTamagui, XStack, Button } from "tamagui";
+import { StyledButton } from "../button/button";
 interface Props {
   url: string | null;
   isMemberIcon: boolean;
@@ -114,9 +115,14 @@ export default function Avatar({
           </AvatarTamagui>
           {onUpload && (
             <View>
-              <Button onPress={uploadAvatar} disabled={uploading}>
+              <StyledButton
+                onPress={uploadAvatar}
+                disabled={uploading}
+                size={"$2.5"}
+                active={true}
+              >
                 {uploading ? "Uploading ..." : "Upload image"}
-              </Button>
+              </StyledButton>
             </View>
           )}
         </XStack>
@@ -128,7 +134,7 @@ export default function Avatar({
           </AvatarTamagui>
           {onUpload && (
             <View>
-              <Button onPress={uploadAvatar} disabled={uploading}>
+              <Button onPress={uploadAvatar} disabled={uploading} size={"$3"}>
                 {uploading ? "Uploading ..." : "Upload image"}
               </Button>
             </View>

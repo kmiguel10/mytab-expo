@@ -168,12 +168,13 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                 <ScrollView>
                   {bills.map((item, index) => (
                     <XStack
-                      key={index}
+                      key={item.memberid}
                       backgroundColor="transparent"
                       justifyContent="center"
                       padding="$1.5"
                     >
                       <Link
+                        key={item.memberid}
                         href={{
                           pathname: `/(bill)/${item.billid}`,
                           params: { userId: userId },

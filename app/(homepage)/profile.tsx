@@ -1,27 +1,28 @@
 import { StyleSheet, useWindowDimensions } from "react-native";
 
 import {
+  Button,
   Fieldset,
   Form,
   Input,
+  Separator,
   Text,
   View,
   XStack,
-  Button,
-  Avatar as AvatarTamagui,
   YStack,
 } from "tamagui";
 
 import { supabase } from "@/lib/supabase";
 
-import { Link, Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
-import { useEffect, useState } from "react";
-import { ProfileInfo } from "@/types/global";
 import Avatar from "@/components/login/avatar";
 import { getProfileInfo } from "@/lib/api";
-import { FooterContainer } from "@/components/containers/footer-container";
+import { ProfileInfo } from "@/types/global";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { StyledInput } from "@/components/input/input";
+import { StyledButton } from "@/components/button/button";
 
 export default function Profile() {
   const { id: userId } = useLocalSearchParams();
@@ -32,10 +33,6 @@ export default function Profile() {
   const router = useRouter();
 
   /** Functions */
-  const signOutUser = async () => {
-    await supabase.auth.signOut();
-    console.log("USER SIGNED OUT");
-  };
   const onSave = async () => {
     try {
       const { data, error } = await supabase
@@ -163,8 +160,8 @@ export default function Profile() {
         {/* <Text>{userId}</Text>
           <Text>{JSON.stringify(profileInfo)}</Text> */}
         <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-          <YStack height={height * 0.75} gap={"$2"}>
-            <View paddingVertical={"$5"}>
+          <YStack height={height * 0.75} gap={"$5"}>
+            <View paddingVertical={"$3"}>
               <Avatar
                 url={avatarUrl}
                 onUpload={(url: string) => {
@@ -174,18 +171,28 @@ export default function Profile() {
                 isMemberIcon={false}
               />
             </View>
+            <Separator />
             <XStack>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Display name *
+                  Display name (required)
                 </Text>
-                <Input
+                {/* <Input
                   id="display-name"
                   placeholder="Display Name"
                   defaultValue=""
                   value={profileInfo?.displayName}
                   onChangeText={handleDisplayNameChange}
                   backgroundColor={"$backgroundTransparent"}
+               
+                /> */}
+                <StyledInput
+                  id="display-name"
+                  placeholder="Display Name"
+                  defaultValue=""
+                  value={profileInfo?.displayName}
+                  onChangeText={handleDisplayNameChange}
+                  error={profileInfo?.displayName ? false : true}
                 />
               </Fieldset>
             </XStack>
@@ -235,11 +242,13 @@ export default function Profile() {
           </YStack>
 
           <XStack justifyContent="flex-end">
-            {/* <Link href={"/"} replace asChild>
-              <Button onPress={signOutUser}>Cancel</Button>
-            </Link> */}
             <Form.Trigger asChild>
-              <Button> Save</Button>
+              <StyledButton
+                disabled={!profileInfo?.displayName}
+                active={profileInfo?.displayName ? true : false}
+              >
+                Save
+              </StyledButton>
             </Form.Trigger>
           </XStack>
         </Form>

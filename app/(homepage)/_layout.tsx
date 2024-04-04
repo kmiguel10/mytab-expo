@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import { Ionicons } from "@expo/vector-icons";
+
 import { Session } from "@supabase/supabase-js";
-import { Home } from "@tamagui/lucide-icons";
+import { Home, Settings } from "@tamagui/lucide-icons";
 import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable } from "react-native";
@@ -61,7 +61,7 @@ export default function TabLayout() {
               asChild
             >
               <Pressable>
-                <Ionicons name="settings-outline" size={24} color="gray" />
+                <Settings />
               </Pressable>
             </Link>
           ),
