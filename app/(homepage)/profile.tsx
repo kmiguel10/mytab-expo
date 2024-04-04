@@ -246,6 +246,8 @@ export default function Profile() {
               <StyledButton
                 disabled={!profileInfo?.displayName}
                 active={profileInfo?.displayName ? true : false}
+                width={width * 0.25}
+                size={"$3.5"}
               >
                 Save
               </StyledButton>
