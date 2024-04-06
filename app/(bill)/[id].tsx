@@ -128,7 +128,6 @@ const BillScreen = () => {
       <YStack padding="$2" gap="$2">
         <HeaderContainer height={windowHeight * 0.15}>
           <HeaderInfo
-            members={members}
             summaryInfo={summaryInfo}
             billInfo={billInfo}
             height={windowHeight * 0.15}
