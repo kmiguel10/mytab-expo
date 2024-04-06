@@ -17,6 +17,7 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import MembersView from "@/components/my-bill/transactions/members-view";
+import { StyledButton } from "@/components/button/button";
 
 const BillScreen = () => {
   const {
@@ -82,7 +83,7 @@ const BillScreen = () => {
       }
     }
     fetchBillInfo();
-  }, [id]);
+  }, [billInfo]);
 
   useEffect(() => {
     async function fetchMyTabInfo() {
@@ -114,10 +115,6 @@ const BillScreen = () => {
     errorDeleteMsg,
     deletedTxnName,
   ]);
-
-  useEffect(() => {
-    console.log("id,userId", id, userId);
-  }, [id, userId]);
 
   return (
     <OuterContainer>
@@ -165,7 +162,14 @@ const BillScreen = () => {
           }}
           asChild
         >
-          <Button disabled={billInfo[0]?.isLocked}>Add Transaction</Button>
+          <StyledButton
+            disabled={billInfo[0]?.isLocked}
+            create={!billInfo[0]?.isLocked}
+            width={windowWidth * 0.38}
+            size={"$3.5"}
+          >
+            Add Transaction
+          </StyledButton>
         </Link>
       </FooterContainer>
       {(txnName || errorCreateMsg) && (

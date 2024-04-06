@@ -7,11 +7,17 @@ import { StyledButton } from "../button/button";
 
 interface Props {
   avatarUrl: string | null;
+  displayName: string;
   buttonWidth: number;
   buttonSize: string;
 }
 
-const JoinBill: React.FC<Props> = ({ avatarUrl, buttonWidth, buttonSize }) => {
+const JoinBill: React.FC<Props> = ({
+  avatarUrl,
+  buttonWidth,
+  buttonSize,
+  displayName,
+}) => {
   const { id } = useLocalSearchParams();
   const [code, setCode] = useState("");
   const router = useRouter();
@@ -23,7 +29,14 @@ const JoinBill: React.FC<Props> = ({ avatarUrl, buttonWidth, buttonSize }) => {
     }
     let { data, error } = await supabase
       .from("members")
-      .insert([{ userid: id, billcode: code, avatar_url: avatarUrl }])
+      .insert([
+        {
+          userid: id,
+          billcode: code,
+          avatar_url: avatarUrl,
+          displayName: displayName,
+        },
+      ])
       .eq("billcode", code)
       .select();
 

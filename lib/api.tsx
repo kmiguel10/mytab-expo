@@ -5,7 +5,9 @@ export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("memberid, userid, isMemberIncluded, isRequestSent, avatar_url")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+      )
       .eq("isMemberIncluded", true)
       .eq("billid", billId);
     if (error) {
@@ -23,12 +25,14 @@ export const getMembersAndRequests = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("memberid, userid, isMemberIncluded, isRequestSent,avatar_url")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent,avatar_url, displayName"
+      )
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members: ", JSON.stringify(data));
+    console.log(">>> Get members and requests: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);

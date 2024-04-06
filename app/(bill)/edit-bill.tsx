@@ -4,6 +4,7 @@ import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
+import { StyledInput } from "@/components/input/input";
 import { getBillInfo, getMembers } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
@@ -131,23 +132,21 @@ export const EditBill = () => {
           right={0}
         />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <XStack justifyContent="space-between">
+          <XStack justifyContent="space-between" alignItems="center">
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.6}>
-              {/* <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Transaction name:
-              </Text> */}
-              <Input
+              <StyledInput
                 defaultValue={billInfo[0]?.name}
                 onChangeText={handleBillNameChange}
-              ></Input>
+                error={!billInfo[0]?.name}
+              ></StyledInput>
             </Fieldset>
-            {/* <Button onPress={onSubmit}>Save</Button> */}
             <ConfirmSaveName
               name={billInfo[0]?.name}
               billId={billInfo[0]?.billid}
               userId={userId.toString()}
               setOpen={setOpen}
               setSaveNameError={setSaveNameError}
+              disabled={!billInfo[0]?.name}
             />
           </XStack>
         </Form>

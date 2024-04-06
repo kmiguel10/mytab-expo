@@ -1,6 +1,7 @@
 typescript;
 
 type Member = {
+  displayName: string;
   memberid: string;
   userid: string;
   isMemberIncluded: boolean;

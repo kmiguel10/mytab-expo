@@ -16,6 +16,7 @@ const CurrentMembers: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
   const [processError, setProcessError] = useState(false);
+
   return (
     <View>
       <Text>Members</Text>

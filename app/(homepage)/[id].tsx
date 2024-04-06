@@ -183,6 +183,7 @@ const Home = () => {
       <FooterContainer justifyContent="space-between" height={windowHeight}>
         <JoinBill
           avatarUrl={avatarUrl}
+          displayName={profileInfo?.displayName ? profileInfo.displayName : ""}
           buttonWidth={windowWidth * 0.25}
           buttonSize={"$3.5"}
         />
