@@ -168,13 +168,13 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                 <ScrollView>
                   {bills.map((item, index) => (
                     <XStack
-                      key={item.memberid}
+                      key={`${item.memberid}-${index}`}
                       backgroundColor="transparent"
                       justifyContent="center"
                       padding="$1.5"
                     >
                       <Link
-                        key={item.memberid}
+                        key={`${item.memberid}-${index}`}
                         href={{
                           pathname: `/(bill)/${item.billid}`,
                           params: { userId: userId },
@@ -183,6 +183,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                         asChild
                       >
                         <BillCard
+                          key={`${item.memberid}-${index}`}
                           animation="bouncy"
                           size="$3"
                           width={360}

@@ -5,22 +5,13 @@ import LockSwitch from "@/components/bill-settings/lock-switch";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { StyledInput } from "@/components/input/input";
-import { getBillInfo, getMembers } from "@/lib/api";
+import { getBillInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
-import { useEffect, useState } from "react";
-import {
-  useWindowDimensions,
-  Text,
-  Button,
-  XStack,
-  Form,
-  Fieldset,
-  Input,
-} from "tamagui";
+import React, { useEffect, useState } from "react";
+import { Fieldset, Form, useWindowDimensions, XStack } from "tamagui";
 
 export const EditBill = () => {
   const { width, height } = useWindowDimensions();
@@ -100,6 +91,7 @@ export const EditBill = () => {
   const [saveNameError, setSaveNameError] = useState(false);
   const timerRef = React.useRef(0);
 
+  /** --- UseEffects --- */
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {

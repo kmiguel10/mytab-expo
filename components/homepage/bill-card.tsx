@@ -59,7 +59,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
 
         <XStack justifyContent="center">
           {bill.memberUrls.map((url, index) => (
-            <View>
+            <View key={`${url}-${index}`}>
               <Avatar url={url} isMemberIcon={true} />
             </View>
           ))}
