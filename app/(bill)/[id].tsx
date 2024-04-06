@@ -83,7 +83,7 @@ const BillScreen = () => {
       }
     }
     fetchBillInfo();
-  }, [billInfo]);
+  }, [id]);
 
   useEffect(() => {
     async function fetchMyTabInfo() {
@@ -129,7 +129,7 @@ const BillScreen = () => {
         <HeaderContainer height={windowHeight * 0.15}>
           <HeaderInfo
             summaryInfo={summaryInfo}
-            billInfo={billInfo}
+            billName={billInfo[0]?.name}
             height={windowHeight * 0.15}
             width={windowWidth}
           />

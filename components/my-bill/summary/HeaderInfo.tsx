@@ -13,14 +13,14 @@ import MembersView from "../transactions/members-view";
 
 interface Props extends CardProps {
   summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
-  billInfo: BillInfo[];
+  billName: string;
   height: number;
   width: number;
 }
 
 const HeaderInfo: React.FC<Props> = ({
   summaryInfo,
-  billInfo,
+  billName,
   height,
   width,
   ...props
@@ -41,7 +41,7 @@ const HeaderInfo: React.FC<Props> = ({
         <View>
           <Text>Bill Name</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
-            {billInfo[0]?.name}
+            {billName}
           </H4>
         </View>
       </XStack>
