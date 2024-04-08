@@ -3,6 +3,7 @@ import { Trash } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { AlertDialog, Button, XStack, YStack } from "tamagui";
+import { StyledButton } from "../button/button";
 
 interface Member {
   memberid: string;
@@ -38,7 +39,13 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <Button>Delete</Button>
+        <StyledButton
+          delete={true}
+          icon={<Trash size={"$1"} color={"$red10Light"} />}
+          backgroundColor={"$red4Light"}
+          size={"$4"}
+          width={"25%"}
+        />
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>

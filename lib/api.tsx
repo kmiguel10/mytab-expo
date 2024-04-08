@@ -1,17 +1,19 @@
-import { Transaction } from "@/types/global";
+import { MemberData, ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
 export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("memberid, userid, isMemberIncluded, isRequestSent")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+      )
       .eq("isMemberIncluded", true)
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Get members: ", JSON.stringify(data));
+    console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -23,12 +25,14 @@ export const getMembersAndRequests = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
-      .select("memberid, userid, isMemberIncluded, isRequestSent")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent,avatar_url, displayName"
+      )
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
     }
-    console.log("Get members: ", JSON.stringify(data));
+    console.log(">>> Get members and requests: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -73,6 +77,65 @@ export const getBillsForUserId = async (userId: string) => {
     return billsData;
   } catch (error) {
     //console.error("Error fetching bills:", error);
+    return [];
+  }
+};
+
+/**
+ * Gets all of the bills in which the user is a member of with an array of members and their URLS
+ * @param userId - of the current user
+ * @returns bills where user is a member
+ */
+export const getBillsForUserIdWithUrls = async (
+  userId: string
+): Promise<MemberData[]> => {
+  try {
+    const { data: billsData, error } = await supabase
+      .from("members")
+      .select("*")
+      .eq("userid", userId)
+      .eq("isdeleted", false);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!billsData || billsData.length === 0) {
+      return [];
+    }
+
+    const billIds: number[] = billsData.map((bill: MemberData) => bill.billid);
+
+    const { data: memberData, error: memberError } = await supabase
+      .from("members")
+      .select("avatar_url, userid, billid")
+      .in("billid", billIds)
+      .eq("isMemberIncluded", true);
+
+    if (memberError) {
+      throw new Error(memberError.message);
+    }
+
+    const memberUrlsMap: Record<number, string[]> = {};
+
+    if (memberData && memberData.length > 0) {
+      memberData.forEach((member: { avatar_url: string; billid: number }) => {
+        if (!memberUrlsMap[member.billid]) {
+          memberUrlsMap[member.billid] = [];
+        }
+        memberUrlsMap[member.billid].push(member.avatar_url);
+      });
+    }
+
+    const billsWithUrls: MemberData[] = billsData.map((bill: MemberData) => ({
+      ...bill,
+      memberUrls: memberUrlsMap[bill.billid] || [],
+    }));
+
+    console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
+    return billsWithUrls;
+  } catch (error) {
+    console.error("Error fetching bills:", error);
     return [];
   }
 };
@@ -166,7 +229,6 @@ export const getMyTabInfo = async (userId: string, billId: number) => {
 };
 
 /** Edit Transaction */
-
 export const getCurrentTransaction = async (
   transactionId: string
 ): Promise<Transaction | null> => {
@@ -185,6 +247,44 @@ export const getCurrentTransaction = async (
       "There is an error fetching current transaction: ",
       transactionId
     );
+    return null;
+  }
+};
+
+export const getProfileInfo = async (
+  userId: string
+): Promise<ProfileInfo | null> => {
+  try {
+    console.log("getProfileInfo userId ", userId);
+    let { data: profile, error } = await supabase
+      .from("profiles")
+      .select("displayName,lastName,firstName,avatar_url,email")
+      .eq("id", userId);
+
+    console.log("Profile info data", profile);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (profile && profile.length > 0) {
+      // Extract the first item from the profile array
+      const profileData = profile[0];
+      // Assign the retrieved data to the ProfileInfo type
+      const profileInfo: ProfileInfo = {
+        displayName: profileData.displayName,
+        lastName: profileData.lastName,
+        firstName: profileData.firstName,
+        avatar_url: profileData.avatar_url,
+        email: profileData.email,
+      };
+      return profileInfo;
+    } else {
+      // If profile is empty or null, return null
+      return null;
+    }
+  } catch (error) {
+    console.error("There is an error fetching profile info: ", userId);
     return null;
   }
 };

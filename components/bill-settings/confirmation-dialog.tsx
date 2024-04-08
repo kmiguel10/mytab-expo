@@ -45,12 +45,22 @@ export const ConfirmationDialog: React.FC<Props> = ({
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <Button
+        {/* <Button
           onPress={() => console.log("Trash")}
           size={"$2"}
           icon={<Trash size={"$1"} color={"$red10Light"} />}
           backgroundColor={"$red4Light"}
-        />
+        /> */}
+        <Button
+          onPress={() => console.log("Trash")}
+          size={"$2"}
+          // icon={<Trash size={"$1"} color={"$red10Light"} />}
+
+          backgroundColor={"$red4Light"}
+          color={"red"}
+        >
+          Delete
+        </Button>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>

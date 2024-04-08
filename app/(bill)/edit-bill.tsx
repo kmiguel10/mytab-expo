@@ -4,26 +4,18 @@ import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
-import { getBillInfo, getMembers } from "@/lib/api";
+import { StyledInput } from "@/components/input/input";
+import { getBillInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
-import { useEffect, useState } from "react";
-import {
-  useWindowDimensions,
-  Text,
-  Button,
-  XStack,
-  Form,
-  Fieldset,
-  Input,
-} from "tamagui";
+import React, { useEffect, useState } from "react";
+import { Fieldset, Form, useWindowDimensions, XStack } from "tamagui";
 
-export const EditBillPage = () => {
+export const EditBill = () => {
   const { width, height } = useWindowDimensions();
-  const { id, billId, userId } = useLocalSearchParams();
+  const { id, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const router = useRouter();
@@ -58,7 +50,7 @@ export const EditBillPage = () => {
     if (data) {
       console.log("Locked bill: ", data);
       router.replace({
-        pathname: `/(bill)/mybill/${id}`,
+        pathname: `/(bill)/${id}`,
         params: { userId: userId.toString() },
       });
     } else if (error) {
@@ -99,6 +91,7 @@ export const EditBillPage = () => {
   const [saveNameError, setSaveNameError] = useState(false);
   const timerRef = React.useRef(0);
 
+  /** --- UseEffects --- */
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -131,23 +124,21 @@ export const EditBillPage = () => {
           right={0}
         />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <XStack justifyContent="space-between">
+          <XStack justifyContent="space-between" alignItems="center">
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.6}>
-              {/* <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Transaction name:
-              </Text> */}
-              <Input
+              <StyledInput
                 defaultValue={billInfo[0]?.name}
                 onChangeText={handleBillNameChange}
-              ></Input>
+                error={!billInfo[0]?.name}
+              ></StyledInput>
             </Fieldset>
-            {/* <Button onPress={onSubmit}>Save</Button> */}
             <ConfirmSaveName
               name={billInfo[0]?.name}
               billId={billInfo[0]?.billid}
               userId={userId.toString()}
               setOpen={setOpen}
               setSaveNameError={setSaveNameError}
+              disabled={!billInfo[0]?.name}
             />
           </XStack>
         </Form>
@@ -173,7 +164,7 @@ export const EditBillPage = () => {
             billId={billInfo[0]?.billid}
             userId={userId.toString()}
           />
-          <Button
+          {/* <Button
             onPress={() => {
               setOpen(false);
               window.clearTimeout(timerRef.current);
@@ -183,7 +174,7 @@ export const EditBillPage = () => {
             }}
           >
             Single Toast
-          </Button>
+          </Button> */}
         </XStack>
         <SaveNameToast
           setOpen={setOpen}
@@ -196,7 +187,7 @@ export const EditBillPage = () => {
   );
 };
 
-export default EditBillPage;
+export default EditBill;
 
 interface SaveNameToastProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;

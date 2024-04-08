@@ -1,7 +1,14 @@
 import { supabase } from "@/lib/supabase";
 import { Trash } from "@tamagui/lucide-icons";
 import React from "react";
-import { AlertDialog, Button, XStack, YStack } from "tamagui";
+import {
+  AlertDialog,
+  Button,
+  useWindowDimensions,
+  XStack,
+  YStack,
+} from "tamagui";
+import { StyledButton } from "../button/button";
 
 interface Member {
   memberid: string;
@@ -12,6 +19,7 @@ interface Props {
   name: string;
   billId: number;
   userId: string;
+  disabled: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSaveNameError: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -21,9 +29,11 @@ export const ConfirmSaveName: React.FC<Props> = ({
   name,
   billId,
   userId,
+  disabled,
   setOpen,
   setSaveNameError,
 }) => {
+  const { width, height } = useWindowDimensions();
   const onSubmit = async () => {
     if (name) {
       const { data, error } = await supabase
@@ -49,7 +59,14 @@ export const ConfirmSaveName: React.FC<Props> = ({
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <Button>Save</Button>
+        <StyledButton
+          active={!disabled}
+          width={width * 0.25}
+          size={"$3.5"}
+          disabled={disabled}
+        >
+          Save
+        </StyledButton>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>
@@ -87,12 +104,12 @@ export const ConfirmSaveName: React.FC<Props> = ({
 
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
+                <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={onSubmit}>
+                <StyledButton active={true} onPress={onSubmit}>
                   Accept
-                </Button>
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>

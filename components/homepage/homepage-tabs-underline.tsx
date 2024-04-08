@@ -1,9 +1,11 @@
 import { BillData, MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle } from "react-native";
+import { LayoutRectangle, TouchableOpacity } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
+
+import { useNavigation } from "@react-navigation/native";
 
 import {
   AnimatePresence,
@@ -79,6 +81,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
       setIntentIndicator(layout);
     }
   };
+
   return (
     <Tabs
       value={currentTab}
@@ -165,20 +168,22 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                 <ScrollView>
                   {bills.map((item, index) => (
                     <XStack
-                      key={index}
+                      key={`${item.memberid}-${index}`}
                       backgroundColor="transparent"
                       justifyContent="center"
                       padding="$1.5"
                     >
                       <Link
+                        key={`${item.memberid}-${index}`}
                         href={{
-                          pathname: `/(bill)/mybill/${item.billid}`,
+                          pathname: `/(bill)/${item.billid}`,
                           params: { userId: userId },
                         }}
-                        asChild
                         disabled={item.isRequestSent && item.ownerid !== userId}
+                        asChild
                       >
                         <BillCard
+                          key={`${item.memberid}-${index}`}
                           animation="bouncy"
                           size="$3"
                           width={360}

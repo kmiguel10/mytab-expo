@@ -5,6 +5,7 @@ export const HeaderContainer = styled(YStack, {
   backgroundColor: "white",
   padding: "$2",
   borderRadius: "$6",
+  elevation: 1,
 });
 
 export type HeaderContainerProps = GetProps<typeof HeaderContainer>;

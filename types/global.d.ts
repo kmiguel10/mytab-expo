@@ -1,10 +1,12 @@
 typescript;
 
 type Member = {
+  displayName: string;
   memberid: string;
   userid: string;
   isMemberIncluded: boolean;
   isRequestSent: boolean;
+  avatar_url: string;
 };
 
 type Bill = {
@@ -70,6 +72,7 @@ type MemberData = {
   isLocked: boolean; // Boolean (Not nullable)
   isdeleted: boolean; // Boolean (Not nullable)
   isRequestSent: boolean; // Boolean or NULL
+  memberUrls: string[];
 };
 
 type Split = {
@@ -126,6 +129,14 @@ type SettleCardInfo = {
   settleAmount: number;
 };
 
+type ProfileInfo = {
+  displayName: string;
+  lastName: string;
+  firstName: string;
+  avatar_url: string;
+  email: string;
+};
+
 export type {
   Member,
   Bill,
@@ -139,4 +150,5 @@ export type {
   SummaryInfo,
   MyTabInfo,
   SettleCardInfo,
+  ProfileInfo,
 };

@@ -7,7 +7,7 @@ import {
   getMyTabInfo,
   getActiveTransactions,
 } from "@/lib/api";
-import { BillInfo, SummaryInfo, Transaction } from "@/types/global";
+import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Link, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
@@ -16,8 +16,10 @@ import { HeaderContainer } from "@/components/containers/header-container";
 import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
+import MembersView from "@/components/my-bill/transactions/members-view";
+import { StyledButton } from "@/components/button/button";
 
-const Page = () => {
+const BillScreen = () => {
   const {
     id,
     userId,
@@ -28,7 +30,8 @@ const Page = () => {
     errorDeleteMsg,
     deletedTxnName,
   } = useLocalSearchParams();
-  const [members, setMembers] = useState<any[]>([]);
+
+  const [members, setMembers] = useState<Member[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
@@ -47,6 +50,7 @@ const Page = () => {
     fetchSummaryInfo();
     console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id]);
+
   /**Fetch members of the bill */
   useEffect(() => {
     async function fetchMembers() {
@@ -57,6 +61,8 @@ const Page = () => {
     }
     fetchMembers();
   }, [id]);
+
+  //Need to be able to reflect current transaction upon creating a new txn
   useEffect(() => {
     async function fetchTransactions() {
       if (userId) {
@@ -67,7 +73,7 @@ const Page = () => {
       }
     }
     fetchTransactions();
-  }, [userId]);
+  }, [userId, txnName, deletedTxnName]);
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -78,6 +84,7 @@ const Page = () => {
     }
     fetchBillInfo();
   }, [id]);
+
   useEffect(() => {
     async function fetchMyTabInfo() {
       if (userId) {
@@ -86,7 +93,6 @@ const Page = () => {
       }
     }
     fetchMyTabInfo();
-    console.log("window width and height", windowWidth, windowHeight);
   }, [userId, id]);
 
   //Gets txnCreateData
@@ -122,9 +128,8 @@ const Page = () => {
       <YStack padding="$2" gap="$2">
         <HeaderContainer height={windowHeight * 0.15}>
           <HeaderInfo
-            members={members}
             summaryInfo={summaryInfo}
-            billInfo={billInfo}
+            billName={billInfo[0]?.name}
             height={windowHeight * 0.15}
             width={windowWidth}
           />
@@ -137,11 +142,16 @@ const Page = () => {
             userId={userId?.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
+            members={members}
           />
         </BodyContainer>
       </YStack>
-      <FooterContainer height={windowHeight}>
-        <XStack flex={1} />
+      <FooterContainer
+        height={windowHeight}
+        justifyContent="space-between"
+        alignContent="center"
+      >
+        <MembersView members={members} height={windowHeight} />
         <Link
           href={{
             pathname: "/pages/create-transaction",
@@ -152,7 +162,14 @@ const Page = () => {
           }}
           asChild
         >
-          <Button disabled={billInfo[0]?.isLocked}>Add Transaction</Button>
+          <StyledButton
+            disabled={billInfo[0]?.isLocked}
+            create={!billInfo[0]?.isLocked}
+            width={windowWidth * 0.38}
+            size={"$3.5"}
+          >
+            Add Transaction
+          </StyledButton>
         </Link>
       </FooterContainer>
       {(txnName || errorCreateMsg) && (
@@ -232,4 +249,4 @@ const Page = () => {
     </OuterContainer>
   );
 };
-export default Page;
+export default BillScreen;

@@ -2,14 +2,26 @@ import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { AlertDialog, Button, Input, XStack, YStack } from "tamagui";
+import { AlertDialog, Input, XStack, YStack } from "tamagui";
+import { StyledButton } from "../button/button";
 
-const JoinBill = () => {
+interface Props {
+  avatarUrl: string | null;
+  displayName: string;
+  buttonWidth: number;
+  buttonSize: string;
+}
+
+const JoinBill: React.FC<Props> = ({
+  avatarUrl,
+  buttonWidth,
+  buttonSize,
+  displayName,
+}) => {
   const { id } = useLocalSearchParams();
   const [code, setCode] = useState("");
   const router = useRouter();
 
-  //TODO: send joined bill to homepage and display on toast
   const joinAsMember = async () => {
     if (!code) {
       console.error("Error: Billcode cannot be null");
@@ -17,13 +29,18 @@ const JoinBill = () => {
     }
     let { data, error } = await supabase
       .from("members")
-      .insert([{ userid: id, billcode: code }])
+      .insert([
+        {
+          userid: id,
+          billcode: code,
+          avatar_url: avatarUrl,
+          displayName: displayName,
+        },
+      ])
       .eq("billcode", code)
       .select();
 
     if (data && data.length > 0) {
-      console.log("Data: ", data);
-      console.log("Error: ", error);
       const joinedBillData: BillData = data[0] as BillData;
       // router.replace(`/(homepage)/${id}`);
       router.replace({
@@ -31,14 +48,9 @@ const JoinBill = () => {
         params: { joinedBillCode: joinedBillData?.billid ?? null }, // Add userId to params
       });
     } else {
-      //console.error("Error joining bill: ", error);
-      //display error here , or just create a , there is an error toast
-
-      //Send error message
+      //Scenario user is declined to join and tried joining again
+      //NOTE: use upsert here
       if (error) {
-        console.error("error", error);
-        console.error("error", error.code);
-
         const { data, error: _error } = await supabase
           .from("members")
           .update({ isMemberIncluded: false, isRequestSent: true })
@@ -46,38 +58,33 @@ const JoinBill = () => {
           .eq("billcode", code)
           .select();
 
-        if (data) {
-          console.log("Success update", data);
-          console.log("Data: ", data);
-          console.log("Error: ", error);
+        if (data && data.length > 0) {
           const joinedBillData: BillData = data[0] as BillData;
-          // router.replace(`/(homepage)/${id}`);
-          // Edit toast for Success request sent toast
           router.replace({
             pathname: `/(homepage)/${id}`,
             params: { joinedBillCode: joinedBillData?.billid ?? null }, // Add userId to params
           });
         } else {
-          console.error(_error);
           router.replace({
             pathname: `/(homepage)/${id}`,
             params: { errorMessage: "Error joining bill" },
-            // params: { errorMessage: error.message },
-            // Add userId to params
           });
         }
       }
     }
   };
-  /**
-   * TODO
-   * Is there a better way to position this dynamically?
-   *
-   */
+
+  const onCancel = () => {
+    setCode("");
+    router.back;
+  };
+
   return (
     <AlertDialog>
       <AlertDialog.Trigger asChild>
-        <Button>Join</Button>
+        <StyledButton active={true} size={buttonSize} width={buttonWidth}>
+          Join
+        </StyledButton>
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
         <AlertDialog.Overlay
@@ -112,16 +119,32 @@ const JoinBill = () => {
             <AlertDialog.Description size={"$5"}>
               Enter Bill code:
             </AlertDialog.Description>
-            <Input placeholder="Example: 12GH89" onChangeText={setCode} />
+            <Input
+              placeholder="Example: 12GH89"
+              value={code}
+              onChangeText={setCode}
+            />
 
             <XStack space="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
-                <Button onPress={() => router.back}>Cancel</Button>
+                <StyledButton
+                  width={buttonWidth}
+                  size={buttonSize}
+                  onPress={onCancel}
+                >
+                  Cancel
+                </StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={joinAsMember}>
+                <StyledButton
+                  width={buttonWidth}
+                  size={buttonSize}
+                  active={!!code}
+                  disabled={!code}
+                  onPress={joinAsMember}
+                >
                   Join
-                </Button>
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>

@@ -1,18 +1,18 @@
-import { View } from "react-native";
 import React, { useState } from "react";
-import { Link } from "expo-router";
-import { H1, H2, H3, H4, H5, H6, Heading, Paragraph } from "tamagui";
-import { Text, XStack, YStack } from "tamagui";
-import { Button } from "tamagui";
+import { Paragraph, Text, View, YStack } from "tamagui";
 
-import { Session } from "@supabase/supabase-js";
-import { useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { Redirect } from "expo-router";
 import Auth from "@/components/login/auth";
+import { supabase } from "@/lib/supabase";
+import { Session } from "@supabase/supabase-js";
+import { Redirect } from "expo-router";
+import { useEffect } from "react";
+import Onboard from "@/components/login/onboard";
+import { ProfileInfo } from "@/types/global";
+import { getProfileInfo } from "@/lib/api";
 
 const Page = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -24,30 +24,32 @@ const Page = () => {
     });
   }, []);
 
-  useEffect(() => {}, [session]);
+  useEffect(() => {
+    console.log("session", session);
+    if (session) {
+      const fetchprofileInfo = async () => {
+        try {
+          const profile: ProfileInfo | null = await getProfileInfo(
+            session?.user.id
+          );
+          setProfileInfo(profile);
+        } catch (error) {
+          console.error("Error fetching profile info:", error);
+          setProfileInfo(null);
+        }
+      };
+      fetchprofileInfo();
+    }
+  }, [session]);
 
   return (
-    <YStack flex={1} borderRadius="$4" padding="$2">
-      <Paragraph size="$2" fontWeight="800">
-        This will be the log in page with modal and register Use supabase
-        authentication to login with email or iphone or phonenumber
-      </Paragraph>
-      <Text>TEST</Text>
-
-      {session && session.user ? (
-        // <Redirect href={`/(homepage)/${session.user.id}`} />
-        <Redirect
-          href={{
-            pathname: "/(homepage)/[id]",
-            params: { id: session.user.id },
-          }}
-        >
-          Go to Details
-        </Redirect>
+    <View>
+      {session && session.user && profileInfo?.email ? (
+        <Onboard userId={session.user.id.toString()} />
       ) : (
         <Auth />
       )}
-    </YStack>
+    </View>
   );
 };
 

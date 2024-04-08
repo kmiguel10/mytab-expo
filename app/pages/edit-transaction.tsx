@@ -97,14 +97,14 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
 
     if (error) {
       router.replace({
-        pathname: `/(bill)/mybill/${billId}`,
+        pathname: `/(bill)/${billId}`,
         params: { userId: _userId, errorEditMsg: error.message }, //
       });
     } else {
       if (data) {
         const editedTxn: Transaction = data[0];
         router.replace({
-          pathname: `/(bill)/mybill/${billId}`,
+          pathname: `/(bill)/${billId}`,
           params: { userId: _userId, editedTxnName: editedTxn.name },
         });
       }
@@ -125,15 +125,15 @@ export const EditTransactionPage: React.FC<CreateTransaction> = () => {
       .select();
 
     if (error) {
-      router.replace({
-        pathname: `/(bill)/mybill/${billId}`,
+      router.navigate({
+        pathname: `/(bill)/${billId}`,
         params: { userId: _userId, errorDeleteMsg: error.message }, //
       });
     } else {
       if (data) {
         const _deletedTxn: Transaction = data[0];
-        router.replace({
-          pathname: `/(bill)/mybill/${billId}`,
+        router.navigate({
+          pathname: `/(bill)/${billId}`,
           params: { userId: _userId, deletedTxnName: _deletedTxn.name },
         });
       }

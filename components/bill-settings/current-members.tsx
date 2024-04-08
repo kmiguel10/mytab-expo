@@ -3,6 +3,7 @@ import ConfirmationDialog from "./confirmation-dialog";
 import { Member } from "@/types/global";
 import { Toast } from "@tamagui/toast";
 import { SetStateAction, useState } from "react";
+import Avatar from "../login/avatar";
 
 interface Props {
   includedMembers: Member[];
@@ -16,6 +17,7 @@ const CurrentMembers: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
   const [processError, setProcessError] = useState(false);
+
   return (
     <View>
       <Text>Members</Text>
@@ -30,7 +32,10 @@ const CurrentMembers: React.FC<Props> = ({
           >
             <YGroup.Item>
               <ListItem
-                title={member.userid}
+                key={index}
+                icon={<Avatar url={member.avatar_url} isMemberIcon={true} />}
+                title={member.displayName}
+                subTitle={"Member"}
                 iconAfter={
                   <XStack gap="$2">
                     <ConfirmationDialog
