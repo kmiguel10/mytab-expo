@@ -1,4 +1,6 @@
-import { Transaction } from "@/types/global";
+import Avatar from "@/components/login/avatar";
+import { Member, Transaction } from "@/types/global";
+import { Cloud, Moon, Star, Sun } from "@tamagui/lucide-icons";
 import { Link } from "expo-router";
 import React from "react";
 import { Dimensions } from "react-native";
@@ -15,18 +17,38 @@ import {
   H4,
   View,
   H5,
+  ListItem,
+  YGroup,
+  H2,
+  H1,
 } from "tamagui";
 
 interface Props extends CardProps {
   transactions: Transaction[];
+  members: Member[];
   currentUser: string;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
   HTMLDivElement,
   Props
-> = ({ transactions, currentUser, ...props }) => {
+> = ({ transactions, currentUser, members, ...props }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  const findUserAvatar = (payerId: string | null) => {
+    if (!payerId) return "";
+    const member = members.find((member) => member.userid === payerId);
+
+    return member ? member.avatar_url : "";
+  };
+
+  const findUserDisplayName = (payerId: string | null) => {
+    if (!payerId) return "";
+    const member = members.find((member) => member.userid === payerId);
+
+    return member ? member.displayName : "";
+  };
+
   return (
     <ScrollView>
       <XStack
@@ -55,8 +77,26 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
               }}
               asChild
             >
-              {/* <Text>Tab Two: {currentUser}</Text> */}
-              <Card
+              <YGroup
+                alignSelf="center"
+                bordered
+                width={windowWidth * 0.9}
+                size="$4"
+              >
+                <YGroup.Item>
+                  <ListItem
+                    hoverTheme
+                    icon={
+                      <Avatar url={findUserAvatar(txn.payerid)} size="$4.5" />
+                    }
+                    title={txn.name}
+                    subTitle={`Paid by: ${findUserDisplayName(txn.payerid)}`}
+                    iconAfter={<H1>${txn.amount}</H1>}
+                  />
+                </YGroup.Item>
+              </YGroup>
+
+              {/* <Card
                 elevate
                 size="$2.5"
                 bordered
@@ -80,7 +120,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                     </YStack>
                   </View>
                 </Card.Header>
-              </Card>
+              </Card> */}
             </Link>
           </XStack>
         ))}

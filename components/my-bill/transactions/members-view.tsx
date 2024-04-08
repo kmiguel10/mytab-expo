@@ -18,7 +18,7 @@ const MembersView: React.FC<Props> = ({ members, height }) => {
       <ScrollView horizontal={true}>
         {members.map((member, index) => (
           <XStack key={index}>
-            <Avatar url={member.avatar_url} isMemberIcon={true} />
+            <Avatar url={member.avatar_url} size={"$3"} />
             {/* <Avatar circular size="$2" key={index}>
               <Avatar.Image
                 accessibilityLabel="Nate Wienert"

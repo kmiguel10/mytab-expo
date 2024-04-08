@@ -155,7 +155,7 @@ const Home = () => {
           paddingVertical="$4"
           paddingHorizontal="$4"
         >
-          <Avatar url={avatarUrl} isMemberIcon={false} />
+          <Avatar url={avatarUrl} size={"$6"} />
           <Text>{profileInfo?.displayName}</Text>
         </HeaderContainer>
         {/* <YStack

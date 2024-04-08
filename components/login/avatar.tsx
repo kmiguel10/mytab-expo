@@ -7,16 +7,11 @@ import { Avatar as AvatarTamagui, XStack, Button } from "tamagui";
 import { StyledButton } from "../button/button";
 interface Props {
   url: string | null;
-  isMemberIcon: boolean;
+  size: string;
   onUpload?: (filePath: string) => void;
 }
 
-export default function Avatar({
-  url,
-
-  isMemberIcon = false,
-  onUpload,
-}: Props) {
+export default function Avatar({ url, size = "$3", onUpload }: Props) {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -106,7 +101,7 @@ export default function Avatar({
     <View>
       {avatarUrl ? (
         <XStack alignItems="center" justifyContent="space-between">
-          <AvatarTamagui circular size={isMemberIcon ? "$3" : "$6"}>
+          <AvatarTamagui circular size={size}>
             <AvatarTamagui.Image
               accessibilityLabel={"avatar"}
               src={avatarUrl}
@@ -128,7 +123,7 @@ export default function Avatar({
         </XStack>
       ) : (
         <XStack alignItems="center" justifyContent="space-between">
-          <AvatarTamagui circular size="$6">
+          <AvatarTamagui circular size={size}>
             {/* <AvatarTamagui.Image accessibilityLabel={"test"} src={avatarUrl} /> */}
             <AvatarTamagui.Fallback delayMs={600} backgroundColor="$blue10" />
           </AvatarTamagui>

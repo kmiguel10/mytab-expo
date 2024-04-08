@@ -25,6 +25,7 @@ import MyTab from "./MyTab";
 interface Props {
   transactions: Transaction[];
   summaryInfo: SummaryInfo[];
+  members: Member[];
   billId: number;
   userId: string;
   height: number;
@@ -34,6 +35,7 @@ interface Props {
 const UnderlinedTabs: React.FC<Props> = ({
   transactions,
   summaryInfo,
+  members,
   billId,
   userId,
   height,
@@ -199,6 +201,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                 <TransactionInfoCard
                   transactions={transactions}
                   currentUser={userId}
+                  members={members}
                   animation="bouncy"
                   hoverStyle={{ scale: 0.925 }}
                   pressStyle={{ scale: 0.875 }}

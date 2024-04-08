@@ -168,7 +168,7 @@ export default function Profile() {
                   setAvatarUrl(url);
                   updateProfile({ avatar_url: url });
                 }}
-                isMemberIcon={false}
+                size="$6"
               />
             </View>
             <Separator />
