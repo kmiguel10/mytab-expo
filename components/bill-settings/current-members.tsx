@@ -33,7 +33,7 @@ const CurrentMembers: React.FC<Props> = ({
             <YGroup.Item>
               <ListItem
                 key={index}
-                icon={<Avatar url={member.avatar_url} isMemberIcon={true} />}
+                icon={<Avatar url={member.avatar_url} size="$4" />}
                 title={member.displayName}
                 subTitle={"Member"}
                 iconAfter={

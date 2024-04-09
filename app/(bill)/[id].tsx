@@ -18,6 +18,7 @@ import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import MembersView from "@/components/my-bill/transactions/members-view";
 import { StyledButton } from "@/components/button/button";
+import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
 
 const BillScreen = () => {
   const {
@@ -38,6 +39,12 @@ const BillScreen = () => {
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
+  const [openCreateTxn, setOpenCreateTxn] = useState(false);
+
+  const onOpenCreateTxn = () => {
+    setOpenCreateTxn(true);
+    console.log("Open create txn sheet", openCreateTxn);
+  };
 
   /** fetch summary info */
   useEffect(() => {
@@ -152,7 +159,7 @@ const BillScreen = () => {
         alignContent="center"
       >
         <MembersView members={members} height={windowHeight} />
-        <Link
+        {/* <Link
           href={{
             pathname: "/pages/create-transaction",
             params: {
@@ -170,8 +177,24 @@ const BillScreen = () => {
           >
             Add Transaction
           </StyledButton>
-        </Link>
+        </Link> */}
+        <StyledButton
+          disabled={billInfo[0]?.isLocked}
+          create={!billInfo[0]?.isLocked}
+          width={windowWidth * 0.38}
+          size={"$3.5"}
+          onPress={onOpenCreateTxn}
+        >
+          Add Transaction
+        </StyledButton>
       </FooterContainer>
+      <CreateTransaction
+        billId={id.toString()}
+        members={members}
+        open={openCreateTxn}
+        setOpen={setOpenCreateTxn}
+        setNewTransaction={setTransactions}
+      />
       {(txnName || errorCreateMsg) && (
         <Toast
           onOpenChange={setOpen}

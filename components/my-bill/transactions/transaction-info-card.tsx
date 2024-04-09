@@ -1,26 +1,15 @@
 import Avatar from "@/components/login/avatar";
 import { Member, Transaction } from "@/types/global";
-import { Cloud, Moon, Star, Sun } from "@tamagui/lucide-icons";
 import { Link } from "expo-router";
 import React from "react";
-import { Dimensions } from "react-native";
 import {
-  Card,
   CardProps,
-  H6,
+  H1,
+  ListItem,
   ScrollView,
   XStack,
-  YStack,
-  useWindowDimensions,
-  Text,
-  H3,
-  H4,
-  View,
-  H5,
-  ListItem,
   YGroup,
-  H2,
-  H1,
+  useWindowDimensions,
 } from "tamagui";
 
 interface Props extends CardProps {
