@@ -20,7 +20,9 @@ const CurrentMembers: React.FC<Props> = ({
 
   return (
     <View>
-      <Text>Members</Text>
+      <Text paddingBottom="$3" paddingTop={"$3"}>
+        Members
+      </Text>
       <YStack gap="$1.5">
         {includedMembers.map((member, index) => (
           <YGroup

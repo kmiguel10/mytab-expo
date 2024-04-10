@@ -1,6 +1,6 @@
 import { getMembersAndRequests } from "@/lib/api";
 import { useEffect, useState } from "react";
-import { Button, ScrollView, View } from "tamagui";
+import { Button, ScrollView, Separator, View } from "tamagui";
 import CurrentMembers from "./current-members";
 import JoinRequests from "./join-requests";
 import { Toast, ToastViewport } from "@tamagui/toast";
@@ -64,10 +64,16 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           />
         )}
 
-        <CurrentMembers
-          includedMembers={includedMembers}
-          fetchMembersData={fetchMembersData}
-        />
+        {requests.length > 0 && includedMembers.length > 0 && (
+          <Separator paddingTop={"$2"} paddingBottom={"$2"} />
+        )}
+
+        {includedMembers.length > 0 && (
+          <CurrentMembers
+            includedMembers={includedMembers}
+            fetchMembersData={fetchMembersData}
+          />
+        )}
       </ScrollView>
       <Toast
         onOpenChange={setOpen}
