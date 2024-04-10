@@ -184,7 +184,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     setAvatarUrl(url);
                     updateProfile({ avatar_url: url });
                   }}
-                  isMemberIcon={false}
+                  size="$6"
                 />
               </View>
               <XStack>
