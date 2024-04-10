@@ -129,9 +129,14 @@ export default function Avatar({ url, size = "$3", onUpload }: Props) {
           </AvatarTamagui>
           {onUpload && (
             <View>
-              <Button onPress={uploadAvatar} disabled={uploading} size={"$3"}>
+              <StyledButton
+                onPress={uploadAvatar}
+                disabled={uploading}
+                size={"$2.5"}
+                active={true}
+              >
                 {uploading ? "Uploading ..." : "Upload image"}
-              </Button>
+              </StyledButton>
             </View>
           )}
         </XStack>
