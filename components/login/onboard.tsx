@@ -17,6 +17,7 @@ import { ProfileInfo } from "@/types/global";
 import { getProfileInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import Avatar from "./avatar";
+import { StyledButton } from "../button/button";
 
 interface Props {
   userId: string;
@@ -184,7 +185,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     setAvatarUrl(url);
                     updateProfile({ avatar_url: url });
                   }}
-                  isMemberIcon={false}
+                  size="$6"
                 />
               </View>
               <XStack>
@@ -249,7 +250,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
             <XStack justifyContent="space-between">
               <Button onPress={signOutUser}>Sign out</Button>
               <Form.Trigger asChild>
-                <Button> Save</Button>
+                <StyledButton create={true}> Save</StyledButton>
               </Form.Trigger>
             </XStack>
           </Form>

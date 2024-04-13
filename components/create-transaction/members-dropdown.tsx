@@ -1,3 +1,4 @@
+import { Member } from "@/types/global";
 import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { useEffect, useMemo, useState } from "react";
 import type { FontSizeTokens, SelectProps } from "tamagui";
@@ -13,13 +14,8 @@ import {
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
-interface Member {
-  userId: string;
-  // Add other properties if necessary
-}
-
 interface MembersDropdownProps extends SelectProps {
-  members: any[];
+  members: Member[];
   defaultPayer: string;
   onPayerChange: (selectedPayer: string) => void;
 }
@@ -31,6 +27,7 @@ export default function MembersDropdown({
   ...props
 }: MembersDropdownProps) {
   const [payer, setPayer] = useState("");
+  const [defaultPayerId, setDefaultPayerId] = useState("");
 
   //Handles selection of payer
   //   const handlePayerSelect = (selectedUser: string) => {
@@ -50,19 +47,34 @@ export default function MembersDropdown({
       onPayerChange(selectedMember.userid);
     }
     console.log("Payer:", payer);
-    console.log("Selectedmember:", selectedMember.userid);
+    console.log("Selectedmember:", selectedMember?.userid);
+  };
+
+  const getDefaultId = () => {
+    const selectedMember = members.find(
+      (member) => member.displayName === defaultPayer
+    );
+
+    return selectedMember?.userid ? selectedMember?.userid : null;
   };
 
   useEffect(() => {
     // setPayer(defaultPayer);
-    onPayerChange(defaultPayer);
+    console.log("DROPDOWN");
+
+    const defaultId = getDefaultId();
+    console.log("defaultId", defaultId);
+    if (defaultId) {
+      setDefaultPayerId(defaultId);
+      onPayerChange(defaultId);
+    }
   }, [defaultPayer]);
 
   return (
     <Select
       value={payer}
       onValueChange={handlePayerSelect}
-      defaultValue={defaultPayer}
+      defaultValue={defaultPayerId}
       disablePreventBodyScroll
       {...props}
     >
@@ -128,9 +140,7 @@ export default function MembersDropdown({
                       key={item.userid}
                       value={item.userid}
                     >
-                      <Select.ItemText>
-                        {item.userid.slice(0, 5)}
-                      </Select.ItemText>
+                      <Select.ItemText>{item.displayName}</Select.ItemText>
                       <Select.ItemIndicator marginLeft="auto">
                         {/* <Check size={16} /> */}
                       </Select.ItemIndicator>

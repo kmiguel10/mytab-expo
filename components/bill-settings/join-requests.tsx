@@ -10,7 +10,10 @@ import {
   Button,
   XStack,
   Separator,
+  H6,
 } from "tamagui";
+import Avatar from "../login/avatar";
+import { StyledButton } from "../button/button";
 
 interface Props {
   requests: Member[];
@@ -68,7 +71,7 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
 
   return (
     <View>
-      <Text>Requests</Text>
+      <Text paddingBottom="$3">Requests</Text>
       <YStack gap="$1.5">
         {localRequests.map((member, index) => (
           <YGroup
@@ -81,18 +84,25 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
           >
             <YGroup.Item>
               <ListItem
-                title={member.userid}
+                key={index}
+                icon={<Avatar url={member.avatar_url} size="$4" />}
+                title={<Text>{member.displayName}</Text>}
                 iconAfter={
                   <XStack gap="$2">
-                    <Button size="$2" onPress={() => onAccept(member.memberid)}>
+                    <StyledButton
+                      create={true}
+                      size="$2.5"
+                      onPress={() => onAccept(member.memberid)}
+                    >
                       Accept
-                    </Button>
-                    <Button
-                      size="$2"
+                    </StyledButton>
+                    <StyledButton
+                      decline={true}
+                      size="$2.5"
                       onPress={() => onDecline(member.memberid)}
                     >
                       Decline
-                    </Button>
+                    </StyledButton>
                   </XStack>
                 }
               />
@@ -100,7 +110,6 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
           </YGroup>
         ))}
       </YStack>
-      <Separator paddingVertical={"$2"} />
     </View>
   );
 };

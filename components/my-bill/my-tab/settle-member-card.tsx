@@ -57,7 +57,7 @@ const SettleMemberCard: React.FC<Props> = ({
             >
               <Card.Header padded>
                 <XStack justifyContent="space-between">
-                  <Text paddingTop="$2">{member.member.slice(0, 5)}</Text>
+                  <Text paddingTop="$2">{member.member}</Text>
                   <H4
                     color={
                       member.owed - member.debt >= 0

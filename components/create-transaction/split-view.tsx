@@ -1,17 +1,16 @@
-import { Dimensions } from "react-native";
-import React from "react";
 import { MemberSplitAmount } from "@/types/global";
+import React from "react";
 import {
-  Card,
   CardProps,
-  H6,
   ListItem,
   ScrollView,
+  Text,
   View,
   XStack,
-  YStack,
+  YGroup,
   useWindowDimensions,
 } from "tamagui";
+import Avatar from "../login/avatar";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
@@ -25,32 +24,29 @@ const SplitView: React.FC<Props> = ({
   isEven,
   ...props
 }) => {
-  let amountNum = parseInt(amount);
-  const splitEvenAmount = (_amount: number) => {
-    return _amount / memberSplits.length;
-  };
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
     <View height={windowHeight * 0.32}>
       <ScrollView>
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
-          {memberSplits.map((item, index) => (
-            <Card
-              elevate
-              size="$2"
-              bordered
+          {memberSplits.map((member, index) => (
+            <YGroup
               key={index}
-              width={windowWidth * 0.44}
-              {...props}
+              alignSelf="center"
+              bordered
+              width={"100%"}
+              size="$5"
+              padding={"$1"}
             >
-              <Card.Header padded>
-                <YStack>
-                  <H6>{item.memberId.slice(0, 5)}</H6>
-                  <H6>${item.amount}</H6>
-                </YStack>
-              </Card.Header>
-            </Card>
+              <YGroup.Item>
+                <ListItem
+                  title={member.displayName}
+                  icon={<Avatar url={member.avatarUrl} size="$3.5" />}
+                  iconAfter={<Text>${member.amount}</Text>}
+                />
+              </YGroup.Item>
+            </YGroup>
           ))}
         </XStack>
       </ScrollView>

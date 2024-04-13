@@ -1,38 +1,42 @@
+import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 import Avatar from "@/components/login/avatar";
-import { Member, Transaction } from "@/types/global";
-import { Cloud, Moon, Star, Sun } from "@tamagui/lucide-icons";
+import { Member, Transaction, Split } from "@/types/global";
 import { Link } from "expo-router";
-import React from "react";
-import { Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable } from "react-native";
 import {
-  Card,
   CardProps,
-  H6,
-  ScrollView,
-  XStack,
-  YStack,
-  useWindowDimensions,
-  Text,
-  H3,
-  H4,
-  View,
-  H5,
-  ListItem,
-  YGroup,
-  H2,
   H1,
+  ListItem,
+  ScrollView,
+  View,
+  XStack,
+  YGroup,
+  useWindowDimensions,
 } from "tamagui";
 
 interface Props extends CardProps {
   transactions: Transaction[];
   members: Member[];
   currentUser: string;
+  resetToasts: () => void;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
   HTMLDivElement,
   Props
-> = ({ transactions, currentUser, members, ...props }) => {
+> = ({ transactions, currentUser, members, resetToasts, ...props }) => {
+  const [openEditTxn, setOpenEditTxn] = useState(false);
+  const [currentTxnToEdit, setCurrentTxnToEdit] = useState<Transaction>({
+    billid: 0,
+    submittedbyid: "",
+    payerid: null,
+    amount: 0,
+    name: "",
+    notes: null,
+    split: [],
+    isdeleted: false,
+  });
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   const findUserAvatar = (payerId: string | null) => {
@@ -49,92 +53,111 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     return member ? member.displayName : "";
   };
 
-  return (
-    <ScrollView>
-      <XStack
-        flex={1}
-        flexWrap="wrap"
-        gap="$1"
-        backgroundColor={"transparent"}
-        justifyContent="center"
-        paddingBottom="$2"
-      >
-        {transactions.map((txn, index) => (
-          <XStack
-            padding="$1"
-            backgroundColor={"transparent"}
-            justifyContent="center"
-            key={index}
-          >
-            <Link
-              href={{
-                pathname: `/pages/edit-transaction`,
-                params: {
-                  txnId: txn.id || "",
-                  billId: txn.billid,
-                  currentUser: currentUser,
-                },
-              }}
-              asChild
-            >
-              <YGroup
-                alignSelf="center"
-                bordered
-                width={windowWidth * 0.9}
-                size="$4"
-              >
-                <YGroup.Item>
-                  <ListItem
-                    hoverTheme
-                    icon={
-                      <Avatar url={findUserAvatar(txn.payerid)} size="$4.5" />
-                    }
-                    title={txn.name}
-                    subTitle={`Paid by: ${findUserDisplayName(txn.payerid)}`}
-                    iconAfter={<H1>${txn.amount}</H1>}
-                  />
-                </YGroup.Item>
-              </YGroup>
+  const onTransactionClick = (txnId: string) => {
+    resetToasts();
+    setCurrentTxnToEdit(
+      transactions.find((txn) => `${txn.id}` === txnId) ?? {
+        billid: 0,
+        submittedbyid: "",
+        payerid: null,
+        amount: 0,
+        name: "",
+        notes: null,
+        split: [],
+        isdeleted: false,
+      }
+    );
+    setOpenEditTxn(true);
 
-              {/* <Card
-                elevate
-                size="$2.5"
-                bordered
-                key={index}
-                backgroundColor={"transparent"}
-                width={windowWidth * 0.46}
-                {...props}
+    //set the current transaction to edit
+  };
+
+  useEffect(() => {
+    console.log("Info card open state: ", openEditTxn);
+    if (!openEditTxn) {
+      setCurrentTxnToEdit({
+        billid: 0,
+        submittedbyid: "",
+        payerid: null,
+        amount: 0,
+        name: "",
+        notes: null,
+        split: [],
+        isdeleted: false,
+      });
+      console.log("cleared transaction to edit");
+    }
+  }, [openEditTxn]);
+
+  return (
+    <View>
+      <ScrollView>
+        <XStack
+          flex={1}
+          flexWrap="wrap"
+          gap="$1"
+          backgroundColor={"transparent"}
+          justifyContent="center"
+          paddingBottom="$2"
+        >
+          {transactions.map((txn, index) => (
+            <XStack
+              padding="$1"
+              backgroundColor={"transparent"}
+              justifyContent="center"
+              key={index}
+            >
+              <Pressable
+                // href={{
+                //   pathname: `/pages/edit-transaction`,
+                //   params: {
+                //     txnId: txn.id || "",
+                //     billId: txn.billid,
+                //     currentUser: currentUser,
+                //   },
+                // }}
+                onPress={() => onTransactionClick(`${txn.id}`)}
               >
-                <Card.Header>
-                  <View gap="$2">
-                    <XStack justifyContent="flex-end" padding="$2">
-                      <H4 height={windowHeight * 0.03} alignContent="flex-end">
-                        ${txn.amount}
-                      </H4>
-                    </XStack>
-                    <YStack padding="$2" gap={"$1"}>
-                      <H5 height={windowHeight * 0.03}>{txn.name}</H5>
-                      <Text height={windowHeight * 0.03}>
-                        Paid By: {txn.payerid?.slice(0, 5)}
-                      </Text>
-                    </YStack>
-                  </View>
-                </Card.Header>
-              </Card> */}
-            </Link>
-          </XStack>
-        ))}
-        {/** Creates an extra card to even out spacing */}
-        {transactions.length % 2 !== 0 && (
-          <XStack
-            padding="$1"
-            backgroundColor={"transparent"}
-            width={windowWidth * 0.46}
-            justifyContent="center"
-          ></XStack>
-        )}
-      </XStack>
-    </ScrollView>
+                <YGroup
+                  alignSelf="center"
+                  bordered
+                  width={windowWidth * 0.9}
+                  size="$4"
+                >
+                  <YGroup.Item>
+                    <ListItem
+                      hoverTheme
+                      icon={
+                        <Avatar url={findUserAvatar(txn.payerid)} size="$4.5" />
+                      }
+                      title={txn.name}
+                      subTitle={`Paid by: ${findUserDisplayName(txn.payerid)}`}
+                      iconAfter={<H1>${txn.amount}</H1>}
+                    />
+                  </YGroup.Item>
+                </YGroup>
+              </Pressable>
+            </XStack>
+          ))}
+          {/** Creates an extra card to even out spacing */}
+          {transactions.length % 2 !== 0 && (
+            <XStack
+              padding="$1"
+              backgroundColor={"transparent"}
+              width={windowWidth * 0.46}
+              justifyContent="center"
+            ></XStack>
+          )}
+        </XStack>
+      </ScrollView>
+      <EditTransaction
+        members={members}
+        open={openEditTxn}
+        setOpen={setOpenEditTxn}
+        transaction={currentTxnToEdit}
+        setCurrentTxnToEdit={setCurrentTxnToEdit}
+      />
+    </View>
   );
 };
 

@@ -18,17 +18,19 @@ import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import MembersView from "@/components/my-bill/transactions/members-view";
 import { StyledButton } from "@/components/button/button";
+import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
+import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 
 const BillScreen = () => {
   const {
     id,
     userId,
-    txnName,
-    errorCreateMsg,
-    errorEditMsg,
-    editedTxnName,
-    errorDeleteMsg,
-    deletedTxnName,
+    txnName: initialTxnName,
+    errorCreateMsg: initialErrorCreateMsg,
+    errorEditMsg: initialErrorEditMsg,
+    editedTxnName: initialEditedTxnName,
+    errorDeleteMsg: initialErrorDeleteMsg,
+    deletedTxnName: initialDeletedTxnName,
   } = useLocalSearchParams();
 
   const [members, setMembers] = useState<Member[]>([]);
@@ -38,6 +40,60 @@ const BillScreen = () => {
   const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
+  const [openCreateTxn, setOpenCreateTxn] = useState(false);
+
+  // Create states for toast messages
+  const [txnName, setTxnName] = useState(initialTxnName || "");
+  const [errorCreateMsg, setErrorCreateMsg] = useState(
+    initialErrorCreateMsg || ""
+  );
+  const [editedTxnName, setEditedTxnName] = useState(
+    initialEditedTxnName || ""
+  );
+  const [errorEditMsg, setErrorEditMsg] = useState(initialErrorEditMsg || "");
+  const [errorDeleteMsg, setErrorDeleteMsg] = useState(
+    initialErrorDeleteMsg || ""
+  );
+  const [deletedTxnName, setDeletedTxnName] = useState(
+    initialDeletedTxnName || ""
+  );
+
+  const onOpenCreateTxn = () => {
+    setOpenCreateTxn(true);
+    console.log("Open create txn sheet", openCreateTxn);
+  };
+
+  //Resets toast messages
+  // Resets toast messages
+  const resetToastMessageStates = () => {
+    // Log states before resetting
+    console.log("States before reset:", {
+      txnName,
+      errorCreateMsg,
+      editedTxnName,
+      errorEditMsg,
+      errorDeleteMsg,
+      deletedTxnName,
+    });
+
+    // Reset states
+    setTxnName("");
+    setErrorCreateMsg("");
+    setEditedTxnName("");
+    setErrorEditMsg("");
+    setErrorDeleteMsg("");
+    setDeletedTxnName("");
+
+    // Log states after reset
+    console.log("States after reset:", {
+      txnName: "",
+      errorCreateMsg: "",
+      editedTxnName: "",
+      errorEditMsg: "",
+      errorDeleteMsg: "",
+      deletedTxnName: "",
+    });
+  };
 
   /** fetch summary info */
   useEffect(() => {
@@ -73,7 +129,7 @@ const BillScreen = () => {
       }
     }
     fetchTransactions();
-  }, [userId, txnName, deletedTxnName]);
+  }, [userId, txnName, deletedTxnName, editedTxnName]);
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -95,25 +151,50 @@ const BillScreen = () => {
     fetchMyTabInfo();
   }, [userId, id]);
 
-  //Gets txnCreateData
+  // // Initialize toast message states with initial search params values
+  // useEffect(() => {
+  //   setTxnName(initialTxnName || "");
+  //   setErrorCreateMsg(initialErrorCreateMsg || "");
+  //   setEditedTxnName(initialEditedTxnName || "");
+  //   setErrorEditMsg(initialErrorEditMsg || "");
+  //   setDeletedTxnName(initialDeletedTxnName || "");
+  //   setErrorDeleteMsg(initialErrorDeleteMsg || "");
+  //   console.log(" *** Toasts are initialized");
+  // }, [
+  //   initialTxnName,
+  //   initialErrorCreateMsg,
+  //   initialEditedTxnName,
+  //   initialErrorEditMsg,
+  //   initialDeletedTxnName,
+  //   initialErrorDeleteMsg,
+  // ]);
+
+  // Update toast message states whenever search params change
   useEffect(() => {
     if (
-      txnName ||
-      errorCreateMsg ||
-      editedTxnName ||
-      errorEditMsg ||
-      deletedTxnName ||
-      errorDeleteMsg
+      initialTxnName ||
+      initialErrorCreateMsg ||
+      initialEditedTxnName ||
+      initialErrorEditMsg ||
+      initialDeletedTxnName ||
+      initialErrorDeleteMsg
     ) {
+      console.log(" *** Toasts are initialized");
       setOpen(true);
+      setTxnName(initialTxnName);
+      setErrorCreateMsg(initialErrorCreateMsg);
+      setEditedTxnName(initialEditedTxnName);
+      setErrorEditMsg(initialErrorEditMsg);
+      setDeletedTxnName(initialDeletedTxnName);
+      setErrorDeleteMsg(initialErrorDeleteMsg);
     }
   }, [
-    txnName,
-    errorCreateMsg,
-    editedTxnName,
-    errorEditMsg,
-    errorDeleteMsg,
-    deletedTxnName,
+    initialTxnName,
+    initialErrorCreateMsg,
+    initialEditedTxnName,
+    initialErrorEditMsg,
+    initialDeletedTxnName,
+    initialErrorDeleteMsg,
   ]);
 
   return (
@@ -143,6 +224,7 @@ const BillScreen = () => {
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
             members={members}
+            resetToastMessageStates={resetToastMessageStates}
           />
         </BodyContainer>
       </YStack>
@@ -152,7 +234,7 @@ const BillScreen = () => {
         alignContent="center"
       >
         <MembersView members={members} height={windowHeight} />
-        <Link
+        {/* <Link
           href={{
             pathname: "/pages/create-transaction",
             params: {
@@ -170,8 +252,23 @@ const BillScreen = () => {
           >
             Add Transaction
           </StyledButton>
-        </Link>
+        </Link> */}
+        <StyledButton
+          disabled={billInfo[0]?.isLocked}
+          create={!billInfo[0]?.isLocked}
+          width={windowWidth * 0.38}
+          size={"$3.5"}
+          onPress={onOpenCreateTxn}
+        >
+          Add Transaction
+        </StyledButton>
       </FooterContainer>
+      <CreateTransaction
+        billId={id.toString()}
+        members={members}
+        open={openCreateTxn}
+        setOpen={setOpenCreateTxn}
+      />
       {(txnName || errorCreateMsg) && (
         <Toast
           onOpenChange={setOpen}

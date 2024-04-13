@@ -20,6 +20,7 @@ import {
   YStack,
   useWindowDimensions,
 } from "tamagui";
+import { StyledButton } from "../button/button";
 
 interface Props {
   memberSplits: MemberSplitAmount[];
@@ -27,6 +28,7 @@ interface Props {
   amount: number;
   setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
   includedMembers: SelectedMemberSplitAmount[];
+  isDisabled: boolean;
 }
 
 const CustomSplit: React.FC<Props> = ({
@@ -35,6 +37,7 @@ const CustomSplit: React.FC<Props> = ({
   onSaveSplits,
   setIsEven,
   includedMembers,
+  isDisabled,
 }) => {
   const [selectedMembers, setSelectedMembers] =
     useState<SelectedMemberSplitAmount[]>();
@@ -136,15 +139,16 @@ const CustomSplit: React.FC<Props> = ({
   return (
     <Dialog modal>
       <Dialog.Trigger asChild alignContent="flex-end">
-        <Button
-          variant="outlined"
-          theme="active"
+        <StyledButton
           backgroundColor="$blue3"
-          disabled={!amount}
+          disabled={!isDisabled}
+          active={isDisabled}
+          size={"$3.5"}
+          width={"30%"}
           icon={<Axe size={"$1.5"} />}
         >
           Split
-        </Button>
+        </StyledButton>
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
         <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>

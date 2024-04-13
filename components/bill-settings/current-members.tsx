@@ -20,7 +20,9 @@ const CurrentMembers: React.FC<Props> = ({
 
   return (
     <View>
-      <Text>Members</Text>
+      <Text paddingBottom="$3" paddingTop={"$3"}>
+        Members
+      </Text>
       <YStack gap="$1.5">
         {includedMembers.map((member, index) => (
           <YGroup
@@ -33,7 +35,7 @@ const CurrentMembers: React.FC<Props> = ({
             <YGroup.Item>
               <ListItem
                 key={index}
-                icon={<Avatar url={member.avatar_url} isMemberIcon={true} />}
+                icon={<Avatar url={member.avatar_url} size="$4" />}
                 title={member.displayName}
                 subTitle={"Member"}
                 iconAfter={

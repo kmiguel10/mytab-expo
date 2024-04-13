@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { Trash } from "@tamagui/lucide-icons";
 import React from "react";
 import { AlertDialog, Button, XStack, YStack } from "tamagui";
+import { StyledButton } from "../button/button";
 
 interface Member {
   memberid: string;
@@ -45,22 +46,9 @@ export const ConfirmationDialog: React.FC<Props> = ({
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        {/* <Button
-          onPress={() => console.log("Trash")}
-          size={"$2"}
-          icon={<Trash size={"$1"} color={"$red10Light"} />}
-          backgroundColor={"$red4Light"}
-        /> */}
-        <Button
-          onPress={() => console.log("Trash")}
-          size={"$2"}
-          // icon={<Trash size={"$1"} color={"$red10Light"} />}
-
-          backgroundColor={"$red4Light"}
-          color={"red"}
-        >
+        <StyledButton size={"$2.5"} decline={true}>
           Delete
-        </Button>
+        </StyledButton>
       </AlertDialog.Trigger>
 
       <AlertDialog.Portal>

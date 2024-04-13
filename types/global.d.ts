@@ -23,10 +23,14 @@ type User = {
 type MemberSplitAmount = {
   memberId: string; // UUID of the member
   amount: number; // Amount corresponding to the member
+  displayName: string;
+  avatarUrl: string;
 };
 
 type SelectedMemberSplitAmount = {
   isIncluded: boolean;
+  displayName: string;
+  avatarUrl: string;
   memberId: string; // UUID of the member
   amount: number; // Amount corresponding to the member
 };
@@ -79,6 +83,8 @@ type Split = {
   amount: number;
   memberId: string;
   isIncluded?: boolean;
+  displayName: string;
+  avatarUrl: string;
 };
 
 type Transaction = {
@@ -151,4 +157,5 @@ export type {
   MyTabInfo,
   SettleCardInfo,
   ProfileInfo,
+  Split,
 };
