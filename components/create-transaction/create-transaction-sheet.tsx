@@ -26,7 +26,6 @@ import SplitView from "./split-view";
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
-  setNewTransaction: (newTxns: Transaction[]) => void;
   members: Member[];
   billId: string;
 }
