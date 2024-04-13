@@ -131,7 +131,7 @@ const EditTransaction: React.FC<Props> = ({
         setCurrentTxnToEdit(editedTxn);
         setLocalTxn(editedTxn);
         console.log("Edited Transaction: ", editedTxn);
-        router.navigate({
+        router.replace({
           pathname: `/(bill)/${editedTxn.billid}`,
           params: { userId: _userId, editedTxnName: editedTxn.name },
         });
