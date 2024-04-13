@@ -32,6 +32,7 @@ const SplitView: React.FC<Props> = ({
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
           {memberSplits.map((member, index) => (
             <YGroup
+              key={index}
               alignSelf="center"
               bordered
               width={"100%"}

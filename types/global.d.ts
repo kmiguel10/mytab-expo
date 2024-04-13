@@ -157,4 +157,5 @@ export type {
   MyTabInfo,
   SettleCardInfo,
   ProfileInfo,
+  Split,
 };

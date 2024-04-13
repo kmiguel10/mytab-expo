@@ -30,6 +30,7 @@ interface Props {
   userId: string;
   height: number;
   width: number;
+  resetToastMessageStates: () => void;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -40,6 +41,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   userId,
   height,
   width,
+  resetToastMessageStates,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -205,6 +207,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   animation="bouncy"
                   hoverStyle={{ scale: 0.925 }}
                   pressStyle={{ scale: 0.875 }}
+                  resetToasts={resetToastMessageStates}
                 />
               )}
               {currentTab === "Summary" && (
