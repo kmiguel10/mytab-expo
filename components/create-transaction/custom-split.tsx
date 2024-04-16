@@ -1,4 +1,4 @@
-import { X, Smile, Check, Axe } from "@tamagui/lucide-icons";
+import { Axe, Check, X } from "@tamagui/lucide-icons";
 import { Keyboard } from "react-native";
 
 import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
@@ -9,6 +9,8 @@ import {
   Checkbox,
   Dialog,
   Fieldset,
+  H1,
+  H4,
   Input,
   Label,
   ScrollView,
@@ -48,8 +50,9 @@ const CustomSplit: React.FC<Props> = ({
   const [isModalToggled, setIsModalToggled] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isKeyboardVisible = Keyboard.isVisible();
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(windowHeight * 0.28);
 
-  /** Handlers */
+  /** ---------- Handlers ---------- */
   const handleAmountChange = (memberId: string, newAmount: number) => {
     setSelectedMembers((prevSelectedMembers) => {
       return prevSelectedMembers?.map((member) => {
@@ -93,7 +96,7 @@ const CustomSplit: React.FC<Props> = ({
     );
   };
 
-  /** Functions */
+  /** ---------- Functions ---------- */
   const initializeSelectedSplits = () => {
     setSelectedMembers(includedMembers);
   };
@@ -140,17 +143,19 @@ const CustomSplit: React.FC<Props> = ({
     );
   };
 
+  /** ---------- Listeners ---------- */
   // Listen for keyboard show/hide events
   Keyboard.addListener("keyboardDidShow", () => {
     console.log("Keyboard is shown");
+    setButtonAreaHeight(windowHeight * 0.28);
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
     console.log("Keyboard is hidden");
+    setButtonAreaHeight(windowHeight * 0.6);
   });
 
-  /** Use Effects */
-
+  /** ---------- Use Effects ---------- */
   //on save assign those checked to the transactions.split on the parent component
   useEffect(() => {
     initializeSelectedSplits();
@@ -161,12 +166,9 @@ const CustomSplit: React.FC<Props> = ({
     calculateSumAmount();
   }, [selectedMembers]);
 
-  useEffect(() => {
-    console.log("Keyboard display:", isKeyboardVisible);
-  }, [isKeyboardVisible]);
+  useEffect(() => {}, [isKeyboardVisible]);
 
   useEffect(() => {
-    console.log("*** Split Amount modal is open / closed: ", isModalToggled);
     resetSplits();
   }, [isModalToggled]);
 
@@ -229,14 +231,30 @@ const CustomSplit: React.FC<Props> = ({
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Amount: {amount}</Dialog.Title>
+          {/* <Dialog.Title>Amount: {amount}</Dialog.Title>
           <Dialog.Description>
-            Remaining split ampount: {splitAmount - sumAmount}
-            <Text>{isKeyboardVisible.toString()}</Text>
-          </Dialog.Description>
+            Remaining split amount: {splitAmount - sumAmount}
+          </Dialog.Description> */}
+          <XStack gap="$3">
+            <YStack>
+              <Text fontSize={"$1"}>Transaction Amount</Text>
+              <H1>{amount}</H1>
+            </YStack>
+            <YStack>
+              <Text fontSize={"$1"}>Amount to Distribute</Text>
+              <H1
+                color={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? "$green8Light"
+                    : "$red8Light"
+                }
+              >
+                {splitAmount - sumAmount}
+              </H1>
+            </YStack>
+          </XStack>
           <Separator />
-          {/* <View height={windowHeight * 0.6}> */}
-          <View height={windowHeight * 0.28}>
+          <View height={buttonAreaHeight}>
             <ScrollView>
               <XStack
                 flexWrap="wrap"
@@ -296,13 +314,21 @@ const CustomSplit: React.FC<Props> = ({
           </View>
           <Separator />
           <XStack gap="$4" justifyContent="space-between">
-            {/* <DialogInstance /> */}
             <StyledButton active={true} onPress={onEvenClick}>
               Even
             </StyledButton>
             <Dialog.Close displayWhenAdapted asChild>
               <StyledButton
-                create={true}
+                create={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? true
+                    : false
+                }
+                disabled={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? false
+                    : true
+                }
                 aria-label="Close"
                 onPress={handleSaveChanges}
               >
@@ -310,9 +336,7 @@ const CustomSplit: React.FC<Props> = ({
               </StyledButton>
             </Dialog.Close>
           </XStack>
-          <XStack>
-            {/* <Text>{JSON.stringify(selectedMembers)}</Text> */}
-          </XStack>
+          <XStack></XStack>
           <Unspaced>
             <Dialog.Close asChild>
               <Button

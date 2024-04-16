@@ -309,7 +309,8 @@ const EditTransaction: React.FC<Props> = ({
             <StyledButton
               color={"$red10Light"}
               onPress={onDeleteTxn}
-              icon={<Trash2 size={"$1"} />}
+              delete={true}
+              icon={<Trash2 size={"$1"} color={"$red9"} />}
               width={width * 0.25}
             />
             <Form.Trigger asChild>
