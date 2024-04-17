@@ -1,9 +1,10 @@
 import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 import Avatar from "@/components/login/avatar";
+import { getActiveTransactions } from "@/lib/api";
 import { Member, Transaction, Split } from "@/types/global";
 import { Link } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, RefreshControl } from "react-native";
 import {
   CardProps,
   H1,
@@ -20,12 +21,21 @@ interface Props extends CardProps {
   members: Member[];
   currentUser: string;
   resetToasts: () => void;
+  setTransactions: (transactions: Transaction[]) => void;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
   HTMLDivElement,
   Props
-> = ({ transactions, currentUser, members, resetToasts, ...props }) => {
+> = ({
+  transactions,
+  currentUser,
+  members,
+  resetToasts,
+  setTransactions,
+  ...props
+}) => {
+  /** ---------- States ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
   const [currentTxnToEdit, setCurrentTxnToEdit] = useState<Transaction>({
     billid: 0,
@@ -37,7 +47,28 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     split: [],
     isdeleted: false,
   });
+
+  const [refreshing, setRefreshing] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  /** ---------- Functions  ---------- */
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    fetchTransactions();
+  };
+
+  const fetchTransactions = async () => {
+    if (currentUser) {
+      const transactionData: Transaction[] = await getActiveTransactions(
+        transactions ? transactions[0].billid.toString() : "0"
+      );
+      console.log("currentUser", currentUser);
+      console.log("Bill id", currentTxnToEdit.billid.toString());
+      console.log("*** Fetched transactions on refresh: ", transactionData);
+      if (transactionData) setRefreshing(false);
+      setTransactions(transactionData);
+    }
+  };
 
   const findUserAvatar = (payerId: string | null) => {
     if (!payerId) return "";
@@ -90,8 +121,12 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   }, [openEditTxn]);
 
   return (
-    <View>
-      <ScrollView>
+    <View height={"100%"}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
         <XStack
           flex={1}
           flexWrap="wrap"

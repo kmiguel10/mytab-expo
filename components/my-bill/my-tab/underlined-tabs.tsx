@@ -31,6 +31,7 @@ interface Props {
   height: number;
   width: number;
   resetToastMessageStates: () => void;
+  setTransactions: (transactions: Transaction[]) => void;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -42,6 +43,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   height,
   width,
   resetToastMessageStates,
+  setTransactions,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -202,6 +204,7 @@ const UnderlinedTabs: React.FC<Props> = ({
               {currentTab === "Transactions" && (
                 <TransactionInfoCard
                   transactions={transactions}
+                  setTransactions={setTransactions}
                   currentUser={userId}
                   members={members}
                   animation="bouncy"
