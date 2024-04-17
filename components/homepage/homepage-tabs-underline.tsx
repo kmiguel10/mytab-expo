@@ -1,23 +1,20 @@
-import { BillData, MemberData } from "@/types/global";
+import { MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle, TouchableOpacity } from "react-native";
+import { LayoutRectangle, RefreshControl } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
-
-import { useNavigation } from "@react-navigation/native";
 
 import {
   AnimatePresence,
   H6,
   ScrollView,
   SizableText,
+  styled,
   Tabs,
   View,
   XStack,
   YStack,
-  styled,
-  Text,
 } from "tamagui";
 import BillCard from "./bill-card";
 interface Props {
@@ -25,12 +22,16 @@ interface Props {
   userId: string;
   height: number;
   width: number;
+  setRefreshing: (toggle: boolean) => void;
+  refreshing: boolean;
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
   userId,
   height,
   width,
+  setRefreshing,
+  refreshing,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -80,6 +81,13 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
     } else {
       setIntentIndicator(layout);
     }
+  };
+
+  const fetchBills = () => {};
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    fetchBills();
   };
 
   return (
@@ -163,9 +171,16 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           flex={1}
         >
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
-            <View>
+            <View height={"100%"}>
               {currentTab === "active" ? (
-                <ScrollView>
+                <ScrollView
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={handleRefresh}
+                    />
+                  }
+                >
                   {bills.map((item, index) => (
                     <XStack
                       key={`${item.memberid}-${index}`}

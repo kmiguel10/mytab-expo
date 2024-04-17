@@ -256,7 +256,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
           </Form.Trigger>
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="amount-input"
+              id="create-amount-input"
               placeholder="0"
               defaultValue={"0"}
               keyboardType="numeric"
@@ -276,7 +276,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="transaction-name"
+                id="create-transaction-name"
                 placeholder="Enter name"
                 defaultValue=""
                 value={transaction.name}

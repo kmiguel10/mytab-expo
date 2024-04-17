@@ -332,7 +332,7 @@ const EditTransaction: React.FC<Props> = ({
           </XStack>
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="amount-input"
+              id="edit-amount-input"
               placeholder="0"
               keyboardType="numeric"
               value={localTxn.amount.toString()}
