@@ -13,10 +13,10 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
+import ConfirmDeleteTransaction from "./confirm-delete-transaction";
 import CustomSplit from "./custom-split";
 import MembersDropdown from "./members-dropdown";
 import SplitView from "./split-view";
-import { Trash2 } from "@tamagui/lucide-icons";
 
 interface Props {
   open: boolean;
@@ -146,43 +146,6 @@ const EditTransaction: React.FC<Props> = ({
     }
   };
 
-  /** Soft Delete */
-  const onDeleteTxn = async () => {
-    let _userId = userId.toString();
-    localTxn.submittedbyid = _userId;
-
-    try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .update({ isdeleted: true })
-        .eq("id", localTxn.id)
-        .select();
-
-      if (error) {
-        router.navigate({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, errorDeleteMsg: error.message }, //
-        });
-      }
-
-      if (data) {
-        const _deletedTxn: Transaction = data[0];
-        console.log("Deleted txn", _deletedTxn);
-        router.navigate({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, deletedTxnName: _deletedTxn.name },
-        });
-      }
-    } catch (error: any) {
-      router.navigate({
-        pathname: `/(bill)/${localTxn.billid}`,
-        params: { userId: _userId, errorDeleteMsg: error.message }, //
-      });
-    } finally {
-      setOpen(false);
-    }
-  };
-
   const initializeSplits = () => {
     let amountNum = localTxn.amount;
     const splitEvenAmount = (_amount: number) => {
@@ -241,7 +204,6 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   /**  - - - - - Use Effect - - - - -*/
-
   useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
@@ -256,11 +218,6 @@ const EditTransaction: React.FC<Props> = ({
       initializeSplits();
     }
   }, [localTxn.amount]);
-
-  //   useEffect(() => {
-  //     console.log("Txn to Edit", localTxn);
-  //     setCurrentTxnToEdit(localTxn);
-  //   }, [localTxn, open]);
 
   //reset localTxn on open and close of modal
   useEffect(() => {
@@ -278,7 +235,7 @@ const EditTransaction: React.FC<Props> = ({
       modal={true}
       open={open}
       onOpenChange={() => setOpen(!open)}
-      snapPoints={isExpanded ? [80, 50, 25] : [90, 50, 25]}
+      snapPoints={isExpanded ? [80, 50] : [90, 50]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       position={position}
@@ -306,12 +263,10 @@ const EditTransaction: React.FC<Props> = ({
           justifyContent="center"
         >
           <XStack justifyContent="space-between">
-            <StyledButton
-              color={"$red10Light"}
-              onPress={onDeleteTxn}
-              delete={true}
-              icon={<Trash2 size={"$1"} color={"$red9"} />}
-              width={width * 0.25}
+            <ConfirmDeleteTransaction
+              userId={userId.toString()}
+              transaction={localTxn}
+              setOpen={setOpen}
             />
             <Form.Trigger asChild>
               <StyledButton
@@ -323,12 +278,6 @@ const EditTransaction: React.FC<Props> = ({
                 Submit
               </StyledButton>
             </Form.Trigger>
-            {/* <Text>
-              Active {!!(localTxn.name && localTxn.amount)}
-            </Text> */}
-            {/* <Text>
-              disabled {!(localTxn.name && localTxn.amount)}
-            </Text> */}
           </XStack>
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
