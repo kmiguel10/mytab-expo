@@ -117,6 +117,8 @@ type SummaryInfo = {
   amountPaid: number;
   txnCount: number;
   userid: string;
+  avatar_url: string;
+  displayName: string;
 };
 
 type MyTabInfo = {

@@ -1,19 +1,18 @@
+import Avatar from "@/components/login/avatar";
+import { SummaryInfo } from "@/types/global";
 import React from "react";
 import {
-  Text,
-  View,
-  Card,
   CardProps,
-  H4,
-  H6,
+  H1,
+  ListItem,
   ScrollView,
-  XStack,
-  YStack,
   useWindowDimensions,
+  XStack,
+  YGroup,
 } from "tamagui";
 
 interface Props extends CardProps {
-  members: { amountPaid: number; txnCount: number; userid: string }[];
+  members: SummaryInfo[];
   scaledHeight: number;
   scaledWidth: number;
 }
@@ -25,12 +24,20 @@ const MemberCards: React.FC<Props> = ({
   ...props
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  function findUserAvatar(payerid: any) {
+    throw new Error("Function not implemented.");
+  }
+
+  function findUserDisplayName(payerid: any) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <ScrollView>
       <XStack
         flex={1}
         flexWrap="wrap"
-        gap="$1.5"
+        gap="$0.5"
         backgroundColor={"transparent"}
         justifyContent="center"
         paddingBottom="$2"
@@ -42,34 +49,22 @@ const MemberCards: React.FC<Props> = ({
             justifyContent="center"
             key={index}
           >
-            <Card
-              elevate
-              size="$2.5"
+            <YGroup
+              alignSelf="center"
               bordered
-              key={index}
-              backgroundColor={"transparent"}
-              width={windowWidth * 0.44}
-              {...props}
+              width={windowWidth * 0.9}
+              size="$4"
             >
-              <Card.Header padded>
-                <XStack padding="$2" gap={"$1"}>
-                  <Text>{member.userid.slice(0, 5)}</Text>
-                </XStack>
-                <XStack gap="$2" justifyContent="space-between">
-                  <YStack padding="$2" gap={"$1"}>
-                    <Text height={windowHeight * 0.03}>Count</Text>
-                    <H6 height={windowHeight * 0.03}>{member.txnCount}</H6>
-                  </YStack>
-                  <YStack padding="$2" gap={"$1"}>
-                    <Text height={windowHeight * 0.03}>Paid</Text>
-                    <H6 height={windowHeight * 0.03}>${member.amountPaid}</H6>
-                  </YStack>
-                </XStack>
-              </Card.Header>
-              {/* <Card.Footer padded>
-                <Text>{member.userid.slice(0, 5)}</Text>
-              </Card.Footer> */}
-            </Card>
+              <YGroup.Item>
+                <ListItem
+                  hoverTheme
+                  icon={<Avatar url={member.avatar_url} size="$4.5" />}
+                  title={member.displayName}
+                  subTitle={`Transaction Count: ${member.txnCount}`}
+                  iconAfter={<H1>${member.amountPaid}</H1>}
+                />
+              </YGroup.Item>
+            </YGroup>
           </XStack>
         ))}
         {members.length % 2 !== 0 && (

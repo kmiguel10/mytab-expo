@@ -3,9 +3,10 @@ import HeaderInfo from "./HeaderInfo";
 import SummaryChart from "./summary-chart";
 import MemberCards from "./member-cards";
 import { View, YStack } from "tamagui";
+import { SummaryInfo } from "@/types/global";
 
 interface Props {
-  summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
+  summaryInfo: SummaryInfo[];
   tabSectionHeight: number;
   tabSectionWidth: number;
 }
@@ -31,7 +32,7 @@ const Summary: React.FC<Props> = ({
 
   return (
     <View>
-      <YStack justifyContent="center">
+      <YStack justifyContent="center" alignItems="center">
         <View padding="$2">
           <SummaryChart
             members={summaryInfo}

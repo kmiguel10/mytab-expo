@@ -1,25 +1,19 @@
-import React, { useEffect } from "react";
 import { Member, SummaryInfo, Transaction } from "@/types/global";
-import { BillData } from "@/types/global";
-import { Link } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
 import {
   AnimatePresence,
-  H6,
-  ScrollView,
   SizableText,
   Tabs,
   View,
-  XStack,
   YStack,
   styled,
 } from "tamagui";
-import TransactionInfoCard from "../transactions/transaction-info-card";
 import Summary from "../summary/summary";
+import TransactionInfoCard from "../transactions/transaction-info-card";
 import MyTab from "./MyTab";
 
 interface Props {
