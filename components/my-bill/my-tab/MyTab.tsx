@@ -1,6 +1,6 @@
 import { getMyTabInfo } from "@/lib/api";
 import { getMyTabHeaderAmounts, roundToNearestTenth } from "@/lib/helpers";
-import { MyTabInfo, SettleCardInfo } from "@/types/global";
+import { Member, MyTabInfo, SettleCardInfo } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { H3, Text, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
@@ -10,6 +10,7 @@ interface Props {
   billId: number;
   tabSectionHeight: number;
   tabSectionWidth: number;
+  members: Member[];
 }
 
 const MyTab: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const MyTab: React.FC<Props> = ({
   billId,
   tabSectionHeight,
   tabSectionWidth,
+  members,
 }) => {
   const [myTabInfo, setMyTabInfo] = useState<MyTabInfo[] | null>([]);
   const [owedAmount, setOwedAmount] = useState<number>(0);
@@ -29,6 +31,7 @@ const MyTab: React.FC<Props> = ({
   let cardsSectionHeight = tabSectionHeight * 0.759;
   let settleAmount = Math.abs(owedAmount - debtAmount);
 
+  //Should I use, useMemo?
   useEffect(() => {
     async function fetchMyTabInfo() {
       if (userId) {
@@ -97,6 +100,7 @@ const MyTab: React.FC<Props> = ({
           members={settleMembersInfo}
           scaledHeight={tabSectionHeight}
           scaledWidth={tabSectionWidth}
+          membersInfo={members}
         />
       </XStack>
     </View>

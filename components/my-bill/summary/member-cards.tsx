@@ -32,6 +32,9 @@ const MemberCards: React.FC<Props> = ({
     throw new Error("Function not implemented.");
   }
 
+  /**
+   * Need to be able to save the avatars and pass it down, the use useMemo
+   */
   return (
     <ScrollView>
       <XStack

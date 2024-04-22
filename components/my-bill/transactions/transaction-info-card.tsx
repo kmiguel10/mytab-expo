@@ -1,6 +1,7 @@
 import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 import Avatar from "@/components/login/avatar";
 import { getActiveTransactions } from "@/lib/api";
+import { findUserAvatar, findUserDisplayName } from "@/lib/helpers";
 import { Member, Transaction, Split } from "@/types/global";
 import { Link } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -70,19 +71,19 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     }
   };
 
-  const findUserAvatar = (payerId: string | null) => {
-    if (!payerId) return "";
-    const member = members.find((member) => member.userid === payerId);
+  // const findUserAvatar = (payerId: string | null) => {
+  //   if (!payerId) return "";
+  //   const member = members.find((member) => member.userid === payerId);
 
-    return member ? member.avatar_url : "";
-  };
+  //   return member ? member.avatar_url : "";
+  // };
 
-  const findUserDisplayName = (payerId: string | null) => {
-    if (!payerId) return "";
-    const member = members.find((member) => member.userid === payerId);
+  // const findUserDisplayName = (payerId: string | null) => {
+  //   if (!payerId) return "";
+  //   const member = members.find((member) => member.userid === payerId);
 
-    return member ? member.displayName : "";
-  };
+  //   return member ? member.displayName : "";
+  // };
 
   const onTransactionClick = (txnId: string) => {
     resetToasts();
@@ -163,10 +164,16 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                     <ListItem
                       hoverTheme
                       icon={
-                        <Avatar url={findUserAvatar(txn.payerid)} size="$4.5" />
+                        <Avatar
+                          url={findUserAvatar(txn.payerid, members)}
+                          size="$4.5"
+                        />
                       }
                       title={txn.name}
-                      subTitle={`Paid by: ${findUserDisplayName(txn.payerid)}`}
+                      subTitle={`Paid by: ${findUserDisplayName(
+                        txn.payerid,
+                        members
+                      )}`}
                       iconAfter={<H1>${txn.amount}</H1>}
                     />
                   </YGroup.Item>

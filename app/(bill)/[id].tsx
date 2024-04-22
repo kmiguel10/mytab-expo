@@ -173,6 +173,12 @@ const BillScreen = () => {
 
   return (
     <OuterContainer>
+      <CreateTransaction
+        billId={id.toString()}
+        members={members}
+        open={openCreateTxn}
+        setOpen={setOpenCreateTxn}
+      />
       <ToastViewport
         width={"100%"}
         justifyContent="center"
@@ -203,6 +209,7 @@ const BillScreen = () => {
           />
         </BodyContainer>
       </YStack>
+
       <FooterContainer
         height={windowHeight}
         justifyContent="space-between"
@@ -219,12 +226,7 @@ const BillScreen = () => {
           Add Transaction
         </StyledButton>
       </FooterContainer>
-      <CreateTransaction
-        billId={id.toString()}
-        members={members}
-        open={openCreateTxn}
-        setOpen={setOpenCreateTxn}
-      />
+
       {(txnName || errorCreateMsg) && (
         <Toast
           onOpenChange={setOpen}

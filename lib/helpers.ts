@@ -1,4 +1,4 @@
-import { MyTabInfo, SettleCardInfo } from "@/types/global";
+import { Member, MyTabInfo, SettleCardInfo } from "@/types/global";
 
 interface getMyTabHeaderAmountsProps {
   myTabInfo: MyTabInfo[];
@@ -67,4 +67,31 @@ export const getMyTabHeaderAmounts = ({
 
 export const roundToNearestTenth = (num: number) => {
   return Math.round(num * 10) / 10;
+};
+
+interface FindUserAvatarProps {
+  members: Member[];
+  payerId: string;
+}
+
+export const findUserAvatar = (payerId: string | null, members: Member[]) => {
+  if (!payerId) return "";
+  const member = members.find((member) => member.userid === payerId);
+
+  return member ? member.avatar_url : "";
+};
+
+interface FindUserDisplayNameProps {
+  members: Member[];
+  payerId: string;
+}
+
+export const findUserDisplayName = (
+  payerId: string | null,
+  members: Member[]
+) => {
+  if (!payerId) return "";
+  const member = members.find((member) => member.userid === payerId);
+
+  return member ? member.displayName : "";
 };

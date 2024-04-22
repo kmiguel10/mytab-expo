@@ -10,19 +10,21 @@ import {
   YStack,
   useWindowDimensions,
 } from "tamagui";
-import { MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
-import { roundToNearestTenth } from "@/lib/helpers";
+import { Member, MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
+import { findUserDisplayName, roundToNearestTenth } from "@/lib/helpers";
 
 interface Props extends CardProps {
   members: SettleCardInfo[];
   scaledHeight: number;
   scaledWidth: number;
+  membersInfo: Member[];
 }
 
 const SettleMemberCard: React.FC<Props> = ({
   members,
   scaledHeight,
   scaledWidth,
+  membersInfo,
   ...props
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -49,7 +51,7 @@ const SettleMemberCard: React.FC<Props> = ({
               size="$3"
               bordered
               key={index}
-              width={windowWidth * 0.46}
+              width={windowWidth * 0.9}
               backgroundColor={
                 member.owed - member.debt >= 0 ? "$green5Light" : "$red5Light"
               }
@@ -57,7 +59,9 @@ const SettleMemberCard: React.FC<Props> = ({
             >
               <Card.Header padded>
                 <XStack justifyContent="space-between">
-                  <Text paddingTop="$2">{member.member}</Text>
+                  <Text paddingTop="$2">
+                    {findUserDisplayName(member.member, membersInfo)}
+                  </Text>
                   <H4
                     color={
                       member.owed - member.debt >= 0

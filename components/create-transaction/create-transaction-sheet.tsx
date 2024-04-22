@@ -189,6 +189,13 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     setIncludedMembers(split);
   };
 
+  const handleOpenChange = () => {
+    console.log("Toggle create transaction: ", open);
+    if (open) {
+      setOpen(false);
+    }
+  };
+
   useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
@@ -206,15 +213,16 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
         amount: 0,
         name: "",
       }));
+      setOpen(true);
     }
   }, [open]);
 
   return (
     <Sheet
-      forceRemoveScrollEnabled={open}
+      forceRemoveScrollEnabled={true}
       modal={true}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
       snapPoints={isExpanded ? [80, 50, 25] : [90, 50, 25]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom

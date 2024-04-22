@@ -146,12 +146,10 @@ const CustomSplit: React.FC<Props> = ({
   /** ---------- Listeners ---------- */
   // Listen for keyboard show/hide events
   Keyboard.addListener("keyboardDidShow", () => {
-    console.log("Keyboard is shown");
     setButtonAreaHeight(windowHeight * 0.28);
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
-    console.log("Keyboard is hidden");
     setButtonAreaHeight(windowHeight * 0.6);
   });
 

@@ -138,7 +138,7 @@ const UnderlinedTabs: React.FC<Props> = ({
           <Tabs.List
             disablePassBorderRadius
             loop={false}
-            aria-label="Manage your account"
+            aria-label="Tab list"
             borderBottomLeftRadius={0}
             borderBottomRightRadius={0}
             paddingBottom="$1.5"
@@ -218,6 +218,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                 <MyTab
                   userId={userId}
                   billId={billId}
+                  members={members}
                   tabSectionHeight={height}
                   tabSectionWidth={width}
                 />

@@ -60,14 +60,14 @@ function RootLayoutNav() {
             <Stack.Screen name="index" options={{ title: "Welcome" }} />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
-            <Stack.Screen
+            {/* <Stack.Screen
               name="pages/create-transaction"
               options={{ title: "Create Transaction" }}
             />
             <Stack.Screen
               name="pages/edit-transaction"
               options={{ title: "Edit this Transaction" }}
-            />
+            /> */}
             {/* <Stack.Screen
               name="pages/edit-transaction"
               options={{ title: "Edit Transaction" }}
