@@ -122,7 +122,7 @@ export const EditBill = () => {
         <EditMembers
           billId={parseInt(id.toString())}
           ownerId={billInfo[0]?.ownerid}
-          height={height * 0.5}
+          height={height * 0.62}
           isOwner={isOwner}
         />
         {isOwner && (
