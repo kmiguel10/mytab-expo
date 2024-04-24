@@ -8,11 +8,13 @@ import Avatar from "../login/avatar";
 interface Props {
   includedMembers: Member[];
   fetchMembersData: () => void;
+  isOwner: boolean;
 }
 
 const CurrentMembers: React.FC<Props> = ({
   includedMembers,
   fetchMembersData,
+  isOwner,
 }) => {
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
@@ -39,15 +41,19 @@ const CurrentMembers: React.FC<Props> = ({
                 title={member.displayName}
                 subTitle={"Member"}
                 iconAfter={
-                  <XStack gap="$2">
-                    <ConfirmationDialog
-                      user={member}
-                      fetchMembersData={fetchMembersData}
-                      setOpen={setOpen}
-                      setProcessError={setProcessError}
-                      setDeletedMember={setDeletedMember}
-                    />
-                  </XStack>
+                  !isOwner ? (
+                    <View />
+                  ) : (
+                    <XStack gap="$2">
+                      <ConfirmationDialog
+                        user={member}
+                        fetchMembersData={fetchMembersData}
+                        setOpen={setOpen}
+                        setProcessError={setProcessError}
+                        setDeletedMember={setDeletedMember}
+                      />
+                    </XStack>
+                  )
                 }
               />
             </YGroup.Item>

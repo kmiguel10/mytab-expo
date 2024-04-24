@@ -12,9 +12,10 @@ interface Props {
   billId: number;
   ownerId: string;
   height: number;
+  isOwner: boolean;
 }
 
-const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
+const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
   /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
@@ -65,7 +66,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {requests.length > 0 && (
+        {requests.length > 0 && isOwner && (
           <JoinRequests
             requests={requests}
             fetchMembersData={fetchMembersData}
@@ -80,6 +81,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           <CurrentMembers
             includedMembers={includedMembers}
             fetchMembersData={fetchMembersData}
+            isOwner={isOwner}
           />
         )}
       </ScrollView>

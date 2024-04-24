@@ -14,49 +14,15 @@ import React, { useEffect, useState } from "react";
 import { Fieldset, Form, useWindowDimensions, XStack } from "tamagui";
 
 export const EditBill = () => {
+  /** ---------- States ---------- */
   const { width, height } = useWindowDimensions();
   const { id, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [saveNameError, setSaveNameError] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
-  //button handlers
-  const onDelete = async () => {
-    console.log("delete bill", id);
-
-    const { data, error } = await supabase
-      .from("bills")
-      .update({ isdeleted: true })
-      .eq("billid", id)
-      .select();
-
-    if (data) {
-      console.log("Deleted bill: ", data);
-      router.replace({
-        pathname: "/(homepage)/[id]",
-        params: { id: userId.toString() },
-      });
-    } else if (error) {
-    }
-  };
-  const onLock = async () => {
-    console.log("lock bill");
-    const { data, error } = await supabase
-      .from("bills")
-      .update({ isLocked: true })
-      .eq("billid", id)
-      .select();
-
-    if (data) {
-      console.log("Locked bill: ", data);
-      router.replace({
-        pathname: `/(bill)/${id}`,
-        params: { userId: userId.toString() },
-      });
-    } else if (error) {
-    }
-  };
-
+  /** Functions */
   //This only changes the name
   const onSubmit = async () => {
     if (billInfo.length > 0) {
@@ -68,10 +34,6 @@ export const EditBill = () => {
 
       if (data) {
         console.log("submitted bill: ", data);
-        // router.replace({
-        //   pathname: `/(bill)/mybill/${id}`,
-        //   params: { userId: userId.toString() },
-        // });
       } else if (error) {
         console.log("ERROR", error);
       }
@@ -87,21 +49,25 @@ export const EditBill = () => {
     );
   };
 
-  const [open, setOpen] = useState(false);
-  const [saveNameError, setSaveNameError] = useState(false);
-  const timerRef = React.useRef(0);
-
   /** --- UseEffects --- */
-  //Fetch bill info
+
   useEffect(() => {
+    //Fetch bill info
     async function fetchBillInfo() {
       if (id) {
         const data: BillInfo[] | null = await getBillInfo(Number(id));
         setBillInfo(data);
+
+        //set isOwner
+        if (data) {
+          if (data[0].ownerid === userId) {
+            setIsOwner(true);
+            console.log("IsOwner", data[0].ownerid === userId);
+          }
+        }
       }
     }
     fetchBillInfo();
-    console.log("userId", userId);
   }, [id, userId]);
 
   return (
@@ -142,40 +108,32 @@ export const EditBill = () => {
             />
           </XStack>
         </Form>
-        <XStack padding="$3" justifyContent="flex-end">
-          <LockSwitch
-            size="$2"
-            userId={userId.toString()}
-            billId={parseInt(id.toString())}
-            isLocked={billInfo[0]?.isLocked}
-          />
-          {/* <Button onPress={onLock}>Lock</Button> */}
-        </XStack>
-        {/* <Text>{JSON.stringify(billInfo)}</Text> */}
+        {isOwner && (
+          <XStack padding="$3" justifyContent="flex-end">
+            <LockSwitch
+              size="$2"
+              userId={userId.toString()}
+              billId={parseInt(id.toString())}
+              isLocked={billInfo[0]?.isLocked}
+            />
+          </XStack>
+        )}
+
         <EditMembers
           billId={parseInt(id.toString())}
           ownerId={billInfo[0]?.ownerid}
           height={height * 0.5}
+          isOwner={isOwner}
         />
+        {isOwner && (
+          <XStack justifyContent="space-between" padding="$3">
+            <ConfirmDeleteBill
+              billId={billInfo[0]?.billid}
+              userId={userId.toString()}
+            />
+          </XStack>
+        )}
 
-        <XStack justifyContent="space-between" padding="$3">
-          {/* <Button onPress={onDelete}>Delete</Button> */}
-          <ConfirmDeleteBill
-            billId={billInfo[0]?.billid}
-            userId={userId.toString()}
-          />
-          {/* <Button
-            onPress={() => {
-              setOpen(false);
-              window.clearTimeout(timerRef.current);
-              timerRef.current = window.setTimeout(() => {
-                setOpen(true);
-              }, 150);
-            }}
-          >
-            Single Toast
-          </Button> */}
-        </XStack>
         <SaveNameToast
           setOpen={setOpen}
           open={open}
