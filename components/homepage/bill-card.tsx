@@ -8,6 +8,7 @@ import {
   Button,
   Text,
   View,
+  Separator,
 } from "tamagui";
 import { BillData, MemberData } from "@/types/global";
 import Avatar from "../login/avatar";
@@ -42,10 +43,38 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
           </H4>
           <H4>${bill.amount}</H4>
         </XStack>
-        <Text theme="alt2">{membership}</Text>
+        {bill.isMemberIncluded && (
+          <XStack gap="$1">
+            <Text theme="alt2">{membership}</Text>
+            {bill.isLocked && (
+              <View
+                backgroundColor={"$red4Light"}
+                paddingHorizontal={"$2"}
+                paddingVertical={"$1"}
+                alignItems="center"
+                borderRadius={"$12"}
+              >
+                <Text fontSize={"$2"}>Locked</Text>
+              </View>
+            )}
+          </XStack>
+        )}
+
         {membership === "Member" &&
           bill.isMemberIncluded == false &&
-          bill.isRequestSent == true && <Text theme="alt2">Pending</Text>}
+          bill.isRequestSent == true && (
+            <XStack gap="$1">
+              <View
+                backgroundColor={"$yellow4Light"}
+                paddingHorizontal={"$2"}
+                paddingVertical={"$1"}
+                alignItems="center"
+                borderRadius={"$12"}
+              >
+                <Text fontSize={"$2"}>Pending</Text>
+              </View>
+            </XStack>
+          )}
       </Card.Header>
 
       <Card.Footer padding="$3">
