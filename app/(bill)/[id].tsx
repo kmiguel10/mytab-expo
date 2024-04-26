@@ -206,6 +206,7 @@ const BillScreen = () => {
             members={members}
             resetToastMessageStates={resetToastMessageStates}
             setTransactions={setTransactions}
+            isLocked={billInfo[0]?.isLocked}
           />
         </BodyContainer>
       </YStack>

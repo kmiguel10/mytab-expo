@@ -23,6 +23,7 @@ interface Props extends CardProps {
   currentUser: string;
   resetToasts: () => void;
   setTransactions: (transactions: Transaction[]) => void;
+  isLocked: boolean;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
@@ -34,6 +35,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   members,
   resetToasts,
   setTransactions,
+  isLocked,
   ...props
 }) => {
   /** ---------- States ---------- */
@@ -102,6 +104,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     setOpenEditTxn(true);
 
     //set the current transaction to edit
+    console.log("--- islocked: ", isLocked);
   };
 
   useEffect(() => {
@@ -153,6 +156,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                 //   },
                 // }}
                 onPress={() => onTransactionClick(`${txn.id}`)}
+                disabled={isLocked}
               >
                 <YGroup
                   alignSelf="center"

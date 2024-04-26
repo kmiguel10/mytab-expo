@@ -112,29 +112,50 @@ const EditTransaction: React.FC<Props> = ({
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
 
+    //first check if bill is locked...
+    //yes, then route to homepage
+    //no, then continue updating transaction
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .update([localTxn])
-        .eq("id", localTxn.id)
-        .select();
+      const { data: isBillLocked, error: billError } = await supabase
+        .from("bills")
+        .select("isLocked")
+        .eq("billid", localTxn.billid);
 
-      if (error) {
-        router.replace({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, errorEditMsg: error.message }, //
-        });
-      }
+      if (isBillLocked) {
+        //checks if bill is locked
+        if (isBillLocked[0].isLocked) {
+          router.replace({
+            pathname: `/(bill)/${localTxn.billid}`,
+            params: {
+              userId: _userId,
+              errorEditMsg: "Bill is locked. It cannot be edited.",
+            }, //
+          });
+        } else {
+          const { data, error } = await supabase
+            .from("transactions")
+            .update([localTxn])
+            .eq("id", localTxn.id)
+            .select();
 
-      if (data) {
-        const editedTxn: Transaction = data[0];
-        setCurrentTxnToEdit(editedTxn);
-        setLocalTxn(editedTxn);
-        console.log("Edited Transaction: ", editedTxn);
-        router.replace({
-          pathname: `/(bill)/${editedTxn.billid}`,
-          params: { userId: _userId, editedTxnName: editedTxn.name },
-        });
+          if (error) {
+            router.replace({
+              pathname: `/(bill)/${localTxn.billid}`,
+              params: { userId: _userId, errorEditMsg: error.message }, //
+            });
+          }
+
+          if (data) {
+            const editedTxn: Transaction = data[0];
+            setCurrentTxnToEdit(editedTxn);
+            setLocalTxn(editedTxn);
+            console.log("Edited Transaction: ", editedTxn);
+            router.replace({
+              pathname: `/(bill)/${editedTxn.billid}`,
+              params: { userId: _userId, editedTxnName: editedTxn.name },
+            });
+          }
+        }
       }
     } catch (error: any) {
       router.navigate({
@@ -300,7 +321,7 @@ const EditTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="localTxn-name"
+                id="local-txn-name"
                 placeholder="Enter name"
                 defaultValue=""
                 value={localTxn.name}
