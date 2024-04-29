@@ -124,13 +124,19 @@ const EditTransaction: React.FC<Props> = ({
       if (isBillLocked) {
         //checks if bill is locked
         if (isBillLocked[0].isLocked) {
-          router.replace({
-            pathname: `/(bill)/${localTxn.billid}`,
-            params: {
-              userId: _userId,
-              errorEditMsg: "Bill is locked. It cannot be edited.",
-            }, //
-          });
+          // router.replace({
+          //   pathname: `/(bill)/${localTxn.billid}`,
+          //   params: {
+          //     userId: _userId,
+          //     errorEditMsg: "Bill is locked. It cannot be edited.",
+          //   }, //
+          // });
+          if (_userId) {
+            router.replace({
+              pathname: "/(homepage)/[id]",
+              params: { id: _userId },
+            });
+          }
         } else {
           const { data, error } = await supabase
             .from("transactions")

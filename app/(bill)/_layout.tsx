@@ -1,15 +1,13 @@
 import { getBillInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
+import { useRoute } from "@react-navigation/native";
 import { Session } from "@supabase/supabase-js";
-import { ArrowBigLeft, Home, Settings2 } from "@tamagui/lucide-icons";
-import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Home, Settings2 } from "@tamagui/lucide-icons";
+import { Link, Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import { Button, Text, View } from "tamagui";
-import { useRoute } from "@react-navigation/native";
-import BillScreen from "./[id]";
-import EditBill from "./edit-bill";
+import { Text, View } from "tamagui";
 
 const Layout = () => {
   const router = useRouter();

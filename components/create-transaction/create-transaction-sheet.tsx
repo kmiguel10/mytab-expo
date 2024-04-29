@@ -108,21 +108,38 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     transaction.billid = Number(id);
 
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert([transaction])
-        .select();
+      const { data: isBillLocked, error: billError } = await supabase
+        .from("bills")
+        .select("isLocked")
+        .eq("billid", transaction.billid);
 
-      if (error) {
-        throw new Error(error.message); // Throw the error to be caught in the catch block
-      }
+      if (isBillLocked) {
+        if (isBillLocked[0].isLocked) {
+          router.replace({
+            pathname: `/(bill)/${transaction.billid}`,
+            params: {
+              userId: _userId,
+              errorEditMsg: "Bill is locked. It cannot be edited.",
+            }, //
+          });
+        } else {
+          const { data, error } = await supabase
+            .from("transactions")
+            .insert([transaction])
+            .select();
 
-      if (data) {
-        const createdTxn: Transaction = data[0];
-        router.navigate({
-          pathname: `/(bill)/${createdTxn.billid}`,
-          params: { userId: _userId, txnName: createdTxn.name },
-        });
+          if (error) {
+            throw new Error(error.message); // Throw the error to be caught in the catch block
+          }
+
+          if (data) {
+            const createdTxn: Transaction = data[0];
+            router.navigate({
+              pathname: `/(bill)/${createdTxn.billid}`,
+              params: { userId: _userId, txnName: createdTxn.name },
+            });
+          }
+        }
       }
     } catch (error: any) {
       router.navigate({
@@ -264,7 +281,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
           </Form.Trigger>
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="create-amount-input"
+              id="create-txn-amount-input"
               placeholder="0"
               defaultValue={"0"}
               keyboardType="numeric"
