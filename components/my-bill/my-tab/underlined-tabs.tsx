@@ -27,6 +27,7 @@ interface Props {
   resetToastMessageStates: () => void;
   setTransactions: (transactions: Transaction[]) => void;
   isLocked: boolean;
+  billOwnerId: string;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -40,6 +41,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   resetToastMessageStates,
   setTransactions,
   isLocked,
+  billOwnerId,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -208,6 +210,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   pressStyle={{ scale: 0.875 }}
                   resetToasts={resetToastMessageStates}
                   isLocked={isLocked}
+                  billOwnerId={billOwnerId}
                 />
               )}
               {currentTab === "Summary" && (

@@ -6,7 +6,6 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
 import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
-import MembersView from "@/components/my-bill/transactions/members-view";
 import {
   getActiveTransactions,
   getBillInfo,
@@ -17,7 +16,7 @@ import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { XStack, YStack, useWindowDimensions } from "tamagui";
+import { YStack, useWindowDimensions } from "tamagui";
 
 const BillScreen = () => {
   /** ---------- States ---------- */
@@ -132,6 +131,7 @@ const BillScreen = () => {
     }
     fetchTransactions();
   }, [userId, txnName, deletedTxnName, editedTxnName]);
+
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -207,6 +207,7 @@ const BillScreen = () => {
             resetToastMessageStates={resetToastMessageStates}
             setTransactions={setTransactions}
             isLocked={billInfo[0]?.isLocked}
+            billOwnerId={billInfo[0]?.ownerid}
           />
         </BodyContainer>
       </YStack>

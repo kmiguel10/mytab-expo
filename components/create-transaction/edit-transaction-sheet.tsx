@@ -24,6 +24,7 @@ interface Props {
   members: Member[];
   transaction: Transaction;
   setCurrentTxnToEdit: (txn: Transaction) => void;
+  billOwnerId: string;
 }
 
 const EditTransaction: React.FC<Props> = ({
@@ -32,10 +33,12 @@ const EditTransaction: React.FC<Props> = ({
   members,
   transaction,
   setCurrentTxnToEdit,
+  billOwnerId,
 }) => {
   const [position, setPosition] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAmountChanged, setIsAmountChanged] = useState(false);
+  const [isVisibleForUser, setIsVisibleForUser] = useState(false);
 
   // ---- test -----
   const [localTxn, setLocalTxn] = useState<Transaction>({
@@ -55,6 +58,8 @@ const EditTransaction: React.FC<Props> = ({
   >([]);
   const [isEven, setIsEven] = useState(true);
   const { width, height } = useWindowDimensions();
+
+  /** ---------- Helpers ---------- */
 
   const getDisplayName = (userId: string) => {
     const user = members.find((member) => member.userid === userId);
@@ -256,6 +261,18 @@ const EditTransaction: React.FC<Props> = ({
     }
   }, [open, transaction]);
 
+  //component is visible to user if user is the bill owner or transaction payer
+  useEffect(() => {
+    console.log("userId", userId);
+    console.log("billOwnerId", billOwnerId);
+    console.log("localTxn.payerid", localTxn.payerid);
+    if (userId === billOwnerId || userId === localTxn.payerid) {
+      setIsVisibleForUser(true);
+    } else {
+      setIsVisibleForUser(false);
+    }
+  }, [localTxn, userId, billOwnerId]);
+
   return (
     <Sheet
       forceRemoveScrollEnabled={open}
@@ -289,23 +306,26 @@ const EditTransaction: React.FC<Props> = ({
           padding="$3"
           justifyContent="center"
         >
-          <XStack justifyContent="space-between">
-            <ConfirmDeleteTransaction
-              userId={userId.toString()}
-              transaction={localTxn}
-              setOpen={setOpen}
-            />
-            <Form.Trigger asChild>
-              <StyledButton
-                width={width * 0.25}
-                size={"$3.5"}
-                active={!!(localTxn.name && localTxn.amount)}
-                disabled={!(localTxn.name && localTxn.amount)}
-              >
-                Submit
-              </StyledButton>
-            </Form.Trigger>
-          </XStack>
+          {isVisibleForUser && (
+            <XStack justifyContent="space-between">
+              <ConfirmDeleteTransaction
+                userId={userId.toString()}
+                transaction={localTxn}
+                setOpen={setOpen}
+              />
+              <Form.Trigger asChild>
+                <StyledButton
+                  width={width * 0.25}
+                  size={"$3.5"}
+                  active={!!(localTxn.name && localTxn.amount)}
+                  disabled={!(localTxn.name && localTxn.amount)}
+                >
+                  Submit
+                </StyledButton>
+              </Form.Trigger>
+            </XStack>
+          )}
+
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
               id="edit-amount-input"
@@ -319,6 +339,7 @@ const EditTransaction: React.FC<Props> = ({
               borderWidth="0"
               autoFocus={true}
               clearTextOnFocus={false}
+              disabled={!isVisibleForUser}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -333,6 +354,7 @@ const EditTransaction: React.FC<Props> = ({
                 value={localTxn.name}
                 error={!localTxn.name}
                 onChangeText={handleNameChange}
+                disabled={!isVisibleForUser}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -343,19 +365,23 @@ const EditTransaction: React.FC<Props> = ({
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
+                isVisibleToUser={isVisibleForUser}
               />
             </Fieldset>
           </XStack>
-          <XStack justifyContent="flex-end" paddingTop="$4">
-            <CustomSplit
-              memberSplits={localTxn.split}
-              amount={localTxn.amount}
-              onSaveSplits={handleSaveSplits}
-              setIsEven={setIsEven}
-              includedMembers={includedMembers}
-              isDisabled={!!(localTxn.name && localTxn.amount)}
-            />
-          </XStack>
+          {isVisibleForUser && (
+            <XStack justifyContent="flex-end" paddingTop="$4">
+              <CustomSplit
+                memberSplits={localTxn.split}
+                amount={localTxn.amount}
+                onSaveSplits={handleSaveSplits}
+                setIsEven={setIsEven}
+                includedMembers={includedMembers}
+                isDisabled={!!(localTxn.name && localTxn.amount)}
+              />
+            </XStack>
+          )}
+
           <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>

@@ -24,6 +24,7 @@ interface Props extends CardProps {
   resetToasts: () => void;
   setTransactions: (transactions: Transaction[]) => void;
   isLocked: boolean;
+  billOwnerId: string;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
@@ -36,6 +37,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   resetToasts,
   setTransactions,
   isLocked,
+  billOwnerId,
   ...props
 }) => {
   /** ---------- States ---------- */
@@ -202,6 +204,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
         setOpen={setOpenEditTxn}
         transaction={currentTxnToEdit}
         setCurrentTxnToEdit={setCurrentTxnToEdit}
+        billOwnerId={billOwnerId}
       />
     </View>
   );

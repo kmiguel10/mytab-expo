@@ -1,29 +1,22 @@
 import { Member } from "@/types/global";
-import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { useEffect, useMemo, useState } from "react";
 import type { FontSizeTokens, SelectProps } from "tamagui";
-import {
-  Adapt,
-  Label,
-  Select,
-  Sheet,
-  Text,
-  XStack,
-  YStack,
-  getFontSize,
-} from "tamagui";
+import { Adapt, Select, Sheet, YStack, getFontSize } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
 interface MembersDropdownProps extends SelectProps {
   members: Member[];
   defaultPayer: string;
   onPayerChange: (selectedPayer: string) => void;
+  isVisibleToUser: boolean;
 }
 
 export default function MembersDropdown({
   members,
   onPayerChange,
   defaultPayer,
+  isVisibleToUser,
   ...props
 }: MembersDropdownProps) {
   const [payer, setPayer] = useState("");
@@ -78,7 +71,7 @@ export default function MembersDropdown({
       disablePreventBodyScroll
       {...props}
     >
-      <Select.Trigger>
+      <Select.Trigger disabled={!isVisibleToUser}>
         <Select.Value placeholder={defaultPayer} />
       </Select.Trigger>
 
