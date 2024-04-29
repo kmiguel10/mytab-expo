@@ -17,7 +17,7 @@ import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { YStack, useWindowDimensions } from "tamagui";
+import { XStack, YStack, useWindowDimensions } from "tamagui";
 
 const BillScreen = () => {
   /** ---------- States ---------- */
@@ -213,10 +213,11 @@ const BillScreen = () => {
 
       <FooterContainer
         height={windowHeight}
-        justifyContent="space-between"
+        justifyContent="flex-end"
         alignContent="center"
       >
-        <MembersView members={members} height={windowHeight} />
+        {/* <MembersView members={members} height={windowHeight} /> */}
+
         <StyledButton
           disabled={billInfo[0]?.isLocked}
           create={!billInfo[0]?.isLocked}
