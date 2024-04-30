@@ -317,6 +317,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
+                isVisibleToUser={true}
               />
             </Fieldset>
           </XStack>
