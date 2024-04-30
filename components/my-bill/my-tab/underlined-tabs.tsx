@@ -218,6 +218,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   summaryInfo={summaryInfo}
                   tabSectionHeight={height}
                   tabSectionWidth={width}
+                  transactions={transactions}
                 />
               )}
               {currentTab === "My Tab" && (

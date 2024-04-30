@@ -1,4 +1,10 @@
-import { Member, MyTabInfo, SettleCardInfo } from "@/types/global";
+import {
+  Member,
+  MyTabInfo,
+  SettleCardInfo,
+  SummaryInfo,
+  Transaction,
+} from "@/types/global";
 
 interface getMyTabHeaderAmountsProps {
   myTabInfo: MyTabInfo[];
@@ -94,4 +100,19 @@ export const findUserDisplayName = (
   const member = members.find((member) => member.userid === payerId);
 
   return member ? member.displayName : "";
+};
+
+/**
+ * This filters the given transaction array to get the current user's transactions
+ * @param transactions
+ * @param currentUserId
+ * @returns Current users transactions
+ */
+export const filterUserTransactions = (
+  transactions: Transaction[],
+  member: SummaryInfo
+) => {
+  return transactions.filter(
+    (transaction) => transaction.payerid === member.userid
+  );
 };
