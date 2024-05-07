@@ -228,6 +228,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   members={members}
                   tabSectionHeight={height}
                   tabSectionWidth={width}
+                  transactions={transactions}
                 />
               )}
             </Tabs.Content>

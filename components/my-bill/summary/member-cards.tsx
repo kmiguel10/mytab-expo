@@ -51,14 +51,6 @@ const MemberCards: React.FC<Props> = ({
     setOpenTransactionsSheet(true);
   };
 
-  function findUserAvatar(payerid: any) {
-    throw new Error("Function not implemented.");
-  }
-
-  function findUserDisplayName(payerid: any) {
-    throw new Error("Function not implemented.");
-  }
-
   /** - - - - - - - - - - useEffects - - - - - - - - */
 
   /**

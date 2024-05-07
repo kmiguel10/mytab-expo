@@ -1,20 +1,16 @@
 import Avatar from "@/components/login/avatar";
-import { findUserAvatar } from "@/lib/helpers";
 import { SummaryInfo, Transaction } from "@/types/global";
 import { useState } from "react";
 import {
-  XStack,
-  Text,
+  H4,
+  ListItem,
+  ScrollView,
   Sheet,
+  Text,
+  View,
+  XStack,
   YGroup,
   useWindowDimensions,
-  ListItem,
-  View,
-  H1,
-  H3,
-  H6,
-  H4,
-  ScrollView,
 } from "tamagui";
 
 interface Props {

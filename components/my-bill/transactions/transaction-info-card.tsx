@@ -2,8 +2,7 @@ import EditTransaction from "@/components/create-transaction/edit-transaction-sh
 import Avatar from "@/components/login/avatar";
 import { getActiveTransactions } from "@/lib/api";
 import { findUserAvatar, findUserDisplayName } from "@/lib/helpers";
-import { Member, Transaction, Split } from "@/types/global";
-import { Link } from "expo-router";
+import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
 import {

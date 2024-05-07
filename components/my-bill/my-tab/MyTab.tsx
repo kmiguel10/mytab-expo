@@ -1,6 +1,6 @@
 import { getMyTabInfo } from "@/lib/api";
 import { getMyTabHeaderAmounts, roundToNearestTenth } from "@/lib/helpers";
-import { Member, MyTabInfo, SettleCardInfo } from "@/types/global";
+import { Member, MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { H3, Text, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
@@ -11,6 +11,7 @@ interface Props {
   tabSectionHeight: number;
   tabSectionWidth: number;
   members: Member[];
+  transactions: Transaction[];
 }
 
 const MyTab: React.FC<Props> = ({
@@ -19,7 +20,9 @@ const MyTab: React.FC<Props> = ({
   tabSectionHeight,
   tabSectionWidth,
   members,
+  transactions,
 }) => {
+  /** - - - - - - - - - - State Variables - - - - - - - - */
   const [myTabInfo, setMyTabInfo] = useState<MyTabInfo[] | null>([]);
   const [owedAmount, setOwedAmount] = useState<number>(0);
   const [debtAmount, setDebtAmount] = useState<number>(0);
@@ -31,6 +34,11 @@ const MyTab: React.FC<Props> = ({
   let cardsSectionHeight = tabSectionHeight * 0.759;
   let settleAmount = Math.abs(owedAmount - debtAmount);
 
+  /** - - - - - - - - - - State Variables - - - - - - - - */
+
+  /** - - - - - - - - - - Functions - - - - - - - - */
+
+  /** - - - - - - - - - - useEffects - - - - - - - - */
   //Should I use, useMemo?
   useEffect(() => {
     async function fetchMyTabInfo() {
@@ -101,6 +109,8 @@ const MyTab: React.FC<Props> = ({
           scaledHeight={tabSectionHeight}
           scaledWidth={tabSectionWidth}
           membersInfo={members}
+          transactions={transactions}
+          currentUser={userId}
         />
       </XStack>
     </View>

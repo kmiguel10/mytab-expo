@@ -100,6 +100,11 @@ type Transaction = {
   isdeleted: boolean;
 };
 
+type SettlementInfo = {
+  transactionName: string;
+  userSplitAmount: number;
+};
+
 type BillInfo = {
   billid: number;
   ownerid: string;
@@ -160,4 +165,5 @@ export type {
   SettleCardInfo,
   ProfileInfo,
   Split,
+  SettlementInfo,
 };
