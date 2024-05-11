@@ -1,20 +1,17 @@
 import Avatar from "@/components/login/avatar";
 import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import { SettlementInfo } from "@/types/global";
-import { SeparatorHorizontal } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
 import {
   H1,
   H3,
   H4,
-  H6,
   ListItem,
   ScrollView,
   Separator,
   Sheet,
   Text,
   useWindowDimensions,
-  View,
   XStack,
   YGroup,
   YStack,
@@ -112,7 +109,15 @@ const UserSettlementsSheet: React.FC<Props> = ({
           <XStack justifyContent="space-between" paddingBottom="$4">
             <XStack alignItems="center" width={"50%"}>
               <Text textAlign="left">
-                {<Text>{currentUserName}</Text>} owes {selectedUserName}
+                {settlementAmount < 0 ? (
+                  <Text>
+                    {currentUserName} owes {selectedUserName}
+                  </Text>
+                ) : (
+                  <Text>
+                    {selectedUserName} owes {currentUserName}
+                  </Text>
+                )}
               </Text>
             </XStack>
             <YStack>
@@ -144,9 +149,16 @@ const UserSettlementsSheet: React.FC<Props> = ({
               </H3>
             </YStack>
           </XStack>
-          <Text paddingBottom="$4">
-            {selectedUserName} paid the following for {currentUserName}
-          </Text>
+
+          {(selectedMemberSettlements?.length ?? 0) > 0 ? (
+            <Text paddingBottom="$4">
+              {selectedUserName} paid the following for {currentUserName}
+            </Text>
+          ) : (
+            <Text paddingBottom="$4">
+              {selectedUserName} has not paid anything {currentUserName}
+            </Text>
+          )}
           {selectedMemberSettlements?.map((settlements, index) => (
             <YGroup
               alignSelf="center"
@@ -181,9 +193,17 @@ const UserSettlementsSheet: React.FC<Props> = ({
               </H3>
             </YStack>
           </XStack>
-          <Text paddingBottom="$4">
-            {currentUserName} paid the following for {selectedUserName}
-          </Text>
+
+          {(currentUserSettlements?.length ?? 0) > 0 ? (
+            <Text paddingBottom="$4">
+              {currentUserName} paid the following for {selectedUserName}
+            </Text>
+          ) : (
+            <Text paddingBottom="$4">
+              {currentUserName} has not paid anything {selectedUserName}
+            </Text>
+          )}
+
           {currentUserSettlements?.map((settlements, index) => (
             <YGroup
               alignSelf="center"
