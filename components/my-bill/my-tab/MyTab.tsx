@@ -1,12 +1,11 @@
 import { getMyTabInfo } from "@/lib/api";
 import {
   getMyTabHeaderAmounts,
-  roundToNearestTenth,
   truncateToTwoDecimalPlaces,
 } from "@/lib/helpers";
 import { Member, MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
-import { H3, Text, View, XStack, YStack } from "tamagui";
+import { H4, Text, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
 
 interface Props {
@@ -75,42 +74,46 @@ const MyTab: React.FC<Props> = ({
   }, [myTabInfo, userId]);
 
   return (
-    <View>
+    <View gap="$2">
       <XStack
-        gap="$5"
+        gap="$3"
         height={headerSectionHeight}
         width={tabSectionWidth}
         padding="$2"
         paddingLeft="$3"
-        justifyContent="flex-start"
+        justifyContent="space-between"
       >
-        <YStack gap="$3" width={tabSectionWidth * 0.25}>
-          {owedAmount - debtAmount <= 0 ? (
-            <Text>You pay</Text>
-          ) : (
-            <Text>You receive</Text>
-          )}
+        <XStack gap="$3">
+          <YStack gap="$3" width={tabSectionWidth * 0.25}>
+            <Text>You are owed</Text>
+            <H4 color={"$green10Light"}>
+              ${truncateToTwoDecimalPlaces(owedAmount)}
+            </H4>
+          </YStack>
+          <YStack gap="$3" width={tabSectionWidth * 0.25}>
+            <Text>You owe</Text>
+            <H4 color={"$red10Light"}>
+              ${truncateToTwoDecimalPlaces(debtAmount)}
+            </H4>
+          </YStack>
+        </XStack>
+        <View>
+          <YStack gap="$3" width={tabSectionWidth * 0.25}>
+            {owedAmount - debtAmount <= 0 ? (
+              <Text>You pay</Text>
+            ) : (
+              <Text>You receive</Text>
+            )}
 
-          <H3
-            color={
-              owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
-            }
-          >
-            ${truncateToTwoDecimalPlaces(settleAmount)}
-          </H3>
-        </YStack>
-        <YStack gap="$3" width={tabSectionWidth * 0.25}>
-          <Text>You are owed</Text>
-          <H3 color={"$green10Light"}>
-            ${truncateToTwoDecimalPlaces(owedAmount)}
-          </H3>
-        </YStack>
-        <YStack gap="$3" width={tabSectionWidth * 0.25}>
-          <Text>You owe</Text>
-          <H3 color={"$red10Light"}>
-            ${truncateToTwoDecimalPlaces(debtAmount)}
-          </H3>
-        </YStack>
+            <H4
+              color={
+                owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
+              }
+            >
+              ${truncateToTwoDecimalPlaces(settleAmount)}
+            </H4>
+          </YStack>
+        </View>
       </XStack>
       <XStack height={cardsSectionHeight} backgroundColor={"white"}>
         <SettleMemberCard
