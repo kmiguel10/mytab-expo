@@ -10,6 +10,9 @@ import {
   YStack,
   useWindowDimensions,
   View,
+  YGroup,
+  ListItem,
+  H1,
 } from "tamagui";
 import {
   Member,
@@ -18,9 +21,14 @@ import {
   SettlementInfo,
   Transaction,
 } from "@/types/global";
-import { findUserDisplayName, roundToNearestTenth } from "@/lib/helpers";
+import {
+  findUserAvatar,
+  findUserDisplayName,
+  roundToNearestTenth,
+} from "@/lib/helpers";
 import UserSettlementsSheet from "./user-settlements-sheet";
 import { Pressable } from "react-native";
+import Avatar from "@/components/login/avatar";
 
 interface Props extends CardProps {
   members: SettleCardInfo[];
@@ -56,6 +64,9 @@ const SettleMemberCard: React.FC<Props> = ({
   const [selectedUserAvatarUrl, setSelectedUserAvatarUrl] = useState("");
   const [currentUserAvatarUrl, setCurrentUserAvatarUrl] = useState("");
 
+  const [selectedUserName, setSelectedUserName] = useState("");
+  const [currentUserName, setCurrentUserName] = useState("");
+
   /** - - - - - - - - - - Functions - - - - - - - - */
   const setSelectedUserSettlements = (selectedMember: string) => {
     const currentUserSettlements: SettlementInfo[] =
@@ -79,12 +90,22 @@ const SettleMemberCard: React.FC<Props> = ({
     let _currentUserAvatarUrl = getAvatarUrl(currentUser, membersInfo);
     let _selectedUserAvatarUrl = getAvatarUrl(selectedMember, membersInfo);
 
+    let _currentUserName = getMemberName(currentUser, membersInfo);
+    let _selectedUserName = getMemberName(selectedMember, membersInfo);
+
     if (_currentUserAvatarUrl) {
       setCurrentUserAvatarUrl(_currentUserAvatarUrl);
     }
-
     if (_selectedUserAvatarUrl) {
       setSelectedUserAvatarUrl(_selectedUserAvatarUrl);
+    }
+
+    if (_currentUserName) {
+      setCurrentUserName(_currentUserName);
+    }
+
+    if (_selectedUserName) {
+      setSelectedUserName(_selectedUserName);
     }
 
     setOpenSettlementsSheet(true);
@@ -168,9 +189,18 @@ const SettleMemberCard: React.FC<Props> = ({
     );
   };
 
+  const getMemberName = (userId: string, members: Member[]): string | null => {
+    return (
+      members.find((member) => member.userid === userId)?.displayName ?? null
+    );
+  };
+
   /** - - - - - - - - - - Functions - - - - - - - - */
 
   /** - - - - - - - - - - useEffects - - - - - - - - */
+  useEffect(() => {
+    console.log("members", members);
+  }, [members]);
 
   return (
     <View>
@@ -187,13 +217,47 @@ const SettleMemberCard: React.FC<Props> = ({
             <Pressable
               onPress={() => setSelectedUserSettlements(member.member)}
             >
-              <XStack
+              <YGroup
+                alignSelf="center"
+                bordered
+                width={windowWidth * 0.9}
+                size="$4"
+                key={index}
+              >
+                <YGroup.Item>
+                  <ListItem
+                    hoverTheme
+                    icon={
+                      <Avatar
+                        url={getAvatarUrl(member.member, membersInfo)}
+                        size="$4.5"
+                      />
+                    }
+                    title={findUserDisplayName(member.member, membersInfo)}
+                    subTitle={
+                      member.owed - member.debt >= 0 ? "Owes you" : "You owe"
+                    }
+                    iconAfter={
+                      <H4
+                        color={
+                          member.owed - member.debt >= 0
+                            ? "$green10Light"
+                            : "$red10Light"
+                        }
+                      >
+                        ${member.settleAmount}
+                      </H4>
+                    }
+                  />
+                </YGroup.Item>
+              </YGroup>
+              {/* <XStack
                 padding="$1"
                 backgroundColor={"transparent"}
                 justifyContent="center"
                 key={index}
               >
-                <Card
+                 <Card
                   elevate
                   shadowColor={"$backgroundTransparent"}
                   size="$3"
@@ -233,9 +297,9 @@ const SettleMemberCard: React.FC<Props> = ({
                       <Text>${roundToNearestTenth(member.debt)}</Text>
                     </XStack>
                   </YStack>
-                  {/* <Card.Footer padded></Card.Footer> */}
-                </Card>
-              </XStack>
+     
+                </Card> 
+              </XStack> */}
             </Pressable>
           ))}
           {members.length % 2 !== 0 && (
@@ -255,6 +319,8 @@ const SettleMemberCard: React.FC<Props> = ({
         currentUserSettlements={currentUserSettlementInfo || null}
         currentUserUrl={currentUserAvatarUrl}
         selectedUserUrl={selectedUserAvatarUrl}
+        currentUserName={currentUserName}
+        selectedUserName={selectedUserName}
       />
     </View>
   );

@@ -17,8 +17,8 @@ export default function Avatar({ url, size = "$3", onUpload }: Props) {
 
   useEffect(() => {
     if (url) downloadImage(url);
-    console.log("URL", url);
-    console.log("avatar_url: ", avatarUrl);
+    // console.log("URL", url);
+    // console.log("avatar_url: ", avatarUrl);
   }, [url]);
 
   async function downloadImage(path: string) {

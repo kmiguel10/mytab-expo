@@ -55,6 +55,7 @@ const MyTab: React.FC<Props> = ({
 
   useEffect(() => {
     if (myTabInfo) {
+      console.log("My Tab Info: ", myTabInfo);
       const {
         owedAmount: _owed,
         debtAmount: _debt,
@@ -91,16 +92,16 @@ const MyTab: React.FC<Props> = ({
               owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
             }
           >
-            ${roundToNearestTenth(settleAmount)}
+            ${settleAmount}
           </H3>
         </YStack>
         <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You are owed</Text>
-          <H3 color={"$green10Light"}>${roundToNearestTenth(owedAmount)}</H3>
+          <H3 color={"$green10Light"}>${owedAmount}</H3>
         </YStack>
         <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You owe</Text>
-          <H3 color={"$red10Light"}>${roundToNearestTenth(debtAmount)}</H3>
+          <H3 color={"$red10Light"}>${debtAmount}</H3>
         </YStack>
       </XStack>
       <XStack height={cardsSectionHeight} backgroundColor={"white"}>

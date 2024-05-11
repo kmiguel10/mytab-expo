@@ -148,14 +148,6 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
               key={index}
             >
               <Pressable
-                // href={{
-                //   pathname: `/pages/edit-transaction`,
-                //   params: {
-                //     txnId: txn.id || "",
-                //     billId: txn.billid,
-                //     currentUser: currentUser,
-                //   },
-                // }}
                 onPress={() => onTransactionClick(`${txn.id}`)}
                 disabled={isLocked}
               >
