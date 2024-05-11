@@ -146,8 +146,8 @@ export const getActiveTransactions = async (billId: string) => {
       .from("transactions")
       .select("*")
       .eq("billid", billId)
-      .eq("isdeleted", false);
-
+      .eq("isdeleted", false)
+      .order("createdat", { ascending: false });
     if (error) {
       throw new Error(error.message);
     }

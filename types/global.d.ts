@@ -92,7 +92,7 @@ type Transaction = {
   billid: number;
   submittedbyid: string;
   payerid: string | null;
-  createdate?: string;
+  createdat?: Date;
   amount: number;
   name: string;
   notes: string | null;

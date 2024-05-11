@@ -1,7 +1,11 @@
 import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 import Avatar from "@/components/login/avatar";
 import { getActiveTransactions } from "@/lib/api";
-import { findUserAvatar, findUserDisplayName } from "@/lib/helpers";
+import {
+  findUserAvatar,
+  findUserDisplayName,
+  formatDateToMonthDay,
+} from "@/lib/helpers";
 import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
@@ -10,6 +14,7 @@ import {
   H1,
   ListItem,
   ScrollView,
+  Text,
   View,
   XStack,
   YGroup,
@@ -73,20 +78,6 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
       setTransactions(transactionData);
     }
   };
-
-  // const findUserAvatar = (payerId: string | null) => {
-  //   if (!payerId) return "";
-  //   const member = members.find((member) => member.userid === payerId);
-
-  //   return member ? member.avatar_url : "";
-  // };
-
-  // const findUserDisplayName = (payerId: string | null) => {
-  //   if (!payerId) return "";
-  //   const member = members.find((member) => member.userid === payerId);
-
-  //   return member ? member.displayName : "";
-  // };
 
   const onTransactionClick = (txnId: string) => {
     resetToasts();
@@ -161,10 +152,17 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                     <ListItem
                       hoverTheme
                       icon={
-                        <Avatar
-                          url={findUserAvatar(txn.payerid, members)}
-                          size="$4.5"
-                        />
+                        <XStack gap="$2" alignItems="center">
+                          <Text fontSize="$1" alignItems="center">
+                            {txn.createdat
+                              ? formatDateToMonthDay(new Date(txn.createdat))
+                              : "N/A"}
+                          </Text>
+                          <Avatar
+                            url={findUserAvatar(txn.payerid, members)}
+                            size="$4.5"
+                          />
+                        </XStack>
                       }
                       title={txn.name}
                       subTitle={`Paid by: ${findUserDisplayName(
