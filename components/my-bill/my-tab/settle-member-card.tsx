@@ -25,6 +25,7 @@ import {
   findUserAvatar,
   findUserDisplayName,
   roundToNearestTenth,
+  truncateToTwoDecimalPlaces,
 } from "@/lib/helpers";
 import UserSettlementsSheet from "./user-settlements-sheet";
 import { Pressable } from "react-native";
@@ -245,61 +246,15 @@ const SettleMemberCard: React.FC<Props> = ({
                             : "$red10Light"
                         }
                       >
-                        ${member.settleAmount}
+                        $
+                        {truncateToTwoDecimalPlaces(
+                          Math.abs(member.owed - member.debt)
+                        )}
                       </H4>
                     }
                   />
                 </YGroup.Item>
               </YGroup>
-              {/* <XStack
-                padding="$1"
-                backgroundColor={"transparent"}
-                justifyContent="center"
-                key={index}
-              >
-                 <Card
-                  elevate
-                  shadowColor={"$backgroundTransparent"}
-                  size="$3"
-                  bordered
-                  key={index}
-                  width={windowWidth * 0.9}
-                  backgroundColor={
-                    member.owed - member.debt >= 0
-                      ? "$green5Light"
-                      : "$red5Light"
-                  }
-                  {...props}
-                >
-                  <Card.Header padded>
-                    <XStack justifyContent="space-between">
-                      <Text paddingTop="$2">
-                        {findUserDisplayName(member.member, membersInfo)}
-                      </Text>
-                      <H4
-                        color={
-                          member.owed - member.debt >= 0
-                            ? "$green10Light"
-                            : "$red10Light"
-                        }
-                      >
-                        ${roundToNearestTenth(member.settleAmount)}
-                      </H4>
-                    </XStack>
-                  </Card.Header>
-                  <YStack padding="$3">
-                    <XStack justifyContent="space-between">
-                      <Text>Owes you: </Text>
-                      <Text>${roundToNearestTenth(member.owed)}</Text>
-                    </XStack>
-                    <XStack justifyContent="space-between">
-                      <Text>You owe: </Text>
-                      <Text>${roundToNearestTenth(member.debt)}</Text>
-                    </XStack>
-                  </YStack>
-     
-                </Card> 
-              </XStack> */}
             </Pressable>
           ))}
           {members.length % 2 !== 0 && (

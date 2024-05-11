@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
 } from "tamagui";
 import Avatar from "../login/avatar";
+import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
@@ -43,7 +44,9 @@ const SplitView: React.FC<Props> = ({
                 <ListItem
                   title={member.displayName}
                   icon={<Avatar url={member.avatarUrl} size="$3.5" />}
-                  iconAfter={<Text>${member.amount}</Text>}
+                  iconAfter={
+                    <Text>${truncateToTwoDecimalPlaces(member.amount)}</Text>
+                  }
                 />
               </YGroup.Item>
             </YGroup>

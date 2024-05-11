@@ -1,5 +1,9 @@
 import { getMyTabInfo } from "@/lib/api";
-import { getMyTabHeaderAmounts, roundToNearestTenth } from "@/lib/helpers";
+import {
+  getMyTabHeaderAmounts,
+  roundToNearestTenth,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { Member, MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { H3, Text, View, XStack, YStack } from "tamagui";
@@ -92,16 +96,20 @@ const MyTab: React.FC<Props> = ({
               owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
             }
           >
-            ${settleAmount}
+            ${truncateToTwoDecimalPlaces(settleAmount)}
           </H3>
         </YStack>
         <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You are owed</Text>
-          <H3 color={"$green10Light"}>${owedAmount}</H3>
+          <H3 color={"$green10Light"}>
+            ${truncateToTwoDecimalPlaces(owedAmount)}
+          </H3>
         </YStack>
         <YStack gap="$3" width={tabSectionWidth * 0.25}>
           <Text>You owe</Text>
-          <H3 color={"$red10Light"}>${debtAmount}</H3>
+          <H3 color={"$red10Light"}>
+            ${truncateToTwoDecimalPlaces(debtAmount)}
+          </H3>
         </YStack>
       </XStack>
       <XStack height={cardsSectionHeight} backgroundColor={"white"}>

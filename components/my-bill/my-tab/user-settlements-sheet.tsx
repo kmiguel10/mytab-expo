@@ -1,4 +1,5 @@
 import Avatar from "@/components/login/avatar";
+import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import { SettlementInfo } from "@/types/global";
 import { SeparatorHorizontal } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
@@ -118,9 +119,13 @@ const UserSettlementsSheet: React.FC<Props> = ({
               <Text>Settlement Amount</Text>
               <H3 textAlign="right">
                 {settlementAmount < 0 ? (
-                  <H3 color={"$red10Light"}>${Math.abs(settlementAmount)}</H3>
+                  <H3 color={"$red10Light"}>
+                    ${truncateToTwoDecimalPlaces(Math.abs(settlementAmount))}
+                  </H3>
                 ) : (
-                  <H3 color={"$green10Light"}>{Math.abs(settlementAmount)}</H3>
+                  <H3 color={"$green10Light"}>
+                    {truncateToTwoDecimalPlaces(Math.abs(settlementAmount))}
+                  </H3>
                 )}
               </H3>
             </YStack>
@@ -135,7 +140,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             <YStack>
               <Text>Total Amount</Text>
               <H3 textAlign="right" color={"$red10Light"}>
-                ${selectedMemberSettlementSum}
+                ${truncateToTwoDecimalPlaces(selectedMemberSettlementSum)}
               </H3>
             </YStack>
           </XStack>
@@ -153,7 +158,11 @@ const UserSettlementsSheet: React.FC<Props> = ({
                 <ListItem
                   hoverTheme
                   title={settlements.transactionName}
-                  iconAfter={<H1>${settlements.userSplitAmount}</H1>}
+                  iconAfter={
+                    <H1>
+                      ${truncateToTwoDecimalPlaces(settlements.userSplitAmount)}
+                    </H1>
+                  }
                 />
               </YGroup.Item>
             </YGroup>
@@ -168,7 +177,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             <YStack>
               <Text>Total Amount</Text>
               <H3 textAlign="right" color={"$green10Light"}>
-                ${currentUserSettlementSum}
+                ${truncateToTwoDecimalPlaces(currentUserSettlementSum)}
               </H3>
             </YStack>
           </XStack>
@@ -186,7 +195,11 @@ const UserSettlementsSheet: React.FC<Props> = ({
                 <ListItem
                   hoverTheme
                   title={settlements.transactionName}
-                  iconAfter={<H1>${settlements.userSplitAmount}</H1>}
+                  iconAfter={
+                    <H1>
+                      ${truncateToTwoDecimalPlaces(settlements.userSplitAmount)}
+                    </H1>
+                  }
                 />
               </YGroup.Item>
             </YGroup>

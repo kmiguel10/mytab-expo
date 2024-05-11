@@ -66,7 +66,11 @@ export const getMyTabHeaderAmounts = ({
     }
   }
 
-  console.log("owedAmount, debtAmount :", owedAmount, debtAmount);
+  console.log(
+    "getMyTabHeaderAmounts: owedAmount, debtAmount :",
+    owedAmount,
+    debtAmount
+  );
 
   return { owedAmount, debtAmount, settleMembersInfo };
 };
@@ -115,4 +119,8 @@ export const filterUserTransactions = (
   return transactions.filter(
     (transaction) => transaction.payerid === member.userid
   );
+};
+
+export const truncateToTwoDecimalPlaces = (amount: number): number => {
+  return Math.trunc(amount * 100) / 100;
 };
