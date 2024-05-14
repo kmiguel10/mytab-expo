@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import Onboard from "@/components/login/onboard";
 import { ProfileInfo } from "@/types/global";
 import { getProfileInfo } from "@/lib/api";
+// import "react-native-reanimated";
+// import "react-native-gesture-handler";
 
 const Page = () => {
   const [session, setSession] = useState<Session | null>(null);

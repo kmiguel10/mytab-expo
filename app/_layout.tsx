@@ -1,5 +1,7 @@
 import "../tamagui-web.css";
 import "expo-dev-client";
+// import "react-native-reanimated";
+// import "react-native-gesture-handler";
 
 import {
   DarkTheme,

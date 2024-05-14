@@ -18,6 +18,10 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import Avatar from "@/components/login/avatar";
 import React from "react";
 
+// import "react-native-reanimated";
+// import "react-native-gesture-handler";
+import { Skeleton } from "moti/skeleton";
+
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
@@ -152,8 +156,28 @@ const Home = () => {
           paddingVertical="$4"
           paddingHorizontal="$4"
         >
-          <Avatar url={avatarUrl} size={"$6"} />
-          <Text>{profileInfo?.displayName}</Text>
+          <Skeleton
+            height={64}
+            width={64}
+            radius="round"
+            show={!avatarUrl}
+            colorMode="light"
+          >
+            <Avatar url={avatarUrl} size={"$6"} />
+          </Skeleton>
+          <Skeleton
+            height={24}
+            width={windowWidth * 0.8}
+            radius="round"
+            show={!profileInfo?.displayName}
+            colorMode="light"
+          >
+            {!!profileInfo?.displayName ? (
+              <Text>{profileInfo?.displayName}</Text>
+            ) : (
+              ""
+            )}
+          </Skeleton>
         </HeaderContainer>
         <BodyContainer height={windowHeight * 0.62}>
           <TabsAdvancedUnderline
