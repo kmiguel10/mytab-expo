@@ -235,6 +235,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                         size="$3"
                         hoverStyle={{ scale: 0.925 }}
                         pressStyle={{ scale: 0.875 }}
+                        show={loadingBills}
                       />
                     </XStack>
                   )}

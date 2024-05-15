@@ -6,6 +6,7 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
 import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
+import BillHeaderSkeleton from "@/components/skeletons/bill-header-skeleton";
 import {
   getActiveTransactions,
   getBillInfo,
@@ -34,6 +35,7 @@ const BillScreen = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
+  const [loadingSummaryInfo, setLoadingSummaryInfo] = useState(true);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   //const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -102,10 +104,11 @@ const BillScreen = () => {
       if (id) {
         const data = await getBillSummaryInfo(Number(id));
         setSummaryInfo(data);
+
+        if (data) setLoadingSummaryInfo(false);
       }
     }
     fetchSummaryInfo();
-    console.log("Summary Info: ", JSON.stringify(summaryInfo));
   }, [id, transactions]);
 
   /**Fetch members of the bill */
@@ -188,12 +191,21 @@ const BillScreen = () => {
       />
       <YStack padding="$2" gap="$2">
         <HeaderContainer height={windowHeight * 0.15}>
-          <HeaderInfo
-            summaryInfo={summaryInfo}
-            billName={billInfo[0]?.name}
-            height={windowHeight * 0.15}
-            width={windowWidth}
-          />
+          {!loadingSummaryInfo ? (
+            <HeaderInfo
+              summaryInfo={summaryInfo}
+              billName={billInfo[0]?.name}
+              height={windowHeight * 0.15}
+              width={windowWidth}
+            />
+          ) : (
+            <BillHeaderSkeleton
+              height={windowHeight * 0.15}
+              width={windowWidth}
+              show={true}
+              colorMode={"light"}
+            />
+          )}
         </HeaderContainer>
         <BodyContainer height={windowHeight * 0.62}>
           <UnderlinedTabs

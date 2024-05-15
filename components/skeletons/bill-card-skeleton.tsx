@@ -6,11 +6,12 @@ interface Props extends CardProps {
   //   width: number;
   //   height: number;
   //   scale: number;
+  show: boolean;
 }
 
-const BillCardSkeleton: React.FC<Props> = ({ ...props }) => {
+const BillCardSkeleton: React.FC<Props> = ({ show, ...props }) => {
   return (
-    <Skeleton.Group show={true}>
+    <Skeleton.Group show={show}>
       <YStack space="$4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card
