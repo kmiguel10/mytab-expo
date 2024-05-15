@@ -1,16 +1,6 @@
+import { MemberData } from "@/types/global";
 import React, { forwardRef } from "react";
-import {
-  Card,
-  CardProps,
-  H4,
-  Paragraph,
-  XStack,
-  Button,
-  Text,
-  View,
-  Separator,
-} from "tamagui";
-import { BillData, MemberData } from "@/types/global";
+import { Card, CardProps, H4, Text, View, XStack } from "tamagui";
 import Avatar from "../login/avatar";
 
 interface Props extends CardProps {
@@ -89,13 +79,11 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
         <XStack justifyContent="center">
           {bill.memberUrls.map((url, index) => (
             <View key={`${url}-${index}`}>
-              <Avatar url={url} isMemberIcon={true} />
+              <Avatar url={url} size="$3" />
             </View>
           ))}
         </XStack>
       </Card.Footer>
-      {/* <Text>{JSON.stringify(bill)}</Text> */}
-      <Card.Background></Card.Background>
     </Card>
   );
 };

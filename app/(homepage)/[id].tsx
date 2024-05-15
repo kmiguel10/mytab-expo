@@ -26,6 +26,7 @@ const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
+  const [loadingBills, setLoadingBills] = useState(true);
   const [newBill, setNewBill] = useState<MemberData | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -47,6 +48,7 @@ const Home = () => {
           member.isMemberIncluded === true || member.isRequestSent === true
       );
       setBills(filteredBillsData);
+      setLoadingBills(false);
       setRefreshing(false);
 
       if (newBillId || joinedBillCode) {
@@ -187,6 +189,7 @@ const Home = () => {
             width={windowWidth * 0.95}
             setRefreshing={setRefreshing}
             refreshing={refreshing}
+            loadingBills={loadingBills}
           />
         </BodyContainer>
       </YStack>

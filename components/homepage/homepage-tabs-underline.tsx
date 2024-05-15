@@ -17,8 +17,10 @@ import {
   YStack,
 } from "tamagui";
 import BillCard from "./bill-card";
+import BillCardSkeleton from "../skeletons/bill-card-skeleton";
 interface Props {
   bills: MemberData[];
+  loadingBills: boolean;
   userId: string;
   height: number;
   width: number;
@@ -27,6 +29,7 @@ interface Props {
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
+  loadingBills,
   userId,
   height,
   width,
@@ -183,39 +186,58 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                     />
                   }
                 >
-                  {bills.map((item, index) => (
+                  {!loadingBills ? (
+                    bills.map((item, index) => (
+                      <XStack
+                        key={`${item.memberid}-${index}`}
+                        backgroundColor="transparent"
+                        justifyContent="center"
+                        padding="$1.5"
+                      >
+                        <Link
+                          key={`${item.memberid}-${index}`}
+                          href={{
+                            pathname: `/(bill)/${item.billid}`,
+                            params: { userId: userId },
+                          }}
+                          disabled={
+                            item.isRequestSent && item.ownerid !== userId
+                          }
+                          asChild
+                        >
+                          <BillCard
+                            key={`${item.memberid}-${index}`}
+                            animation="bouncy"
+                            size="$3"
+                            width={360}
+                            height={110}
+                            scale={0.9}
+                            hoverStyle={{ scale: 0.925 }}
+                            pressStyle={{ scale: 0.875 }}
+                            bill={item}
+                            membership={
+                              item.ownerid === userId ? "Owner" : "Member"
+                            }
+                          />
+                        </Link>
+                      </XStack>
+                    ))
+                  ) : (
                     <XStack
-                      key={`${item.memberid}-${index}`}
                       backgroundColor="transparent"
                       justifyContent="center"
                       padding="$1.5"
                     >
-                      <Link
-                        key={`${item.memberid}-${index}`}
-                        href={{
-                          pathname: `/(bill)/${item.billid}`,
-                          params: { userId: userId },
-                        }}
-                        disabled={item.isRequestSent && item.ownerid !== userId}
-                        asChild
-                      >
-                        <BillCard
-                          key={`${item.memberid}-${index}`}
-                          animation="bouncy"
-                          size="$3"
-                          width={360}
-                          height={110}
-                          scale={0.9}
-                          hoverStyle={{ scale: 0.925 }}
-                          pressStyle={{ scale: 0.875 }}
-                          bill={item}
-                          membership={
-                            item.ownerid === userId ? "Owner" : "Member"
-                          }
-                        />
-                      </Link>
+                      <BillCardSkeleton
+                        width={360}
+                        height={110}
+                        scale={0.9}
+                        size="$3"
+                        hoverStyle={{ scale: 0.925 }}
+                        pressStyle={{ scale: 0.875 }}
+                      />
                     </XStack>
-                  ))}
+                  )}
                 </ScrollView>
               ) : (
                 <H6> "Inactive Test This"</H6>
