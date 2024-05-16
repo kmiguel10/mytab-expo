@@ -15,6 +15,7 @@ import {
 import Summary from "../summary/summary";
 import TransactionInfoCard from "../transactions/transaction-info-card";
 import MyTab from "./MyTab";
+import TransactionCardSkeleton from "@/components/skeletons/transaction-card-skeleton";
 
 interface Props {
   transactions: Transaction[];
@@ -28,6 +29,7 @@ interface Props {
   setTransactions: (transactions: Transaction[]) => void;
   isLocked: boolean;
   billOwnerId: string;
+  loadingTransactions: boolean;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -42,6 +44,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   setTransactions,
   isLocked,
   billOwnerId,
+  loadingTransactions,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -200,18 +203,24 @@ const UnderlinedTabs: React.FC<Props> = ({
               paddingTop="$2"
             >
               {currentTab === "Transactions" && (
-                <TransactionInfoCard
-                  transactions={transactions}
-                  setTransactions={setTransactions}
-                  currentUser={userId}
-                  members={members}
-                  animation="bouncy"
-                  hoverStyle={{ scale: 0.925 }}
-                  pressStyle={{ scale: 0.875 }}
-                  resetToasts={resetToastMessageStates}
-                  isLocked={isLocked}
-                  billOwnerId={billOwnerId}
-                />
+                <>
+                  {loadingTransactions ? (
+                    <TransactionCardSkeleton show={false} colorMode={"light"} />
+                  ) : (
+                    <TransactionInfoCard
+                      transactions={transactions}
+                      setTransactions={setTransactions}
+                      currentUser={userId}
+                      members={members}
+                      animation="bouncy"
+                      hoverStyle={{ scale: 0.925 }}
+                      pressStyle={{ scale: 0.875 }}
+                      resetToasts={resetToastMessageStates}
+                      isLocked={isLocked}
+                      billOwnerId={billOwnerId}
+                    />
+                  )}
+                </>
               )}
               {currentTab === "Summary" && (
                 <Summary

@@ -34,6 +34,7 @@ const BillScreen = () => {
 
   const [members, setMembers] = useState<Member[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransactions, setloadingTransactions] = useState(true);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
   const [loadingSummaryInfo, setLoadingSummaryInfo] = useState(true);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
@@ -130,6 +131,7 @@ const BillScreen = () => {
           id.toString()
         );
         setTransactions(transactionData);
+        if (transactionData) setloadingTransactions(false);
       }
     }
     fetchTransactions();
@@ -220,6 +222,7 @@ const BillScreen = () => {
             setTransactions={setTransactions}
             isLocked={billInfo[0]?.isLocked}
             billOwnerId={billInfo[0]?.ownerid}
+            loadingTransactions={loadingTransactions}
           />
         </BodyContainer>
       </YStack>
