@@ -1,14 +1,20 @@
 import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
 import Avatar from "@/components/login/avatar";
-import { Member, Transaction, Split } from "@/types/global";
-import { Link } from "expo-router";
+import { getActiveTransactions } from "@/lib/api";
+import {
+  findUserAvatar,
+  findUserDisplayName,
+  formatDateToMonthDay,
+} from "@/lib/helpers";
+import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, RefreshControl } from "react-native";
 import {
   CardProps,
   H1,
   ListItem,
   ScrollView,
+  Text,
   View,
   XStack,
   YGroup,
@@ -20,12 +26,25 @@ interface Props extends CardProps {
   members: Member[];
   currentUser: string;
   resetToasts: () => void;
+  setTransactions: (transactions: Transaction[]) => void;
+  isLocked: boolean;
+  billOwnerId: string;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
   HTMLDivElement,
   Props
-> = ({ transactions, currentUser, members, resetToasts, ...props }) => {
+> = ({
+  transactions,
+  currentUser,
+  members,
+  resetToasts,
+  setTransactions,
+  isLocked,
+  billOwnerId,
+  ...props
+}) => {
+  /** ---------- States ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
   const [currentTxnToEdit, setCurrentTxnToEdit] = useState<Transaction>({
     billid: 0,
@@ -37,20 +56,27 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     split: [],
     isdeleted: false,
   });
+
+  const [refreshing, setRefreshing] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
-  const findUserAvatar = (payerId: string | null) => {
-    if (!payerId) return "";
-    const member = members.find((member) => member.userid === payerId);
-
-    return member ? member.avatar_url : "";
+  /** ---------- Functions  ---------- */
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    fetchTransactions();
   };
 
-  const findUserDisplayName = (payerId: string | null) => {
-    if (!payerId) return "";
-    const member = members.find((member) => member.userid === payerId);
-
-    return member ? member.displayName : "";
+  const fetchTransactions = async () => {
+    if (currentUser) {
+      const transactionData: Transaction[] = await getActiveTransactions(
+        transactions ? transactions[0].billid.toString() : "0"
+      );
+      console.log("currentUser", currentUser);
+      console.log("Bill id", currentTxnToEdit.billid.toString());
+      console.log("*** Fetched transactions on refresh: ", transactionData);
+      if (transactionData) setRefreshing(false);
+      setTransactions(transactionData);
+    }
   };
 
   const onTransactionClick = (txnId: string) => {
@@ -70,6 +96,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
     setOpenEditTxn(true);
 
     //set the current transaction to edit
+    console.log("--- islocked: ", isLocked);
   };
 
   useEffect(() => {
@@ -90,8 +117,12 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   }, [openEditTxn]);
 
   return (
-    <View>
-      <ScrollView>
+    <View height={"100%"}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
         <XStack
           flex={1}
           flexWrap="wrap"
@@ -108,15 +139,8 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
               key={index}
             >
               <Pressable
-                // href={{
-                //   pathname: `/pages/edit-transaction`,
-                //   params: {
-                //     txnId: txn.id || "",
-                //     billId: txn.billid,
-                //     currentUser: currentUser,
-                //   },
-                // }}
                 onPress={() => onTransactionClick(`${txn.id}`)}
+                disabled={isLocked}
               >
                 <YGroup
                   alignSelf="center"
@@ -128,10 +152,23 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                     <ListItem
                       hoverTheme
                       icon={
-                        <Avatar url={findUserAvatar(txn.payerid)} size="$4.5" />
+                        <XStack gap="$2" alignItems="center">
+                          <Text fontSize="$1" alignItems="center">
+                            {txn.createdat
+                              ? formatDateToMonthDay(new Date(txn.createdat))
+                              : "N/A"}
+                          </Text>
+                          <Avatar
+                            url={findUserAvatar(txn.payerid, members)}
+                            size="$4.5"
+                          />
+                        </XStack>
                       }
                       title={txn.name}
-                      subTitle={`Paid by: ${findUserDisplayName(txn.payerid)}`}
+                      subTitle={`Paid by: ${findUserDisplayName(
+                        txn.payerid,
+                        members
+                      )}`}
                       iconAfter={<H1>${txn.amount}</H1>}
                     />
                   </YGroup.Item>
@@ -156,6 +193,7 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
         setOpen={setOpenEditTxn}
         transaction={currentTxnToEdit}
         setCurrentTxnToEdit={setCurrentTxnToEdit}
+        billOwnerId={billOwnerId}
       />
     </View>
   );

@@ -13,10 +13,10 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
+import ConfirmDeleteTransaction from "./confirm-delete-transaction";
 import CustomSplit from "./custom-split";
 import MembersDropdown from "./members-dropdown";
 import SplitView from "./split-view";
-import { Trash2 } from "@tamagui/lucide-icons";
 
 interface Props {
   open: boolean;
@@ -24,6 +24,7 @@ interface Props {
   members: Member[];
   transaction: Transaction;
   setCurrentTxnToEdit: (txn: Transaction) => void;
+  billOwnerId: string;
 }
 
 const EditTransaction: React.FC<Props> = ({
@@ -32,10 +33,12 @@ const EditTransaction: React.FC<Props> = ({
   members,
   transaction,
   setCurrentTxnToEdit,
+  billOwnerId,
 }) => {
   const [position, setPosition] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAmountChanged, setIsAmountChanged] = useState(false);
+  const [isVisibleForUser, setIsVisibleForUser] = useState(false);
 
   // ---- test -----
   const [localTxn, setLocalTxn] = useState<Transaction>({
@@ -55,6 +58,8 @@ const EditTransaction: React.FC<Props> = ({
   >([]);
   const [isEven, setIsEven] = useState(true);
   const { width, height } = useWindowDimensions();
+
+  /** ---------- Helpers ---------- */
 
   const getDisplayName = (userId: string) => {
     const user = members.find((member) => member.userid === userId);
@@ -112,71 +117,61 @@ const EditTransaction: React.FC<Props> = ({
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
 
+    //first check if bill is locked...
+    //yes, then route to homepage
+    //no, then continue updating transaction
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .update([localTxn])
-        .eq("id", localTxn.id)
-        .select();
+      const { data: isBillLocked, error: billError } = await supabase
+        .from("bills")
+        .select("isLocked")
+        .eq("billid", localTxn.billid);
 
-      if (error) {
-        router.replace({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, errorEditMsg: error.message }, //
-        });
-      }
+      if (isBillLocked) {
+        //checks if bill is locked
+        if (isBillLocked[0].isLocked) {
+          // router.replace({
+          //   pathname: `/(bill)/${localTxn.billid}`,
+          //   params: {
+          //     userId: _userId,
+          //     errorEditMsg: "Bill is locked. It cannot be edited.",
+          //   }, //
+          // });
+          if (_userId) {
+            router.replace({
+              pathname: "/(homepage)/[id]",
+              params: { id: _userId },
+            });
+          }
+        } else {
+          const { data, error } = await supabase
+            .from("transactions")
+            .update([localTxn])
+            .eq("id", localTxn.id)
+            .select();
 
-      if (data) {
-        const editedTxn: Transaction = data[0];
-        setCurrentTxnToEdit(editedTxn);
-        setLocalTxn(editedTxn);
-        console.log("Edited Transaction: ", editedTxn);
-        router.navigate({
-          pathname: `/(bill)/${editedTxn.billid}`,
-          params: { userId: _userId, editedTxnName: editedTxn.name },
-        });
+          if (error) {
+            router.replace({
+              pathname: `/(bill)/${localTxn.billid}`,
+              params: { userId: _userId, errorEditMsg: error.message }, //
+            });
+          }
+
+          if (data) {
+            const editedTxn: Transaction = data[0];
+            setCurrentTxnToEdit(editedTxn);
+            setLocalTxn(editedTxn);
+            console.log("Edited Transaction: ", editedTxn);
+            router.replace({
+              pathname: `/(bill)/${editedTxn.billid}`,
+              params: { userId: _userId, editedTxnName: editedTxn.name },
+            });
+          }
+        }
       }
     } catch (error: any) {
       router.navigate({
         pathname: `/(bill)/${id}`,
         params: { userId: _userId, errorCreateMsg: error.message }, //
-      });
-    } finally {
-      setOpen(false);
-    }
-  };
-
-  /** Soft Delete */
-  const onDeleteTxn = async () => {
-    let _userId = userId.toString();
-    localTxn.submittedbyid = _userId;
-
-    try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .update({ isdeleted: true })
-        .eq("id", localTxn.id)
-        .select();
-
-      if (error) {
-        router.navigate({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, errorDeleteMsg: error.message }, //
-        });
-      }
-
-      if (data) {
-        const _deletedTxn: Transaction = data[0];
-        console.log("Deleted txn", _deletedTxn);
-        router.navigate({
-          pathname: `/(bill)/${localTxn.billid}`,
-          params: { userId: _userId, deletedTxnName: _deletedTxn.name },
-        });
-      }
-    } catch (error: any) {
-      router.navigate({
-        pathname: `/(bill)/${localTxn.billid}`,
-        params: { userId: _userId, errorDeleteMsg: error.message }, //
       });
     } finally {
       setOpen(false);
@@ -241,7 +236,6 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   /**  - - - - - Use Effect - - - - -*/
-
   useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
@@ -257,11 +251,6 @@ const EditTransaction: React.FC<Props> = ({
     }
   }, [localTxn.amount]);
 
-  //   useEffect(() => {
-  //     console.log("Txn to Edit", localTxn);
-  //     setCurrentTxnToEdit(localTxn);
-  //   }, [localTxn, open]);
-
   //reset localTxn on open and close of modal
   useEffect(() => {
     // Reset localTxn values when modal is opened
@@ -272,13 +261,25 @@ const EditTransaction: React.FC<Props> = ({
     }
   }, [open, transaction]);
 
+  //component is visible to user if user is the bill owner or transaction payer
+  useEffect(() => {
+    console.log("userId", userId);
+    console.log("billOwnerId", billOwnerId);
+    console.log("localTxn.payerid", localTxn.payerid);
+    if (userId === billOwnerId || userId === localTxn.payerid) {
+      setIsVisibleForUser(true);
+    } else {
+      setIsVisibleForUser(false);
+    }
+  }, [localTxn, userId, billOwnerId]);
+
   return (
     <Sheet
       forceRemoveScrollEnabled={open}
       modal={true}
       open={open}
       onOpenChange={() => setOpen(!open)}
-      snapPoints={isExpanded ? [80, 50, 25] : [90, 50, 25]}
+      snapPoints={isExpanded ? [80, 50] : [90, 50]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       position={position}
@@ -305,33 +306,29 @@ const EditTransaction: React.FC<Props> = ({
           padding="$3"
           justifyContent="center"
         >
-          <XStack justifyContent="space-between">
-            <StyledButton
-              color={"$red10Light"}
-              onPress={onDeleteTxn}
-              icon={<Trash2 size={"$1"} />}
-              width={width * 0.25}
-            />
-            <Form.Trigger asChild>
-              <StyledButton
-                width={width * 0.25}
-                size={"$3.5"}
-                active={!!(localTxn.name && localTxn.amount)}
-                disabled={!(localTxn.name && localTxn.amount)}
-              >
-                Submit
-              </StyledButton>
-            </Form.Trigger>
-            {/* <Text>
-              Active {!!(localTxn.name && localTxn.amount)}
-            </Text> */}
-            {/* <Text>
-              disabled {!(localTxn.name && localTxn.amount)}
-            </Text> */}
-          </XStack>
+          {isVisibleForUser && (
+            <XStack justifyContent="space-between">
+              <ConfirmDeleteTransaction
+                userId={userId.toString()}
+                transaction={localTxn}
+                setOpen={setOpen}
+              />
+              <Form.Trigger asChild>
+                <StyledButton
+                  width={width * 0.25}
+                  size={"$3.5"}
+                  active={!!(localTxn.name && localTxn.amount)}
+                  disabled={!(localTxn.name && localTxn.amount)}
+                >
+                  Submit
+                </StyledButton>
+              </Form.Trigger>
+            </XStack>
+          )}
+
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="amount-input"
+              id="edit-amount-input"
               placeholder="0"
               keyboardType="numeric"
               value={localTxn.amount.toString()}
@@ -342,6 +339,7 @@ const EditTransaction: React.FC<Props> = ({
               borderWidth="0"
               autoFocus={true}
               clearTextOnFocus={false}
+              disabled={!isVisibleForUser}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -350,12 +348,13 @@ const EditTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="localTxn-name"
+                id="local-txn-name"
                 placeholder="Enter name"
                 defaultValue=""
                 value={localTxn.name}
                 error={!localTxn.name}
                 onChangeText={handleNameChange}
+                disabled={!isVisibleForUser}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -366,19 +365,23 @@ const EditTransaction: React.FC<Props> = ({
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
+                isVisibleToUser={isVisibleForUser}
               />
             </Fieldset>
           </XStack>
-          <XStack justifyContent="flex-end" paddingTop="$4">
-            <CustomSplit
-              memberSplits={localTxn.split}
-              amount={localTxn.amount}
-              onSaveSplits={handleSaveSplits}
-              setIsEven={setIsEven}
-              includedMembers={includedMembers}
-              isDisabled={!!(localTxn.name && localTxn.amount)}
-            />
-          </XStack>
+          {isVisibleForUser && (
+            <XStack justifyContent="flex-end" paddingTop="$4">
+              <CustomSplit
+                memberSplits={localTxn.split}
+                amount={localTxn.amount}
+                onSaveSplits={handleSaveSplits}
+                setIsEven={setIsEven}
+                includedMembers={includedMembers}
+                isDisabled={!!(localTxn.name && localTxn.amount)}
+              />
+            </XStack>
+          )}
+
           <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>

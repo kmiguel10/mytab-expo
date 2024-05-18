@@ -1,32 +1,32 @@
-import { Button, XStack, YStack } from "tamagui";
+import { YStack } from "tamagui";
 
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/homepage/join-bill";
-import {
-  getBillsForUserId,
-  getProfileInfo,
-  getBillsForUserIdWithUrls,
-} from "@/lib/api";
-import { BillData, MemberData, ProfileInfo } from "@/types/global";
-import { Toast, ToastProvider, ToastViewport } from "@tamagui/toast";
+import { getBillsForUserIdWithUrls, getProfileInfo } from "@/lib/api";
+import { MemberData, ProfileInfo } from "@/types/global";
+import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { useWindowDimensions } from "react-native";
-import { Text, View } from "tamagui";
+import { Text } from "tamagui";
 
-import React from "react";
-import { OuterContainer } from "@/components/containers/outer-container";
-import { FooterContainer } from "@/components/containers/footer-container";
 import { BodyContainer } from "@/components/containers/body-container";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Avatar from "@/components/login/avatar";
+import { FooterContainer } from "@/components/containers/footer-container";
 import { HeaderContainer } from "@/components/containers/header-container";
+import { OuterContainer } from "@/components/containers/outer-container";
+import Avatar from "@/components/login/avatar";
+import React from "react";
+
+// import "react-native-reanimated";
+// import "react-native-gesture-handler";
+import { Skeleton } from "moti/skeleton";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
+  const [loadingBills, setLoadingBills] = useState(true);
   const [newBill, setNewBill] = useState<MemberData | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -35,6 +35,7 @@ const Home = () => {
 
   const timerRef = React.useRef(0);
   const [error, setError] = useState("") || null;
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     console.log("*** Homepage: Fetch bills for user", id);
@@ -47,6 +48,8 @@ const Home = () => {
           member.isMemberIncluded === true || member.isRequestSent === true
       );
       setBills(filteredBillsData);
+      setLoadingBills(false);
+      setRefreshing(false);
 
       if (newBillId || joinedBillCode) {
         let newBill: MemberData = {
@@ -118,7 +121,7 @@ const Home = () => {
 
     fetchBills();
     setError(errorMessage?.toString());
-  }, [id, newBillId, joinedBillCode, errorMessage]);
+  }, [id, newBillId, joinedBillCode, errorMessage, refreshing]);
 
   useEffect(() => {
     const fetchprofileInfo = async () => {
@@ -155,27 +158,38 @@ const Home = () => {
           paddingVertical="$4"
           paddingHorizontal="$4"
         >
-          <Avatar url={avatarUrl} size={"$6"} />
-          <Text>{profileInfo?.displayName}</Text>
+          <Skeleton
+            height={64}
+            width={64}
+            radius="round"
+            show={!avatarUrl}
+            colorMode="light"
+          >
+            <Avatar url={avatarUrl} size={"$6"} />
+          </Skeleton>
+          <Skeleton
+            height={24}
+            width={windowWidth * 0.8}
+            radius="round"
+            show={!profileInfo?.displayName}
+            colorMode="light"
+          >
+            {!!profileInfo?.displayName ? (
+              <Text>{profileInfo?.displayName}</Text>
+            ) : (
+              ""
+            )}
+          </Skeleton>
         </HeaderContainer>
-        {/* <YStack
-          justifyContent="flex-start"
-          gap="$3"
-          height={windowHeight * 0.15}
-          backgroundColor={"white"}
-          paddingVertical="$4"
-          paddingHorizontal="$4"
-          borderRadius="$6"
-        >
-          <Avatar url={avatarUrl} isMemberIcon={false} />
-          <Text>{profileInfo?.displayName}</Text>
-        </YStack> */}
         <BodyContainer height={windowHeight * 0.62}>
           <TabsAdvancedUnderline
             bills={bills}
             userId={id.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
+            setRefreshing={setRefreshing}
+            refreshing={refreshing}
+            loadingBills={loadingBills}
           />
         </BodyContainer>
       </YStack>
@@ -188,17 +202,6 @@ const Home = () => {
           buttonSize={"$3.5"}
         />
         <CreateBill buttonWidth={windowWidth * 0.25} buttonSize={"$3.5"} />
-        {/* <Button
-          onPress={() => {
-            setOpen(false);
-            window.clearTimeout(timerRef.current);
-            timerRef.current = window.setTimeout(() => {
-              setOpen(true);
-            }, 150);
-          }}
-        >
-          Single Toast
-        </Button> */}
       </FooterContainer>
       {newBillId && (
         <Toast

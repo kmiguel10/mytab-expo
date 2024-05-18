@@ -1,8 +1,10 @@
+import { SummaryInfo } from "@/types/global";
 import React from "react";
 import { BarChart } from "react-native-chart-kit";
+import { ColorTokens } from "tamagui";
 
 interface Props {
-  members: { amountPaid: number; txnCount: number; userid: string }[];
+  members: SummaryInfo[];
   scaledHeight: number;
   scaledWidth: number;
 }
@@ -12,7 +14,7 @@ const SummaryChart: React.FC<Props> = ({
   scaledHeight,
   scaledWidth,
 }) => {
-  const labelsMembers = members.map((member) => member.userid.slice(0, 4));
+  const labelsMembers = members.map((member) => member.displayName);
   const datasetMembers = members.map((member) => member.amountPaid);
 
   return (
@@ -33,10 +35,12 @@ const SummaryChart: React.FC<Props> = ({
       height={scaledHeight}
       yAxisLabel="$ "
       yAxisSuffix=""
+      withHorizontalLabels={false}
+      showValuesOnTopOfBars={true}
       chartConfig={{
-        backgroundColor: "#e26a00",
-        backgroundGradientFrom: "#fb8c00",
-        backgroundGradientTo: "#ffa726",
+        backgroundColor: "$8ecae6",
+        backgroundGradientFrom: "#219ebc",
+        backgroundGradientTo: "#219ebc",
         decimalPlaces: 0, // optional, defaults to 2dp
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,

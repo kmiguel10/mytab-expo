@@ -1,27 +1,26 @@
+import { StyledButton } from "@/components/button/button";
+import { BodyContainer } from "@/components/containers/body-container";
+import { FooterContainer } from "@/components/containers/footer-container";
+import { HeaderContainer } from "@/components/containers/header-container";
+import { OuterContainer } from "@/components/containers/outer-container";
+import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
 import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
+import BillHeaderSkeleton from "@/components/skeletons/bill-header-skeleton";
 import {
+  getActiveTransactions,
   getBillInfo,
   getBillSummaryInfo,
   getMembers,
-  getMyTabInfo,
-  getActiveTransactions,
 } from "@/lib/api";
 import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
-import { Link, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Button, View, XStack, YStack, useWindowDimensions } from "tamagui";
-import { OuterContainer } from "@/components/containers/outer-container";
-import { HeaderContainer } from "@/components/containers/header-container";
-import { BodyContainer } from "@/components/containers/body-container";
-import { FooterContainer } from "@/components/containers/footer-container";
 import { Toast, ToastViewport } from "@tamagui/toast";
-import MembersView from "@/components/my-bill/transactions/members-view";
-import { StyledButton } from "@/components/button/button";
-import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
-import EditTransaction from "@/components/create-transaction/edit-transaction-sheet";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { YStack, useWindowDimensions } from "tamagui";
 
 const BillScreen = () => {
+  /** ---------- States ---------- */
   const {
     id,
     userId,
@@ -35,9 +34,11 @@ const BillScreen = () => {
 
   const [members, setMembers] = useState<Member[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransactions, setloadingTransactions] = useState(true);
   const [summaryInfo, setSummaryInfo] = useState<SummaryInfo[]>([]);
+  const [loadingSummaryInfo, setLoadingSummaryInfo] = useState(true);
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
-  const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
+  //const [myTabInfo, setMyTabInfo] = useState<any[] | null>([]);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const [openCreateTxn, setOpenCreateTxn] = useState(false);
@@ -58,12 +59,13 @@ const BillScreen = () => {
     initialDeletedTxnName || ""
   );
 
+  /** ---------- Functions ---------- */
+
   const onOpenCreateTxn = () => {
     setOpenCreateTxn(true);
     console.log("Open create txn sheet", openCreateTxn);
   };
 
-  //Resets toast messages
   // Resets toast messages
   const resetToastMessageStates = () => {
     // Log states before resetting
@@ -95,17 +97,20 @@ const BillScreen = () => {
     });
   };
 
+  /** ---------- UseEffects ---------- */
+
   /** fetch summary info */
   useEffect(() => {
     async function fetchSummaryInfo() {
       if (id) {
         const data = await getBillSummaryInfo(Number(id));
         setSummaryInfo(data);
+
+        if (data) setLoadingSummaryInfo(false);
       }
     }
     fetchSummaryInfo();
-    console.log("Summary Info: ", JSON.stringify(summaryInfo));
-  }, [id]);
+  }, [id, transactions]);
 
   /**Fetch members of the bill */
   useEffect(() => {
@@ -126,10 +131,12 @@ const BillScreen = () => {
           id.toString()
         );
         setTransactions(transactionData);
+        if (transactionData) setloadingTransactions(false);
       }
     }
     fetchTransactions();
   }, [userId, txnName, deletedTxnName, editedTxnName]);
+
   //Fetch bill info
   useEffect(() => {
     async function fetchBillInfo() {
@@ -140,34 +147,6 @@ const BillScreen = () => {
     }
     fetchBillInfo();
   }, [id]);
-
-  useEffect(() => {
-    async function fetchMyTabInfo() {
-      if (userId) {
-        const data = await getMyTabInfo(userId.toString(), Number(id));
-        setMyTabInfo(data);
-      }
-    }
-    fetchMyTabInfo();
-  }, [userId, id]);
-
-  // // Initialize toast message states with initial search params values
-  // useEffect(() => {
-  //   setTxnName(initialTxnName || "");
-  //   setErrorCreateMsg(initialErrorCreateMsg || "");
-  //   setEditedTxnName(initialEditedTxnName || "");
-  //   setErrorEditMsg(initialErrorEditMsg || "");
-  //   setDeletedTxnName(initialDeletedTxnName || "");
-  //   setErrorDeleteMsg(initialErrorDeleteMsg || "");
-  //   console.log(" *** Toasts are initialized");
-  // }, [
-  //   initialTxnName,
-  //   initialErrorCreateMsg,
-  //   initialEditedTxnName,
-  //   initialErrorEditMsg,
-  //   initialDeletedTxnName,
-  //   initialErrorDeleteMsg,
-  // ]);
 
   // Update toast message states whenever search params change
   useEffect(() => {
@@ -199,6 +178,12 @@ const BillScreen = () => {
 
   return (
     <OuterContainer>
+      <CreateTransaction
+        billId={id.toString()}
+        members={members}
+        open={openCreateTxn}
+        setOpen={setOpenCreateTxn}
+      />
       <ToastViewport
         width={"100%"}
         justifyContent="center"
@@ -208,12 +193,21 @@ const BillScreen = () => {
       />
       <YStack padding="$2" gap="$2">
         <HeaderContainer height={windowHeight * 0.15}>
-          <HeaderInfo
-            summaryInfo={summaryInfo}
-            billName={billInfo[0]?.name}
-            height={windowHeight * 0.15}
-            width={windowWidth}
-          />
+          {!loadingSummaryInfo ? (
+            <HeaderInfo
+              summaryInfo={summaryInfo}
+              billName={billInfo[0]?.name}
+              height={windowHeight * 0.15}
+              width={windowWidth}
+            />
+          ) : (
+            <BillHeaderSkeleton
+              height={windowHeight * 0.15}
+              width={windowWidth}
+              show={true}
+              colorMode={"light"}
+            />
+          )}
         </HeaderContainer>
         <BodyContainer height={windowHeight * 0.62}>
           <UnderlinedTabs
@@ -225,34 +219,21 @@ const BillScreen = () => {
             width={windowWidth * 0.95}
             members={members}
             resetToastMessageStates={resetToastMessageStates}
+            setTransactions={setTransactions}
+            isLocked={billInfo[0]?.isLocked}
+            billOwnerId={billInfo[0]?.ownerid}
+            loadingTransactions={loadingTransactions}
           />
         </BodyContainer>
       </YStack>
+
       <FooterContainer
         height={windowHeight}
-        justifyContent="space-between"
+        justifyContent="flex-end"
         alignContent="center"
       >
-        <MembersView members={members} height={windowHeight} />
-        {/* <Link
-          href={{
-            pathname: "/pages/create-transaction",
-            params: {
-              billId: id,
-              userId: userId?.toString(),
-            },
-          }}
-          asChild
-        >
-          <StyledButton
-            disabled={billInfo[0]?.isLocked}
-            create={!billInfo[0]?.isLocked}
-            width={windowWidth * 0.38}
-            size={"$3.5"}
-          >
-            Add Transaction
-          </StyledButton>
-        </Link> */}
+        {/* <MembersView members={members} height={windowHeight} /> */}
+
         <StyledButton
           disabled={billInfo[0]?.isLocked}
           create={!billInfo[0]?.isLocked}
@@ -263,12 +244,7 @@ const BillScreen = () => {
           Add Transaction
         </StyledButton>
       </FooterContainer>
-      <CreateTransaction
-        billId={id.toString()}
-        members={members}
-        open={openCreateTxn}
-        setOpen={setOpenCreateTxn}
-      />
+
       {(txnName || errorCreateMsg) && (
         <Toast
           onOpenChange={setOpen}

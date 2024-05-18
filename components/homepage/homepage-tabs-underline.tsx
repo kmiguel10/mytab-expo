@@ -1,36 +1,40 @@
-import { BillData, MemberData } from "@/types/global";
+import { MemberData } from "@/types/global";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle, TouchableOpacity } from "react-native";
+import { LayoutRectangle, RefreshControl } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
-
-import { useNavigation } from "@react-navigation/native";
 
 import {
   AnimatePresence,
   H6,
   ScrollView,
   SizableText,
+  styled,
   Tabs,
   View,
   XStack,
   YStack,
-  styled,
-  Text,
 } from "tamagui";
 import BillCard from "./bill-card";
+import BillCardSkeleton from "../skeletons/bill-card-skeleton";
 interface Props {
   bills: MemberData[];
+  loadingBills: boolean;
   userId: string;
   height: number;
   width: number;
+  setRefreshing: (toggle: boolean) => void;
+  refreshing: boolean;
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
+  loadingBills,
   userId,
   height,
   width,
+  setRefreshing,
+  refreshing,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -80,6 +84,15 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
     } else {
       setIntentIndicator(layout);
     }
+  };
+
+  const fetchBills = () => {
+    console.log("TESTING REFRESH HOMEPAGE");
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    fetchBills();
   };
 
   return (
@@ -163,42 +176,69 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           flex={1}
         >
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
-            <View>
+            <View height={"100%"}>
               {currentTab === "active" ? (
-                <ScrollView>
-                  {bills.map((item, index) => (
+                <ScrollView
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={handleRefresh}
+                    />
+                  }
+                >
+                  {!loadingBills ? (
+                    bills.map((item, index) => (
+                      <XStack
+                        key={`${item.memberid}-${index}`}
+                        backgroundColor="transparent"
+                        justifyContent="center"
+                        padding="$1.5"
+                      >
+                        <Link
+                          key={`${item.memberid}-${index}`}
+                          href={{
+                            pathname: `/(bill)/${item.billid}`,
+                            params: { userId: userId },
+                          }}
+                          disabled={
+                            item.isRequestSent && item.ownerid !== userId
+                          }
+                          asChild
+                        >
+                          <BillCard
+                            key={`${item.memberid}-${index}`}
+                            animation="bouncy"
+                            size="$3"
+                            width={360}
+                            height={110}
+                            scale={0.9}
+                            hoverStyle={{ scale: 0.925 }}
+                            pressStyle={{ scale: 0.875 }}
+                            bill={item}
+                            membership={
+                              item.ownerid === userId ? "Owner" : "Member"
+                            }
+                          />
+                        </Link>
+                      </XStack>
+                    ))
+                  ) : (
                     <XStack
-                      key={`${item.memberid}-${index}`}
                       backgroundColor="transparent"
                       justifyContent="center"
                       padding="$1.5"
                     >
-                      <Link
-                        key={`${item.memberid}-${index}`}
-                        href={{
-                          pathname: `/(bill)/${item.billid}`,
-                          params: { userId: userId },
-                        }}
-                        disabled={item.isRequestSent && item.ownerid !== userId}
-                        asChild
-                      >
-                        <BillCard
-                          key={`${item.memberid}-${index}`}
-                          animation="bouncy"
-                          size="$3"
-                          width={360}
-                          height={110}
-                          scale={0.9}
-                          hoverStyle={{ scale: 0.925 }}
-                          pressStyle={{ scale: 0.875 }}
-                          bill={item}
-                          membership={
-                            item.ownerid === userId ? "Owner" : "Member"
-                          }
-                        />
-                      </Link>
+                      <BillCardSkeleton
+                        width={360}
+                        height={110}
+                        scale={0.9}
+                        size="$3"
+                        hoverStyle={{ scale: 0.925 }}
+                        pressStyle={{ scale: 0.875 }}
+                        show={loadingBills}
+                      />
                     </XStack>
-                  ))}
+                  )}
                 </ScrollView>
               ) : (
                 <H6> "Inactive Test This"</H6>

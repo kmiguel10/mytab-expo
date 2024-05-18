@@ -92,12 +92,17 @@ type Transaction = {
   billid: number;
   submittedbyid: string;
   payerid: string | null;
-  createdate?: string;
+  createdat?: Date;
   amount: number;
   name: string;
   notes: string | null;
   split: Split[];
   isdeleted: boolean;
+};
+
+type SettlementInfo = {
+  transactionName: string;
+  userSplitAmount: number;
 };
 
 type BillInfo = {
@@ -117,6 +122,8 @@ type SummaryInfo = {
   amountPaid: number;
   txnCount: number;
   userid: string;
+  avatar_url: string;
+  displayName: string;
 };
 
 type MyTabInfo = {
@@ -158,4 +165,5 @@ export type {
   SettleCardInfo,
   ProfileInfo,
   Split,
+  SettlementInfo,
 };

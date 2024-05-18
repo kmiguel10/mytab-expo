@@ -1,4 +1,10 @@
-import { MyTabInfo, SettleCardInfo } from "@/types/global";
+import {
+  Member,
+  MyTabInfo,
+  SettleCardInfo,
+  SummaryInfo,
+  Transaction,
+} from "@/types/global";
 
 interface getMyTabHeaderAmountsProps {
   myTabInfo: MyTabInfo[];
@@ -60,11 +66,68 @@ export const getMyTabHeaderAmounts = ({
     }
   }
 
-  console.log("owedAmount, debtAmount :", owedAmount, debtAmount);
+  console.log(
+    "getMyTabHeaderAmounts: owedAmount, debtAmount :",
+    owedAmount,
+    debtAmount
+  );
 
   return { owedAmount, debtAmount, settleMembersInfo };
 };
 
 export const roundToNearestTenth = (num: number) => {
   return Math.round(num * 10) / 10;
+};
+
+interface FindUserAvatarProps {
+  members: Member[];
+  payerId: string;
+}
+
+export const findUserAvatar = (payerId: string | null, members: Member[]) => {
+  if (!payerId) return "";
+  const member = members.find((member) => member.userid === payerId);
+
+  return member ? member.avatar_url : "";
+};
+
+interface FindUserDisplayNameProps {
+  members: Member[];
+  payerId: string;
+}
+
+export const findUserDisplayName = (
+  payerId: string | null,
+  members: Member[]
+) => {
+  if (!payerId) return "";
+  const member = members.find((member) => member.userid === payerId);
+
+  return member ? member.displayName : "";
+};
+
+/**
+ * This filters the given transaction array to get the current user's transactions
+ * @param transactions
+ * @param currentUserId
+ * @returns Current users transactions
+ */
+export const filterUserTransactions = (
+  transactions: Transaction[],
+  member: SummaryInfo
+) => {
+  return transactions.filter(
+    (transaction) => transaction.payerid === member.userid
+  );
+};
+
+export const truncateToTwoDecimalPlaces = (amount: number): number => {
+  return Math.trunc(amount * 100) / 100;
+};
+
+export const formatDateToMonthDay = (dateString: Date): string => {
+  const date = new Date(dateString);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${month}/${day}`;
 };

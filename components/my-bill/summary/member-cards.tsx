@@ -1,87 +1,116 @@
-import React from "react";
+import Avatar from "@/components/login/avatar";
+import { SummaryInfo, Transaction } from "@/types/global";
+import React, { useState } from "react";
 import {
-  Text,
-  View,
-  Card,
   CardProps,
-  H4,
-  H6,
+  H1,
+  ListItem,
   ScrollView,
-  XStack,
-  YStack,
   useWindowDimensions,
+  View,
+  XStack,
+  YGroup,
 } from "tamagui";
+import UserTransactions from "./user-transactions-sheet";
+import { filterUserTransactions } from "@/lib/helpers";
+import { Pressable } from "react-native";
 
 interface Props extends CardProps {
-  members: { amountPaid: number; txnCount: number; userid: string }[];
+  members: SummaryInfo[];
+  transactions: Transaction[];
   scaledHeight: number;
   scaledWidth: number;
 }
 
 const MemberCards: React.FC<Props> = ({
   members,
+  transactions,
   scaledHeight,
   scaledWidth,
   ...props
 }) => {
+  /** - - - - - - - - - - State Variables - - - - - - - - */
+  const [openTransactionsSheet, setOpenTransactionsSheet] = useState(false);
+  const [userTransactions, setUserTransactions] = useState<Transaction[]>([]);
+  const [selectedMember, setSelectedMember] = useState<SummaryInfo | null>(
+    null
+  );
+
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  /** - - - - - - - - - - Functions - - - - - - - - */
+  const setSelectedUserTransactions = (member: SummaryInfo) => {
+    //set filtered transactions based on user
+    const userTxns = filterUserTransactions(transactions, member);
+    console.log("Transactions for user", userTxns);
+
+    setUserTransactions(userTxns);
+    setSelectedMember(member);
+
+    //open sheet
+    setOpenTransactionsSheet(true);
+  };
+
+  /** - - - - - - - - - - useEffects - - - - - - - - */
+
+  /**
+   * Need to be able to save the avatars and pass it down, the use useMemo
+   */
   return (
-    <ScrollView>
-      <XStack
-        flex={1}
-        flexWrap="wrap"
-        gap="$1.5"
-        backgroundColor={"transparent"}
-        justifyContent="center"
-        paddingBottom="$2"
-      >
-        {members.map((member, index) => (
-          <XStack
-            padding="$1"
-            backgroundColor={"transparent"}
-            justifyContent="center"
-            key={index}
-          >
-            <Card
-              elevate
-              size="$2.5"
-              bordered
-              key={index}
+    <View>
+      <ScrollView>
+        <XStack
+          flex={1}
+          flexWrap="wrap"
+          gap="$0.5"
+          backgroundColor={"transparent"}
+          justifyContent="center"
+          paddingBottom="$2"
+        >
+          {members.map((member, index) => (
+            <XStack
+              padding="$1"
               backgroundColor={"transparent"}
-              width={windowWidth * 0.44}
-              {...props}
+              justifyContent="center"
+              key={index}
             >
-              <Card.Header padded>
-                <XStack padding="$2" gap={"$1"}>
-                  <Text>{member.userid.slice(0, 5)}</Text>
-                </XStack>
-                <XStack gap="$2" justifyContent="space-between">
-                  <YStack padding="$2" gap={"$1"}>
-                    <Text height={windowHeight * 0.03}>Count</Text>
-                    <H6 height={windowHeight * 0.03}>{member.txnCount}</H6>
-                  </YStack>
-                  <YStack padding="$2" gap={"$1"}>
-                    <Text height={windowHeight * 0.03}>Paid</Text>
-                    <H6 height={windowHeight * 0.03}>${member.amountPaid}</H6>
-                  </YStack>
-                </XStack>
-              </Card.Header>
-              {/* <Card.Footer padded>
-                <Text>{member.userid.slice(0, 5)}</Text>
-              </Card.Footer> */}
-            </Card>
-          </XStack>
-        ))}
-        {members.length % 2 !== 0 && (
-          <XStack
-            padding="$1"
-            backgroundColor={"white"}
-            width={scaledWidth * 0.49}
-            justifyContent="center"
-          ></XStack>
-        )}
-      </XStack>
-    </ScrollView>
+              <Pressable onPress={() => setSelectedUserTransactions(member)}>
+                <YGroup
+                  alignSelf="center"
+                  bordered
+                  width={windowWidth * 0.9}
+                  size="$4"
+                >
+                  <YGroup.Item>
+                    <ListItem
+                      hoverTheme
+                      icon={<Avatar url={member.avatar_url} size="$4.5" />}
+                      title={member.displayName}
+                      subTitle={`Transaction Count: ${member.txnCount}`}
+                      iconAfter={<H1>${member.amountPaid}</H1>}
+                    />
+                  </YGroup.Item>
+                </YGroup>
+              </Pressable>
+            </XStack>
+          ))}
+          {members.length % 2 !== 0 && (
+            <XStack
+              padding="$1"
+              backgroundColor={"white"}
+              width={scaledWidth * 0.49}
+              justifyContent="center"
+            ></XStack>
+          )}
+        </XStack>
+      </ScrollView>
+      <UserTransactions
+        userTransactions={userTransactions}
+        selectedMember={selectedMember}
+        open={openTransactionsSheet}
+        setOpen={setOpenTransactionsSheet}
+      />
+    </View>
   );
 };
 

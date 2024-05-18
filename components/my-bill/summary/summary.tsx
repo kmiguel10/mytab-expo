@@ -3,9 +3,11 @@ import HeaderInfo from "./HeaderInfo";
 import SummaryChart from "./summary-chart";
 import MemberCards from "./member-cards";
 import { View, YStack } from "tamagui";
+import { SummaryInfo, Transaction } from "@/types/global";
 
 interface Props {
-  summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
+  summaryInfo: SummaryInfo[];
+  transactions: Transaction[];
   tabSectionHeight: number;
   tabSectionWidth: number;
 }
@@ -14,6 +16,7 @@ const Summary: React.FC<Props> = ({
   summaryInfo,
   tabSectionHeight,
   tabSectionWidth,
+  transactions,
 }) => {
   // Calculate total paid amount and total transaction count
   const totalPaid = summaryInfo.reduce(
@@ -31,7 +34,7 @@ const Summary: React.FC<Props> = ({
 
   return (
     <View>
-      <YStack justifyContent="center">
+      <YStack justifyContent="center" alignItems="center">
         <View padding="$2">
           <SummaryChart
             members={summaryInfo}
@@ -42,6 +45,7 @@ const Summary: React.FC<Props> = ({
         <View height={memberCardsHeight} justifyContent="center" padding="$2">
           <MemberCards
             members={summaryInfo}
+            transactions={transactions}
             scaledHeight={chartHeight}
             scaledWidth={chartWidth}
           />

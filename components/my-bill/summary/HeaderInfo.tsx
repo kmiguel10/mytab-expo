@@ -1,4 +1,3 @@
-import { BillInfo, Member } from "@/types/global";
 import React from "react";
 import {
   CardProps,
@@ -9,9 +8,8 @@ import {
   YStack,
   useWindowDimensions,
 } from "tamagui";
-import MembersView from "../transactions/members-view";
 
-interface Props extends CardProps {
+interface Props {
   summaryInfo: { amountPaid: number; txnCount: number; userid: string }[];
   billName: string;
   height: number;
@@ -23,7 +21,6 @@ const HeaderInfo: React.FC<Props> = ({
   billName,
   height,
   width,
-  ...props
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   // Calculate total paid amount and total transaction count
@@ -59,18 +56,6 @@ const HeaderInfo: React.FC<Props> = ({
           </H4>
         </View>
       </XStack>
-      {/* <Card elevate size="$4" bordered flex={1} {...props}>
-        <Card.Header padded></Card.Header>
-        <H4>{totalPaid}</H4>
-      </Card>
-      <Card elevate size="$4" bordered flex={1} {...props}>
-        <Card.Header padded>
-          <Text>Txn Count</Text>
-        </Card.Header>
-      </Card> */}
-      {/* <Text>
-          {totalPaid} | {txnCount}
-        </Text> */}
     </YStack>
   );
 };

@@ -1,4 +1,5 @@
-import { X, Smile, UserCheck, Axe } from "@tamagui/lucide-icons";
+import { Axe, Check, X } from "@tamagui/lucide-icons";
+import { Keyboard } from "react-native";
 
 import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
 import { useEffect, useState } from "react";
@@ -8,6 +9,8 @@ import {
   Checkbox,
   Dialog,
   Fieldset,
+  H1,
+  H4,
   Input,
   Label,
   ScrollView,
@@ -39,16 +42,17 @@ const CustomSplit: React.FC<Props> = ({
   includedMembers,
   isDisabled,
 }) => {
+  /** States */
   const [selectedMembers, setSelectedMembers] =
     useState<SelectedMemberSplitAmount[]>();
   const [splitAmount, setSplitAmount] = useState(0);
   const [sumAmount, setSumAmount] = useState(0);
+  const [isModalToggled, setIsModalToggled] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isKeyboardVisible = Keyboard.isVisible();
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(windowHeight * 0.28);
 
-  const initializeSelectedSplits = () => {
-    setSelectedMembers(includedMembers);
-  };
-
+  /** ---------- Handlers ---------- */
   const handleAmountChange = (memberId: string, newAmount: number) => {
     setSelectedMembers((prevSelectedMembers) => {
       return prevSelectedMembers?.map((member) => {
@@ -65,17 +69,6 @@ const CustomSplit: React.FC<Props> = ({
         return member;
       });
     });
-  };
-
-  const calculateSumAmount = () => {
-    let sum: number = 0;
-    selectedMembers?.forEach((member) => {
-      if (member.isIncluded) {
-        sum += parseFloat(member.amount.toString());
-        console.log("SUM", sum);
-      }
-    });
-    setSumAmount(parseInt(sum.toString()));
   };
 
   const handleSaveChanges = () => {
@@ -103,6 +96,22 @@ const CustomSplit: React.FC<Props> = ({
     );
   };
 
+  /** ---------- Functions ---------- */
+  const initializeSelectedSplits = () => {
+    setSelectedMembers(includedMembers);
+  };
+
+  const calculateSumAmount = () => {
+    let sum: number = 0;
+    selectedMembers?.forEach((member) => {
+      if (member.isIncluded) {
+        sum += parseFloat(member.amount.toString());
+        console.log("SUM", sum);
+      }
+    });
+    setSumAmount(parseInt(sum.toString()));
+  };
+
   //Sets the split evenly
   const onEvenClick = () => {
     const splitEvenAmount = (totalAmount: number, memberCount: number) => {
@@ -123,11 +132,30 @@ const CustomSplit: React.FC<Props> = ({
     setSelectedMembers(newSelectedMembers);
   };
 
+  //reset splits when closing the modal: check members , set amount to 0
+  const resetSplits = () => {
+    setSelectedMembers((prevSelectedMembers) =>
+      prevSelectedMembers?.map((member) => ({
+        ...member,
+        amount: 0,
+        isIncluded: true,
+      }))
+    );
+  };
+
+  /** ---------- Listeners ---------- */
+  // Listen for keyboard show/hide events
+  Keyboard.addListener("keyboardDidShow", () => {
+    setButtonAreaHeight(windowHeight * 0.28);
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    setButtonAreaHeight(windowHeight * 0.6);
+  });
+
+  /** ---------- Use Effects ---------- */
   //on save assign those checked to the transactions.split on the parent component
   useEffect(() => {
-    // console.log("Custom Split Component");
-    // console.log("Amount: ", amount);
-    // console.log("member splits: ", JSON.stringify(memberSplits));
     initializeSelectedSplits();
     setSplitAmount(amount);
   }, [memberSplits]);
@@ -135,6 +163,12 @@ const CustomSplit: React.FC<Props> = ({
   useEffect(() => {
     calculateSumAmount();
   }, [selectedMembers]);
+
+  useEffect(() => {}, [isKeyboardVisible]);
+
+  useEffect(() => {
+    resetSplits();
+  }, [isModalToggled]);
 
   return (
     <Dialog modal>
@@ -151,7 +185,14 @@ const CustomSplit: React.FC<Props> = ({
         </StyledButton>
       </Dialog.Trigger>
       <Adapt when="sm" platform="touch">
-        <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>
+        <Sheet
+          animation="medium"
+          zIndex={200000}
+          modal
+          dismissOnSnapToBottom
+          snapPoints={[90, 50]}
+          onOpenChange={() => setIsModalToggled(!isModalToggled)}
+        >
           <Sheet.Frame padding="$4" gap="$4">
             <Adapt.Contents />
           </Sheet.Frame>
@@ -188,16 +229,34 @@ const CustomSplit: React.FC<Props> = ({
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Amount: {amount}</Dialog.Title>
+          {/* <Dialog.Title>Amount: {amount}</Dialog.Title>
           <Dialog.Description>
-            Remaining split ampount: {splitAmount - sumAmount}
-          </Dialog.Description>
+            Remaining split amount: {splitAmount - sumAmount}
+          </Dialog.Description> */}
+          <XStack gap="$3">
+            <YStack>
+              <Text fontSize={"$1"}>Transaction Amount</Text>
+              <H1>{amount}</H1>
+            </YStack>
+            <YStack>
+              <Text fontSize={"$1"}>Amount to Distribute</Text>
+              <H1
+                color={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? "$green8Light"
+                    : "$red8Light"
+                }
+              >
+                {splitAmount - sumAmount}
+              </H1>
+            </YStack>
+          </XStack>
           <Separator />
-          <View height={windowHeight * 0.45}>
+          <View height={buttonAreaHeight}>
             <ScrollView>
               <XStack
                 flexWrap="wrap"
-                backgroundColor={"whitesmoke"}
+                backgroundColor={"$backgroundTransparent"}
                 width={windowWidth * 0.95}
                 gap="$2"
               >
@@ -208,7 +267,11 @@ const CustomSplit: React.FC<Props> = ({
                     key={index}
                     width={windowWidth * 0.88}
                   >
-                    <XStack justifyContent="space-between" gap="$2">
+                    <XStack
+                      justifyContent="space-between"
+                      gap="$2"
+                      alignItems="center"
+                    >
                       <Checkbox
                         size={"$6"}
                         checked={selectedMembers.isIncluded}
@@ -217,7 +280,7 @@ const CustomSplit: React.FC<Props> = ({
                         }
                       >
                         <Checkbox.Indicator>
-                          <UserCheck size={"$1.5"} />
+                          <Check size={"$1.5"} />
                         </Checkbox.Indicator>
                       </Checkbox>
                       <Label
@@ -225,7 +288,7 @@ const CustomSplit: React.FC<Props> = ({
                         justifyContent="center"
                         htmlFor="name"
                       >
-                        {selectedMembers.memberId.slice(0, 5)}
+                        {selectedMembers.displayName}
                       </Label>
                       <Input
                         disabled={!selectedMembers.isIncluded}
@@ -248,22 +311,30 @@ const CustomSplit: React.FC<Props> = ({
             </ScrollView>
           </View>
           <Separator />
-          <XStack alignSelf="flex-end" gap="$4">
-            {/* <DialogInstance /> */}
-            <Button onPress={onEvenClick}>Even</Button>
+          <XStack gap="$4" justifyContent="space-between">
+            <StyledButton active={true} onPress={onEvenClick}>
+              Even
+            </StyledButton>
             <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                theme="active"
+              <StyledButton
+                create={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? true
+                    : false
+                }
+                disabled={
+                  splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
+                    ? false
+                    : true
+                }
                 aria-label="Close"
                 onPress={handleSaveChanges}
               >
                 Save
-              </Button>
+              </StyledButton>
             </Dialog.Close>
           </XStack>
-          <XStack>
-            {/* <Text>{JSON.stringify(selectedMembers)}</Text> */}
-          </XStack>
+          <XStack></XStack>
           <Unspaced>
             <Dialog.Close asChild>
               <Button

@@ -1,26 +1,21 @@
-import React, { useEffect } from "react";
 import { Member, SummaryInfo, Transaction } from "@/types/global";
-import { BillData } from "@/types/global";
-import { Link } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
 import {
   AnimatePresence,
-  H6,
-  ScrollView,
   SizableText,
   Tabs,
   View,
-  XStack,
   YStack,
   styled,
 } from "tamagui";
-import TransactionInfoCard from "../transactions/transaction-info-card";
 import Summary from "../summary/summary";
+import TransactionInfoCard from "../transactions/transaction-info-card";
 import MyTab from "./MyTab";
+import TransactionCardSkeleton from "@/components/skeletons/transaction-card-skeleton";
 
 interface Props {
   transactions: Transaction[];
@@ -31,6 +26,10 @@ interface Props {
   height: number;
   width: number;
   resetToastMessageStates: () => void;
+  setTransactions: (transactions: Transaction[]) => void;
+  isLocked: boolean;
+  billOwnerId: string;
+  loadingTransactions: boolean;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -42,6 +41,10 @@ const UnderlinedTabs: React.FC<Props> = ({
   height,
   width,
   resetToastMessageStates,
+  setTransactions,
+  isLocked,
+  billOwnerId,
+  loadingTransactions,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -142,7 +145,7 @@ const UnderlinedTabs: React.FC<Props> = ({
           <Tabs.List
             disablePassBorderRadius
             loop={false}
-            aria-label="Manage your account"
+            aria-label="Tab list"
             borderBottomLeftRadius={0}
             borderBottomRightRadius={0}
             paddingBottom="$1.5"
@@ -200,29 +203,41 @@ const UnderlinedTabs: React.FC<Props> = ({
               paddingTop="$2"
             >
               {currentTab === "Transactions" && (
-                <TransactionInfoCard
-                  transactions={transactions}
-                  currentUser={userId}
-                  members={members}
-                  animation="bouncy"
-                  hoverStyle={{ scale: 0.925 }}
-                  pressStyle={{ scale: 0.875 }}
-                  resetToasts={resetToastMessageStates}
-                />
+                <>
+                  {loadingTransactions ? (
+                    <TransactionCardSkeleton show={false} colorMode={"light"} />
+                  ) : (
+                    <TransactionInfoCard
+                      transactions={transactions}
+                      setTransactions={setTransactions}
+                      currentUser={userId}
+                      members={members}
+                      animation="bouncy"
+                      hoverStyle={{ scale: 0.925 }}
+                      pressStyle={{ scale: 0.875 }}
+                      resetToasts={resetToastMessageStates}
+                      isLocked={isLocked}
+                      billOwnerId={billOwnerId}
+                    />
+                  )}
+                </>
               )}
               {currentTab === "Summary" && (
                 <Summary
                   summaryInfo={summaryInfo}
                   tabSectionHeight={height}
                   tabSectionWidth={width}
+                  transactions={transactions}
                 />
               )}
               {currentTab === "My Tab" && (
                 <MyTab
                   userId={userId}
                   billId={billId}
+                  members={members}
                   tabSectionHeight={height}
                   tabSectionWidth={width}
+                  transactions={transactions}
                 />
               )}
             </Tabs.Content>

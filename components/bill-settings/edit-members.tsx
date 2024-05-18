@@ -6,49 +6,54 @@ import JoinRequests from "./join-requests";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import React from "react";
 import { Member } from "@/types/global";
+import { RefreshControl } from "react-native";
 
 interface Props {
   billId: number;
   ownerId: string;
   height: number;
+  isOwner: boolean;
 }
 
-// interface Member {
-//   memberid: string;
-//   userid: string;
-//   isMemberIncluded: boolean;
-//   isRequestSent: boolean;
-// }
-
-const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
+const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
+  /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
+  const [open, setOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Don't display owner id
+  /** ---------- Helper Functions ---------- */
   const filteredMembers = members.filter((member) => member.userid !== ownerId);
-
   const includedMembers = filteredMembers.filter(
     (member) =>
       member.isMemberIncluded === true && member.isRequestSent === false
   );
-
   const requests = filteredMembers.filter(
     (member) =>
       member.isMemberIncluded === false && member.isRequestSent === true
   );
 
+  /** ---------- Functions---------- */
   const fetchMembersData = async () => {
     if (billId) {
       try {
         const membersData = await getMembersAndRequests(Number(billId));
         setMembers(membersData);
+        if (membersData) setRefreshing(false);
       } catch (error) {
         console.error("Error fetching members:", error);
       }
     }
   };
 
-  const [open, setOpen] = useState(false);
+  const handleRefresh = async () => {
+    console.log(" - - - Pull Down refresh Members - - - -");
+    setRefreshing(true);
+    fetchMembersData();
+  };
+
   const timerRef = React.useRef(0);
+
+  /** ---------- UseEffects---------- */
   //Get included members
   useEffect(() => {
     fetchMembersData();
@@ -56,8 +61,12 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
 
   return (
     <View height={height} padding="$3">
-      <ScrollView>
-        {requests.length > 0 && (
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
+        {requests.length > 0 && isOwner && (
           <JoinRequests
             requests={requests}
             fetchMembersData={fetchMembersData}
@@ -72,6 +81,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height }) => {
           <CurrentMembers
             includedMembers={includedMembers}
             fetchMembersData={fetchMembersData}
+            isOwner={isOwner}
           />
         )}
       </ScrollView>

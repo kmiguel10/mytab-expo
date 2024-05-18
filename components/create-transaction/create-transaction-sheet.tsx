@@ -108,21 +108,38 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     transaction.billid = Number(id);
 
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert([transaction])
-        .select();
+      const { data: isBillLocked, error: billError } = await supabase
+        .from("bills")
+        .select("isLocked")
+        .eq("billid", transaction.billid);
 
-      if (error) {
-        throw new Error(error.message); // Throw the error to be caught in the catch block
-      }
+      if (isBillLocked) {
+        if (isBillLocked[0].isLocked) {
+          router.replace({
+            pathname: `/(bill)/${transaction.billid}`,
+            params: {
+              userId: _userId,
+              errorEditMsg: "Bill is locked. It cannot be edited.",
+            }, //
+          });
+        } else {
+          const { data, error } = await supabase
+            .from("transactions")
+            .insert([transaction])
+            .select();
 
-      if (data) {
-        const createdTxn: Transaction = data[0];
-        router.navigate({
-          pathname: `/(bill)/${createdTxn.billid}`,
-          params: { userId: _userId, txnName: createdTxn.name },
-        });
+          if (error) {
+            throw new Error(error.message); // Throw the error to be caught in the catch block
+          }
+
+          if (data) {
+            const createdTxn: Transaction = data[0];
+            router.navigate({
+              pathname: `/(bill)/${createdTxn.billid}`,
+              params: { userId: _userId, txnName: createdTxn.name },
+            });
+          }
+        }
       }
     } catch (error: any) {
       router.navigate({
@@ -189,6 +206,13 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     setIncludedMembers(split);
   };
 
+  const handleOpenChange = () => {
+    console.log("Toggle create transaction: ", open);
+    if (open) {
+      setOpen(false);
+    }
+  };
+
   useEffect(() => {
     if (members.length > 0) {
       console.log("RESET MEMBERS");
@@ -206,15 +230,16 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
         amount: 0,
         name: "",
       }));
+      setOpen(true);
     }
   }, [open]);
 
   return (
     <Sheet
-      forceRemoveScrollEnabled={open}
+      forceRemoveScrollEnabled={true}
       modal={true}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
       snapPoints={isExpanded ? [80, 50, 25] : [90, 50, 25]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
@@ -256,7 +281,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
           </Form.Trigger>
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="amount-input"
+              id="create-txn-amount-input"
               placeholder="0"
               defaultValue={"0"}
               keyboardType="numeric"
@@ -276,7 +301,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="transaction-name"
+                id="create-transaction-name"
                 placeholder="Enter name"
                 defaultValue=""
                 value={transaction.name}
@@ -292,6 +317,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
+                isVisibleToUser={true}
               />
             </Fieldset>
           </XStack>

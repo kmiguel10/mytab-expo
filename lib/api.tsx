@@ -146,8 +146,8 @@ export const getActiveTransactions = async (billId: string) => {
       .from("transactions")
       .select("*")
       .eq("billid", billId)
-      .eq("isdeleted", false);
-
+      .eq("isdeleted", false)
+      .order("createdat", { ascending: false });
     if (error) {
       throw new Error(error.message);
     }
@@ -159,11 +159,14 @@ export const getActiveTransactions = async (billId: string) => {
   }
 };
 
+/**
+ * This is used for the summary tab.
+ */
 export const getBillSummaryInfo = async (billId: number) => {
   try {
     const { data: members, error: membersError } = await supabase
       .from("members")
-      .select("userid")
+      .select("userid, avatar_url, displayName")
       .eq("billid", billId);
 
     if (membersError) {
@@ -193,6 +196,8 @@ export const getBillSummaryInfo = async (billId: number) => {
 
         return {
           userid: member.userid,
+          displayName: member.displayName,
+          avatar_url: member.avatar_url,
           amountPaid: amountPaid,
           txnCount: txnCount,
         };
