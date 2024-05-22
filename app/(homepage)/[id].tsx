@@ -21,6 +21,8 @@ import React from "react";
 // import "react-native-reanimated";
 // import "react-native-gesture-handler";
 import { Skeleton } from "moti/skeleton";
+import CreateBillSheet from "@/components/homepage/create-bill-sheet";
+import { StyledButton } from "@/components/button/button";
 
 const Home = () => {
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
@@ -36,6 +38,12 @@ const Home = () => {
   const timerRef = React.useRef(0);
   const [error, setError] = useState("") || null;
   const [refreshing, setRefreshing] = useState(false);
+
+  const [isCreateBillOpen, setIsCreateBillOpen] = useState(false);
+
+  const onOpenCreateBillSheet = () => {
+    setIsCreateBillOpen(true);
+  };
 
   useEffect(() => {
     console.log("*** Homepage: Fetch bills for user", id);
@@ -201,7 +209,19 @@ const Home = () => {
           buttonWidth={windowWidth * 0.25}
           buttonSize={"$3.5"}
         />
-        <CreateBill buttonWidth={windowWidth * 0.25} buttonSize={"$3.5"} />
+        {/* <CreateBill buttonWidth={windowWidth * 0.25} buttonSize={"$3.5"} /> */}
+        <StyledButton
+          create={true}
+          size={"$3.5"}
+          width={windowWidth * 0.25}
+          onPress={onOpenCreateBillSheet}
+        >
+          Create
+        </StyledButton>
+        <CreateBillSheet
+          open={isCreateBillOpen}
+          setOpen={setIsCreateBillOpen}
+        />
       </FooterContainer>
       {newBillId && (
         <Toast
