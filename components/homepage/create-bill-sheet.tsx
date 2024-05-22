@@ -5,7 +5,6 @@ import {
   Card,
   H4,
   H6,
-  Input,
   ListItem,
   Separator,
   Sheet,
@@ -17,6 +16,7 @@ import {
   YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
+import { StyledInput } from "../input/input";
 
 /**
  *
@@ -29,14 +29,16 @@ interface Props {
 }
 
 const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
+  /** ---------- States and Variables ---------- */
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [position, setPosition] = useState(0);
   const [isPlanSelected, setIsPlanSelected] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [billName, setBillName] = useState("");
+  const [billNameError, setBillNameError] = useState(false);
 
   //Default is 7 days
   const [planDuration, setPlanDuration] = useState(7);
-
   const [date, setDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [openDate, setOpenDate] = useState(false);
@@ -47,6 +49,8 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     { title: "1 Week", subtitle: "2 - 12 Users for 1 week", price: "$1.99" },
     { title: "2 Weeks", subtitle: "2 - 12 Users for 2 weeks", price: "$1.99" },
   ];
+
+  /** ---------- Functions ---------- */
 
   const onPlanSelected = (index: number) => {
     setIsPlanSelected(true);
@@ -72,6 +76,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setSelectedPlan(null);
     setPlanDuration(7);
     setDate(new Date());
+    setBillName("");
 
     //Reset end date
     const newEndDate = new Date(date);
@@ -92,6 +97,17 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
   const formatDate = (date: Date) => {
     return date.toLocaleString("en-US", { month: "long", day: "numeric" });
+  };
+
+  const onBillNameInput = (_billName: string) => {
+    if (_billName.length <= 20) {
+      setBillName(_billName);
+      setBillNameError(false);
+    } else {
+      setBillNameError(true);
+    }
+
+    console.log("BILLNAME TOO LONG", billNameError);
   };
 
   // Calculate the maximum date (30 days from today)
@@ -138,7 +154,10 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
             <StyledButton
               width={windowWidth * 0.2}
               size={"$3"}
-              onPress={() => setIsPlanSelected(false)}
+              onPress={() => {
+                setIsPlanSelected(false);
+                setBillName("");
+              }}
             >
               Back
             </StyledButton>
@@ -190,7 +209,12 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                 >
                   <YStack gap="$2" margin="$3.5">
                     <Text>Bill Name</Text>
-                    <Input />
+                    <StyledInput
+                      placeholder="Ex: Mexico Trip"
+                      value={billName}
+                      onChangeText={onBillNameInput}
+                      error={billNameError}
+                    />
                   </YStack>
                   <YStack marginHorizontal="$3.5">
                     <Text>Duration</Text>
@@ -229,7 +253,9 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                 </Card>
               </View>
               <View paddingTop="$2">
-                <StyledButton create={true}>Pay</StyledButton>
+                <StyledButton create={!!billName} disabled={!billName}>
+                  Pay
+                </StyledButton>
               </View>
             </>
           )}
