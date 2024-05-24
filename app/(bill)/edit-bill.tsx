@@ -2,16 +2,28 @@ import ConfirmDeleteBill from "@/components/bill-settings/confirm-delete-bill";
 import ConfirmSaveName from "@/components/bill-settings/confirm-save-name";
 import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
+import { StyledButton } from "@/components/button/button";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { StyledInput } from "@/components/input/input";
 import { getBillInfo } from "@/lib/api";
+import { formatDate, formatDateToMonthDay } from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Fieldset, Form, useWindowDimensions, XStack } from "tamagui";
+import DatePicker from "react-native-date-picker";
+import {
+  Fieldset,
+  Form,
+  useWindowDimensions,
+  XStack,
+  Text,
+  YStack,
+  View,
+  Card,
+} from "tamagui";
 
 export const EditBill = () => {
   /** ---------- States ---------- */
@@ -21,6 +33,22 @@ export const EditBill = () => {
   const [open, setOpen] = useState(false);
   const [saveNameError, setSaveNameError] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [openDate, setOpenDate] = useState(false);
+  const [planDuration, setPlanDuration] = useState(7);
+  const [date, setDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [isBillActive, setIsBillActive] = useState(false);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  let duration: number = 0;
+
+  // Calculate the maximum date (30 days from today)
+  const minDate = new Date();
+  const maxDate = new Date(
+    minDate.getFullYear(),
+    minDate.getMonth(),
+    minDate.getDate() + 30
+  );
 
   /** Functions */
   //This only changes the name
@@ -28,7 +56,7 @@ export const EditBill = () => {
     if (billInfo.length > 0) {
       const { data, error } = await supabase
         .from("bills")
-        .update({ name: billInfo[0].name })
+        .update({ name: billInfo[0].name, start_date: date, end_date: endDate })
         .eq("billid", id)
         .select();
 
@@ -50,7 +78,6 @@ export const EditBill = () => {
   };
 
   /** --- UseEffects --- */
-
   useEffect(() => {
     //Fetch bill info
     async function fetchBillInfo() {
@@ -63,12 +90,45 @@ export const EditBill = () => {
           if (data[0].ownerid === userId) {
             setIsOwner(true);
             console.log("IsOwner", data[0].ownerid === userId);
+            console.log("DATA", data);
           }
         }
       }
     }
     fetchBillInfo();
   }, [id, userId]);
+
+  //set the date and endDate initially
+  useEffect(() => {
+    if (billInfo && billInfo.length > 0) {
+      const startDate = new Date(billInfo[0]?.start_date);
+      const endDate = new Date(billInfo[0]?.end_date);
+
+      if (startDate && endDate) {
+        setDate(startDate);
+        setEndDate(endDate);
+
+        const durationInMilliseconds = endDate.getTime() - startDate.getTime();
+        const durationInDays = Math.ceil(
+          durationInMilliseconds / (1000 * 60 * 60 * 24)
+        );
+
+        setPlanDuration(durationInDays);
+
+        console.log("Duration in days:", durationInDays);
+      }
+    }
+  }, [billInfo]);
+
+  useEffect(() => {
+    const today = new Date();
+    if (today >= date && today <= endDate) {
+      setIsBillActive(false);
+    } else {
+      setIsBillActive(true);
+    }
+    console.log("IsBillActive", today >= date && today <= endDate, today);
+  }, [date, endDate]);
 
   return (
     <OuterContainer
@@ -90,23 +150,77 @@ export const EditBill = () => {
           right={0}
         />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <XStack justifyContent="space-between" alignItems="center">
-            <Fieldset horizontal={false} gap={"$2"} width={width * 0.6}>
-              <StyledInput
-                defaultValue={billInfo[0]?.name}
-                onChangeText={handleBillNameChange}
-                error={!billInfo[0]?.name}
-              ></StyledInput>
-            </Fieldset>
-            <ConfirmSaveName
-              name={billInfo[0]?.name}
-              billId={billInfo[0]?.billid}
-              userId={userId.toString()}
-              setOpen={setOpen}
-              setSaveNameError={setSaveNameError}
-              disabled={!billInfo[0]?.name}
-            />
-          </XStack>
+          <View margin="$1">
+            <Card
+              bordered
+              backgroundColor="white"
+              borderRadius={"$5"}
+              height={windowHeight * 0.175}
+              gap="$4.5"
+              padding="$2.5"
+            >
+              <XStack
+                justifyContent="space-between"
+                alignItems="center"
+                gap="$2"
+              >
+                <Fieldset horizontal={false} gap={"$2"} width={width * 0.5}>
+                  <StyledInput
+                    defaultValue={billInfo[0]?.name}
+                    onChangeText={handleBillNameChange}
+                    error={!billInfo[0]?.name}
+                  />
+                </Fieldset>
+                <ConfirmSaveName
+                  name={billInfo[0]?.name}
+                  billId={billInfo[0]?.billid}
+                  userId={userId.toString()}
+                  setOpen={setOpen}
+                  setSaveNameError={setSaveNameError}
+                  disabled={!billInfo[0]?.name}
+                  date={date}
+                  endDate={endDate}
+                />
+              </XStack>
+              <YStack paddingLeft="$2">
+                <Text>Duration</Text>
+                <XStack justifyContent="space-between" alignItems="center">
+                  <Text alignItems="center" justifyContent="flex-start">
+                    {formatDate(date)} - {formatDate(endDate)}
+                  </Text>
+                  {isOwner && (
+                    <StyledButton
+                      size={"$3.5"}
+                      active={isBillActive}
+                      disabled={!isBillActive}
+                      onPress={() => setOpenDate(true)}
+                    >
+                      Select Date
+                    </StyledButton>
+                  )}
+                </XStack>
+              </YStack>
+              <DatePicker
+                modal
+                mode={"date"}
+                open={openDate}
+                date={date}
+                minimumDate={new Date()}
+                maximumDate={maxDate}
+                onConfirm={(date) => {
+                  setOpenDate(false);
+                  setDate(date);
+
+                  const newEndDate = new Date(date);
+                  newEndDate.setDate(newEndDate.getDate() + planDuration);
+                  setEndDate(newEndDate);
+                }}
+                onCancel={() => {
+                  setOpenDate(false);
+                }}
+              />
+            </Card>
+          </View>
         </Form>
         {isOwner && (
           <XStack padding="$3" justifyContent="flex-end">
@@ -122,7 +236,7 @@ export const EditBill = () => {
         <EditMembers
           billId={parseInt(id.toString())}
           ownerId={billInfo[0]?.ownerid}
-          height={height * 0.62}
+          height={height * 0.5}
           isOwner={isOwner}
         />
         {isOwner && (
@@ -160,7 +274,7 @@ const SaveNameToast: React.FC<SaveNameToastProps> = ({
   billName,
   saveNameError,
 }) => {
-  const successMsg = `Bill name changed to ${billName}`;
+  const successMsg = `Changes saved to ${billName} successfully!`;
   const errorMsg = "Error changing bill name";
   return (
     <Toast

@@ -67,7 +67,6 @@ export const LockSwitch: React.FC<Props> = ({
         {/* <LockText locked={lock} /> */}
       </Label>
       {lock ? <Lock size={"$1"} /> : <Unlock size={"$1"} />}
-
       <Separator minHeight={20} vertical />
       <ConfirmToggleLock
         billId={billId}

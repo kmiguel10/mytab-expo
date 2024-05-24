@@ -131,3 +131,7 @@ export const formatDateToMonthDay = (dateString: Date): string => {
   const day = date.getDate().toString().padStart(2, "0");
   return `${month}/${day}`;
 };
+
+export const formatDate = (date: Date) => {
+  return date?.toLocaleString("en-US", { month: "long", day: "numeric" });
+};

@@ -18,6 +18,7 @@ import { getProfileInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import Avatar from "./avatar";
 import { StyledButton } from "../button/button";
+import { Keyboard } from "react-native";
 
 interface Props {
   userId: string;
@@ -32,12 +33,15 @@ interface Props {
  * @returns
  */
 export const Onboard: React.FC<Props> = ({ userId }) => {
+  /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.28);
   const router = useRouter();
 
+  /************ Functions ************/
   const onSave = async () => {
     try {
       const { data, error } = await supabase
@@ -65,17 +69,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const signOutUser = async () => {
     await supabase.auth.signOut();
     console.log("USER SIGNED OUT");
-    // <Redirect href="/(homepage)/home" />;
   };
-
-  //   const handleDisplayNameChange = (_displayName: string) => {
-  //     //setName(txnName);
-  //     // transaction.name = name;
-  //     setProfileInfo((prevProfileInfo) => ({
-  //       ...prevProfileInfo,
-  //       displayName: _displayName,
-  //     }));
-  //   };
   const handleDisplayNameChange = (_displayName: string) => {
     setProfileInfo((prevProfileInfo) => {
       if (prevProfileInfo) {
@@ -114,15 +108,6 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
 
   const updateProfile = async ({ avatar_url }: { avatar_url: string }) => {
     try {
-      //   setLoading(true);
-      //   if (!session?.user) throw new Error("No user on the session!");
-
-      const updates = {
-        avatar_url,
-      };
-
-      //   let { error } = await supabase.from("profiles").upsert(updates);
-
       const { data, error } = await supabase
         .from("profiles")
         .update({
@@ -148,6 +133,16 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     }
   };
 
+  // Listen for keyboard show/hide events
+  Keyboard.addListener("keyboardDidShow", () => {
+    setButtonAreaHeight(height * 0.39);
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    setButtonAreaHeight(height * 0.75);
+  });
+
+  /************ UseEffects ************/
   useEffect(() => {
     const fetchprofileInfo = async () => {
       try {
@@ -177,7 +172,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
           borderBottomLeftRadius={"$11"}
         >
           <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-            <YStack height={height * 0.75} gap={"$2"}>
+            <YStack height={buttonAreaHeight} gap={"$2"}>
               <View paddingVertical={"$5"}>
                 <Avatar
                   url={avatarUrl}

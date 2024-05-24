@@ -4,9 +4,11 @@ import React from "react";
 import {
   AlertDialog,
   Button,
+  Card,
   useWindowDimensions,
   XStack,
   YStack,
+  Text,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 
@@ -20,6 +22,8 @@ interface Props {
   billId: number;
   userId: string;
   disabled: boolean;
+  date: Date;
+  endDate: Date;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSaveNameError: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -32,13 +36,19 @@ export const ConfirmSaveName: React.FC<Props> = ({
   disabled,
   setOpen,
   setSaveNameError,
+  date,
+  endDate,
 }) => {
+  /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
+  const confirmSaveMessage = `Are you sure you want to save changes to bill: "${name}"`;
+
+  /************ Functions ************/
   const onSubmit = async () => {
     if (name) {
       const { data, error } = await supabase
         .from("bills")
-        .update({ name: name })
+        .update({ name: name, start_date: date, end_date: endDate })
         .eq("billid", billId)
         .select();
 
@@ -56,6 +66,7 @@ export const ConfirmSaveName: React.FC<Props> = ({
       }
     }
   };
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -99,7 +110,7 @@ export const ConfirmSaveName: React.FC<Props> = ({
           <YStack gap>
             <AlertDialog.Title>Accept</AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to change bill name to: "{name}"
+              {confirmSaveMessage}
             </AlertDialog.Description>
 
             <XStack gap="$3" justifyContent="flex-end">

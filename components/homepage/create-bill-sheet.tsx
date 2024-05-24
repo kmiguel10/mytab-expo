@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
 import DatePicker from "react-native-date-picker";
 import {
@@ -17,6 +17,9 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
+import { supabase } from "@/lib/supabase";
+import { BillData } from "@/types/global";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 /**
  *
@@ -36,6 +39,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [billName, setBillName] = useState("");
   const [billNameError, setBillNameError] = useState(false);
+  const [isBillActive, setIsBillActive] = useState(false);
 
   //Default is 7 days
   const [planDuration, setPlanDuration] = useState(7);
@@ -43,6 +47,9 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [openDate, setOpenDate] = useState(false);
   const [payButtonHeight, setPayButtonHeight] = useState(windowHeight * 0.57);
+
+  const router = useRouter();
+  const { id } = useLocalSearchParams();
 
   const plans = [
     { title: "Free", subtitle: "2 Users for 1 week", price: "Free" },
@@ -64,6 +71,48 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
       const newEndDate = new Date(date);
       newEndDate.setDate(newEndDate.getDate() + 14);
       setEndDate(newEndDate);
+    } else {
+      setPlanDuration(7);
+
+      const newEndDate = new Date(date);
+      newEndDate.setDate(newEndDate.getDate() + 7);
+      setEndDate(newEndDate);
+    }
+  };
+
+  const onCreateBill = async () => {
+    if (!billName) {
+      console.error("Error: Name cannot be null");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("bills")
+      .insert([
+        {
+          ownerid: id,
+          name: billName,
+          start_date: date,
+          end_date: endDate,
+          isActive: isBillActive,
+        },
+      ])
+      .select();
+
+    if (data && data.length > 0) {
+      setOpen(false);
+      const newBillData: BillData = data[0] as BillData;
+      router.replace({
+        pathname: `/(homepage)/${id}`,
+        params: { newBillId: newBillData?.billid ?? null }, // Add userId to params
+      });
+    } else {
+      if (error) {
+        router.replace({
+          pathname: `/(homepage)/${id}`,
+          params: { errorCreateMessage: "Error creating bill" },
+        });
+      }
     }
   };
 
@@ -110,6 +159,19 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     console.log("BILLNAME TOO LONG", billNameError);
   };
 
+  const onBackClick = () => {
+    setIsPlanSelected(false);
+    setSelectedPlan(null);
+    setPlanDuration(7);
+    setDate(new Date());
+    setBillName("");
+
+    //Reset end date
+    const newEndDate = new Date(date);
+    newEndDate.setDate(newEndDate.getDate() + 7);
+    setEndDate(newEndDate);
+  };
+
   // Calculate the maximum date (30 days from today)
   const minDate = new Date();
   const maxDate = new Date(
@@ -127,6 +189,17 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   Keyboard.addListener("keyboardDidHide", () => {
     setPayButtonHeight(windowHeight * 0.55);
   });
+
+  /** ---------- UseEffect ---------- */
+  useEffect(() => {
+    const currentDate = new Date();
+    console.log("Current date", currentDate >= date && currentDate <= endDate);
+    if (currentDate >= date && currentDate <= endDate) {
+      setIsBillActive(true);
+    } else {
+      setIsBillActive(false);
+    }
+  }, [date, endDate, minDate, maxDate]);
 
   return (
     <Sheet
@@ -154,10 +227,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
             <StyledButton
               width={windowWidth * 0.2}
               size={"$3"}
-              onPress={() => {
-                setIsPlanSelected(false);
-                setBillName("");
-              }}
+              onPress={onBackClick}
             >
               Back
             </StyledButton>
@@ -253,7 +323,11 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                 </Card>
               </View>
               <View paddingTop="$2">
-                <StyledButton create={!!billName} disabled={!billName}>
+                <StyledButton
+                  create={!!billName && !billNameError}
+                  disabled={!billName || billNameError}
+                  onPress={onCreateBill}
+                >
                   Pay
                 </StyledButton>
               </View>

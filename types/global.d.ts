@@ -116,6 +116,8 @@ type BillInfo = {
   amount: number;
   isActive: boolean;
   isLocked: boolean;
+  start_date: Date;
+  end_date: Date;
 };
 
 type SummaryInfo = {
