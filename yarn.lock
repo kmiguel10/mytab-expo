@@ -2166,6 +2166,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo/config-plugins@npm:^7.8.4":
+  version: 7.9.2
+  resolution: "@expo/config-plugins@npm:7.9.2"
+  dependencies:
+    "@expo/config-types": "npm:^50.0.0-alpha.1"
+    "@expo/fingerprint": "npm:^0.6.0"
+    "@expo/json-file": "npm:~8.3.0"
+    "@expo/plist": "npm:^0.1.0"
+    "@expo/sdk-runtime-versions": "npm:^1.0.0"
+    "@react-native/normalize-color": "npm:^2.0.0"
+    chalk: "npm:^4.1.2"
+    debug: "npm:^4.3.1"
+    find-up: "npm:~5.0.0"
+    getenv: "npm:^1.0.0"
+    glob: "npm:7.1.6"
+    resolve-from: "npm:^5.0.0"
+    semver: "npm:^7.5.3"
+    slash: "npm:^3.0.0"
+    slugify: "npm:^1.6.6"
+    xcode: "npm:^3.0.1"
+    xml2js: "npm:0.6.0"
+  checksum: 11e80f74e307742e195b2476efabe362da3593b5351070a68b8a5dd020a1e8f224c7ab0806d2f969e071403c26071a3490ed574797534e7cf043eca4046310af
+  languageName: node
+  linkType: hard
+
 "@expo/config-plugins@npm:~7.8.0, @expo/config-plugins@npm:~7.8.2":
   version: 7.8.3
   resolution: "@expo/config-plugins@npm:7.8.3"
@@ -10398,6 +10423,7 @@ __metadata:
     react-native-date-picker: "npm:^5.0.2"
     react-native-elements: "npm:^3.4.3"
     react-native-gesture-handler: "npm:^2.16.2"
+    react-native-iap: "npm:^12.13.2"
     react-native-reanimated: "npm:^3.8.1"
     react-native-safe-area-context: "npm:4.8.2"
     react-native-screens: "npm:~3.29.0"
@@ -11481,6 +11507,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 227799f5e16f9725d81db524fc06c1fbef226835a5ee989642d132748832f7543ebc750d4309e49bcaa0fb6d1e7dd6b74028785e4b755978ab7f66f05b414c18
+  languageName: node
+  linkType: hard
+
+"react-native-iap@npm:^12.13.2":
+  version: 12.13.2
+  resolution: "react-native-iap@npm:12.13.2"
+  dependencies:
+    "@expo/config-plugins": "npm:^7.8.4"
+  peerDependencies:
+    react: ">=16.13.1"
+    react-native: ">=0.65.1"
+  checksum: a909ee15a5d118bcb902a903e8872c6bd57cabee8e9a026526de93a73fe480eaf37ca2a8fb5c2bd94e30093ca89ad92f83aeac205ec73387d4cab9b2f0450299
   languageName: node
   linkType: hard
 

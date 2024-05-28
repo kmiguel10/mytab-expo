@@ -8,7 +8,7 @@ import { MemberData, ProfileInfo } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { useWindowDimensions } from "react-native";
+import { Alert, Platform, useWindowDimensions } from "react-native";
 import { Text } from "tamagui";
 
 import { BodyContainer } from "@/components/containers/body-container";
@@ -24,7 +24,10 @@ import { Skeleton } from "moti/skeleton";
 import CreateBillSheet from "@/components/homepage/create-bill-sheet";
 import { StyledButton } from "@/components/button/button";
 
+import * as RNIap from "react-native-iap";
+
 const Home = () => {
+  /********** States and Variables ***********/
   const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
     useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
@@ -44,6 +47,8 @@ const Home = () => {
   const onOpenCreateBillSheet = () => {
     setIsCreateBillOpen(true);
   };
+
+  /********** UseEffects ***********/
 
   useEffect(() => {
     console.log("*** Homepage: Fetch bills for user", id);
@@ -147,6 +152,134 @@ const Home = () => {
     };
     fetchprofileInfo();
   }, [id]);
+
+  //useEffect for iap
+  // useEffect(() => {
+  //   const initIAP = async () => {
+  //     try {
+  //       await RNIap.initConnection();
+  //     } catch (err) {
+  //       console.warn(err);
+  //     }
+  //   };
+
+  //   initIAP();
+
+  //   // const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
+  //   //   async (purchase) => {
+  //   //     const receipt = purchase.transactionReceipt;
+  //   //     if (receipt) {
+  //   //       try {
+  //   //         const response = await fetch(
+  //   //           "https://localhost:3000/verify-receipt",
+  //   //           {
+  //   //             method: "POST",
+  //   //             headers: {
+  //   //               "Content-Type": "application/json",
+  //   //             },
+  //   //             body: JSON.stringify({
+  //   //               receiptData: receipt,
+  //   //               isSandbox: true,
+  //   //             }),
+  //   //           }
+  //   //         );
+
+  //   //         const result = await response.json();
+
+  //   //         if (result.status === 0) {
+  //   //           if (Platform.OS === "ios") {
+  //   //             await RNIap.finishTransactionIOS(purchase.transactionId);
+  //   //           } else if (Platform.OS === "android") {
+  //   //             await RNIap.acknowledgePurchaseAndroid(purchase.purchaseToken);
+  //   //             await RNIap.consumePurchaseAndroid(purchase.purchaseToken);
+  //   //           }
+  //   //           Alert.alert(
+  //   //             "Purchase Successful",
+  //   //             "Receipt validated successfully"
+  //   //           );
+  //   //         } else {
+  //   //           Alert.alert("Purchase Failed", "Invalid receipt");
+  //   //         }
+  //   //       } catch (error) {
+  //   //         console.error(error);
+  //   //       }
+  //   //     }
+  //   //   }
+  //   // );
+
+  //   // const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
+  //   //   console.warn("purchaseErrorListener", error);
+  //   //   Alert.alert("Purchase Error", error.message);
+  //   // });
+
+  //   return () => {
+  //     // purchaseUpdateSubscription.remove();
+  //     // purchaseErrorSubscription.remove();
+  //     RNIap.endConnection();
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const initIAP = async () => {
+      try {
+        await RNIap.initConnection();
+        console.log("CONNECTED");
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+
+    initIAP();
+
+    const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
+      async (purchase) => {
+        const receipt = purchase.transactionReceipt;
+        if (receipt) {
+          try {
+            const response = await fetch(
+              "https://localhost:3000/verify-receipt",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  receiptData: receipt,
+                  isSandbox: true,
+                }),
+              }
+            );
+
+            const result = await response.json();
+
+            if (result.status === 0) {
+              // Acknowledge the purchase after verification
+              await RNIap.finishTransaction({ purchase });
+              Alert.alert(
+                "Purchase Successful",
+                "Receipt validated successfully"
+              );
+            } else {
+              Alert.alert("Purchase Failed", "Invalid receipt");
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      }
+    );
+
+    const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
+      console.warn("purchaseErrorListener", error);
+      Alert.alert("Purchase Error", error.message);
+    });
+
+    return () => {
+      purchaseUpdateSubscription.remove();
+      purchaseErrorSubscription.remove();
+      RNIap.endConnection();
+    };
+  }, []);
 
   return (
     <OuterContainer>
