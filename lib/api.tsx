@@ -21,6 +21,26 @@ export const getMembers = async (billId: number) => {
   }
 };
 
+export const getMembersWithBillcode = async (billCode: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("members")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+      )
+      .eq("isMemberIncluded", true)
+      .eq("billcode", billCode);
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log(">>> Get members: ", JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    return [];
+  }
+};
+
 export const getMembersAndRequests = async (billId: number) => {
   try {
     const { data, error } = await supabase
