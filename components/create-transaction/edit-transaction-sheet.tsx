@@ -35,12 +35,11 @@ const EditTransaction: React.FC<Props> = ({
   setCurrentTxnToEdit,
   billOwnerId,
 }) => {
+  /*********** States and Variables ***********/
   const [position, setPosition] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isAmountChanged, setIsAmountChanged] = useState(false);
   const [isVisibleForUser, setIsVisibleForUser] = useState(false);
-
-  // ---- test -----
+  const [amount, setAmount] = useState("");
   const [localTxn, setLocalTxn] = useState<Transaction>({
     billid: 0,
     submittedbyid: "",
@@ -59,8 +58,7 @@ const EditTransaction: React.FC<Props> = ({
   const [isEven, setIsEven] = useState(true);
   const { width, height } = useWindowDimensions();
 
-  /** ---------- Helpers ---------- */
-
+  /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
     const user = members.find((member) => member.userid === userId);
 
@@ -82,28 +80,40 @@ const EditTransaction: React.FC<Props> = ({
     }));
   };
 
-  const handleAmountChange = (amount: string) => {
-    // Remove any non-numeric characters except for periods
-    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
+  const handleAmountChange = (_amount: string) => {
+    // Allow only digits optionally followed by a dot and then more digits
+    const regex = /^\d*\.?\d*$/;
 
-    // Check if the numeric value is a valid number
-    if (!isNaN(numericValue)) {
-      // Update localTxn state with the parsed numeric value
-      setLocalTxn((prevTransaction) => ({
-        ...prevTransaction,
-        amount: numericValue,
-      }));
+    if (regex.test(_amount)) {
+      // Remove leading zeros unless the value is "0" or it starts with "0."
+      if (
+        _amount.startsWith("0") &&
+        _amount.length > 1 &&
+        !_amount.startsWith("0.")
+      ) {
+        _amount = _amount.replace(/^0+/, "");
+      }
 
-      setIsAmountChanged(true);
-    } else {
-      setLocalTxn((prevTransaction) => ({
-        ...prevTransaction,
-        amount: 0,
-      }));
+      if (_amount) {
+        setAmount(_amount);
+        setIsAmountChanged(true);
+      } else {
+        setAmount("0");
+      }
     }
   };
 
-  /**  - - - - - FUNCTIONS - - - - -*/
+  const handleBlur = () => {
+    // Default to 0 if the input is empty or just a dot
+    if (amount === "" || amount === ".") {
+      setAmount("0");
+    } else if (amount.endsWith(".")) {
+      // Remove trailing dot if present
+      setAmount(amount.slice(0, -1));
+    }
+  };
+
+  /*********** Functions ***********/
 
   /**
    * On Success:
@@ -116,6 +126,7 @@ const EditTransaction: React.FC<Props> = ({
     let _userId = userId.toString();
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
+    localTxn.amount = parseFloat(amount);
 
     //first check if bill is locked...
     //yes, then route to homepage
@@ -179,7 +190,7 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   const initializeSplits = () => {
-    let amountNum = localTxn.amount;
+    let amountNum = amount ? parseFloat(amount) : localTxn.amount;
     const splitEvenAmount = (_amount: number) => {
       return _amount / members.length;
     };
@@ -235,11 +246,9 @@ const EditTransaction: React.FC<Props> = ({
     setIncludedMembers(split);
   };
 
-  /**  - - - - - Use Effect - - - - -*/
+  /*********** UseEffects ***********/
   useEffect(() => {
     if (members.length > 0) {
-      console.log("RESET MEMBERS");
-
       initiateIncludedMembers();
     }
   }, [members]);
@@ -249,7 +258,7 @@ const EditTransaction: React.FC<Props> = ({
     if (isAmountChanged) {
       initializeSplits();
     }
-  }, [localTxn.amount]);
+  }, [amount]);
 
   //reset localTxn on open and close of modal
   useEffect(() => {
@@ -259,6 +268,8 @@ const EditTransaction: React.FC<Props> = ({
       console.log("Edit page transaction: ", transaction);
       console.log("Edit page open: ", open);
     }
+    setLocalTxn(transaction);
+    setAmount(transaction.amount.toString());
   }, [open, transaction]);
 
   //component is visible to user if user is the bill owner or transaction payer
@@ -278,8 +289,11 @@ const EditTransaction: React.FC<Props> = ({
       forceRemoveScrollEnabled={open}
       modal={true}
       open={open}
-      onOpenChange={() => setOpen(!open)}
-      snapPoints={isExpanded ? [80, 50] : [90, 50]}
+      onOpenChange={() => {
+        setOpen(!open);
+        setIsAmountChanged(false);
+      }}
+      snapPoints={[90]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       position={position}
@@ -317,8 +331,8 @@ const EditTransaction: React.FC<Props> = ({
                 <StyledButton
                   width={width * 0.25}
                   size={"$3.5"}
-                  active={!!(localTxn.name && localTxn.amount)}
-                  disabled={!(localTxn.name && localTxn.amount)}
+                  active={!!(localTxn.name && amount) && amount !== "0"}
+                  disabled={!!(localTxn.name && amount) && amount === "0"}
                 >
                   Submit
                 </StyledButton>
@@ -328,11 +342,12 @@ const EditTransaction: React.FC<Props> = ({
 
           <Fieldset gap="$4" horizontal justifyContent="center">
             <StyledInput
-              id="edit-amount-input"
+              id={`edit-amount-input - ${localTxn.name}`}
               placeholder="0"
-              keyboardType="numeric"
-              value={localTxn.amount.toString()}
+              keyboardType="decimal-pad"
+              value={amount}
               onChangeText={handleAmountChange}
+              onBlur={handleBlur}
               inputMode="decimal"
               size={"$12"}
               backgroundColor={"$backgroundTransparent"}
@@ -348,7 +363,7 @@ const EditTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="local-txn-name"
+                id={`local-txn-name - ${localTxn.billid}`}
                 placeholder="Enter name"
                 defaultValue=""
                 value={localTxn.name}
@@ -373,11 +388,11 @@ const EditTransaction: React.FC<Props> = ({
             <XStack justifyContent="flex-end" paddingTop="$4">
               <CustomSplit
                 memberSplits={localTxn.split}
-                amount={localTxn.amount}
+                amount={parseFloat(amount)}
                 onSaveSplits={handleSaveSplits}
                 setIsEven={setIsEven}
                 includedMembers={includedMembers}
-                isDisabled={!!(localTxn.name && localTxn.amount)}
+                isDisabled={!!(localTxn.name && amount) && amount !== "0"}
               />
             </XStack>
           )}
@@ -387,11 +402,7 @@ const EditTransaction: React.FC<Props> = ({
             <Text fontSize={"$2"}>Current Split</Text>
             <Separator />
           </XStack>
-          <SplitView
-            memberSplits={localTxn.split}
-            amount={localTxn.amount.toString()}
-            isEven={isEven}
-          />
+          <SplitView memberSplits={localTxn.split} isEven={isEven} />
         </Form>
       </Sheet.Frame>
     </Sheet>

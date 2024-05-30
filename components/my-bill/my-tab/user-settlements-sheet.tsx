@@ -61,13 +61,14 @@ const UserSettlementsSheet: React.FC<Props> = ({
    */
   const getTransactionsSum = (settlementInfo: SettlementInfo[]): number => {
     return settlementInfo.reduce(
-      (total, info) => total + info.userSplitAmount,
+      (total, info) => total + parseFloat(info.userSplitAmount.toString()),
       0
     );
   };
 
   /** - - - - - - - - useEffects - - - - - - - - */
   useEffect(() => {
+    console.log(JSON.stringify(currentUserSettlements));
     if (currentUserSettlements) {
       _currentUserSettlementSum = getTransactionsSum(currentUserSettlements);
       setCurrentUserSettlementSum(_currentUserSettlementSum);
@@ -79,6 +80,13 @@ const UserSettlementsSheet: React.FC<Props> = ({
       );
       setSelectedMemberSettlementSum(_selectedUserSettlementSum);
     }
+    console.log("_currentUserSettlementSum: ", _currentUserSettlementSum);
+    console.log("_selectedUserSettlementSum: ", _selectedUserSettlementSum);
+
+    console.log(
+      "SETTLEMENT AMOUNT: ",
+      _currentUserSettlementSum - _selectedUserSettlementSum
+    );
 
     setSettlementAmount(_currentUserSettlementSum - _selectedUserSettlementSum);
   }, [selectedMemberSettlements, currentUserSettlements]);
@@ -200,7 +208,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             </Text>
           ) : (
             <Text paddingBottom="$4">
-              {currentUserName} has not paid anything {selectedUserName}
+              {currentUserName} has not paid anything for {selectedUserName}
             </Text>
           )}
 

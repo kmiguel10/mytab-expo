@@ -28,8 +28,14 @@ import * as RNIap from "react-native-iap";
 
 const Home = () => {
   /********** States and Variables ***********/
-  const { id, newBillId, joinedBillCode, errorMessage, errorCreateMessage } =
-    useLocalSearchParams();
+  const {
+    id,
+    newBillId,
+    joinedBillCode,
+    errorMessage,
+    errorCreateMessage,
+    successDeletedBillMsg,
+  } = useLocalSearchParams();
   const [bills, setBills] = useState<MemberData[]>([]);
   const [loadingBills, setLoadingBills] = useState(true);
   const [newBill, setNewBill] = useState<MemberData | null>(null);
@@ -43,6 +49,12 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [isCreateBillOpen, setIsCreateBillOpen] = useState(false);
+  const [products, setProducts] = useState<RNIap.Product[]>([]);
+
+  const productSkus = Platform.select({
+    ios: ["com.mytab.1week", "com.mytab.2weeks"],
+    android: [""],
+  });
 
   const onOpenCreateBillSheet = () => {
     setIsCreateBillOpen(true);
@@ -130,11 +142,21 @@ const Home = () => {
       if (errorCreateMessage) {
         setOpen(true);
       }
+      if (successDeletedBillMsg) {
+        setOpen(true);
+      }
     }
 
     fetchBills();
     setError(errorMessage?.toString());
-  }, [id, newBillId, joinedBillCode, errorMessage, refreshing]);
+  }, [
+    id,
+    newBillId,
+    joinedBillCode,
+    errorMessage,
+    refreshing,
+    successDeletedBillMsg,
+  ]);
 
   useEffect(() => {
     const fetchprofileInfo = async () => {
@@ -222,8 +244,10 @@ const Home = () => {
   useEffect(() => {
     const initIAP = async () => {
       try {
+        console.log("* * * Initializing IAP connection * * * ");
         await RNIap.initConnection();
-        console.log("CONNECTED");
+        console.log("* * * Initialization Completeded IAP connection * * * ");
+        await fetchProducts();
       } catch (err) {
         console.warn(err);
       }
@@ -274,9 +298,30 @@ const Home = () => {
       Alert.alert("Purchase Error", error.message);
     });
 
+    const fetchProducts = async () => {
+      try {
+        console.log("Fetching products with IDs:", productSkus);
+        if (productSkus && productSkus.length > 0) {
+          const fetchedProducts = await RNIap.getProducts({
+            skus: productSkus,
+          });
+          console.log("Products fetched:", fetchedProducts);
+          if (fetchedProducts.length === 0) {
+            console.error("No products found");
+          }
+          setProducts(fetchedProducts);
+        } else {
+          console.warn("No product SKUs provided");
+        }
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+
     return () => {
       purchaseUpdateSubscription.remove();
       purchaseErrorSubscription.remove();
+      console.log("Ending IAP connection");
       RNIap.endConnection();
     };
   }, []);
@@ -418,6 +463,28 @@ const Home = () => {
             {errorMessage ? errorMessage : errorCreateMessage}
           </Toast.Title>
           {/* <Toast.Description>{error}</Toast.Description> */}
+        </Toast>
+      )}
+      {successDeletedBillMsg && (
+        <Toast
+          onOpenChange={setOpen}
+          open={open}
+          animation="100ms"
+          enterStyle={{ x: -20, opacity: 0 }}
+          exitStyle={{ x: -20, opacity: 0 }}
+          opacity={1}
+          x={0}
+          backgroundColor={"$green8"}
+          height={"400"}
+          width={"80%"}
+          justifyContent="center"
+        >
+          <Toast.Title alignItems="center">
+            Bill is deleted successfully!
+          </Toast.Title>
+          {/* <Toast.Description>
+              Share Bill Code to your friends: {newBill?.billcode}
+            </Toast.Description> */}
         </Toast>
       )}
     </OuterContainer>

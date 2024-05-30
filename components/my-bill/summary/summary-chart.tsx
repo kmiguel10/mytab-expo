@@ -1,3 +1,4 @@
+import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import { SummaryInfo } from "@/types/global";
 import React from "react";
 import { BarChart } from "react-native-chart-kit";
@@ -15,7 +16,9 @@ const SummaryChart: React.FC<Props> = ({
   scaledWidth,
 }) => {
   const labelsMembers = members.map((member) => member.displayName);
-  const datasetMembers = members.map((member) => member.amountPaid);
+  const datasetMembers = members.map((member) =>
+    truncateToTwoDecimalPlaces(member.amountPaid)
+  );
 
   return (
     <BarChart

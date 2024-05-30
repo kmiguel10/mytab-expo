@@ -20,6 +20,7 @@ import { StyledInput } from "../input/input";
 import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import * as RNIap from "react-native-iap";
 
 /**
  *
@@ -37,6 +38,11 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [position, setPosition] = useState(0);
   const [isPlanSelected, setIsPlanSelected] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  // const [selectedProductId, setSelectedProductId] =
+  //   useState<RNIap.RequestPurchase>();
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  );
   const [billName, setBillName] = useState("");
   const [billNameError, setBillNameError] = useState(false);
   const [isBillActive, setIsBillActive] = useState(false);
@@ -53,9 +59,24 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
   const plans = [
     { title: "Free", subtitle: "2 Users for 1 week", price: "Free" },
-    { title: "1 Week", subtitle: "2 - 12 Users for 1 week", price: "$1.99" },
-    { title: "2 Weeks", subtitle: "2 - 12 Users for 2 weeks", price: "$1.99" },
+    {
+      title: "1 Week",
+      subtitle: "2 - 12 Users for 1 week",
+      price: "$1.99",
+      productCode: "com.mytab.1week",
+    },
+    {
+      title: "2 Weeks",
+      subtitle: "2 - 12 Users for 2 weeks",
+      price: "$1.99",
+      productCode: "com.mytab.2weeks",
+    },
   ];
+
+  const productIds = ["com.mytab.1week", "com.mytab.2weeks"];
+
+  // Explicitly define the type for products state
+  const [products, setProducts] = useState<RNIap.Product[]>([]);
 
   /** ---------- Functions ---------- */
 
@@ -71,20 +92,33 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
       const newEndDate = new Date(date);
       newEndDate.setDate(newEndDate.getDate() + 14);
       setEndDate(newEndDate);
+      setSelectedProductId("com.mytab.2weeks");
     } else {
       setPlanDuration(7);
 
       const newEndDate = new Date(date);
       newEndDate.setDate(newEndDate.getDate() + 7);
       setEndDate(newEndDate);
+      setSelectedProductId("com.mytab.1week");
     }
   };
 
-  const onCreateBill = async () => {
-    if (!billName) {
-      console.error("Error: Name cannot be null");
-      return;
-    }
+  const onCreateBill = async (productId: any) => {
+    // try {
+    //   if (selectedProductId) {
+    //     console.log("Product Id: ", selectedProductId);
+    //     await RNIap.requestPurchase({ sku: selectedProductId });
+    //   } else {
+    //     console.error("Error: No product selected");
+    //   }
+    // } catch (err) {
+    //   console.warn(err);
+    // }
+
+    // if (!billName) {
+    //   console.error("Error: Name cannot be null");
+    //   return;
+    // }
 
     const { data, error } = await supabase
       .from("bills")
@@ -180,6 +214,14 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     minDate.getDate() + 30
   );
 
+  const handlePurchase = async (productId: any) => {
+    try {
+      await RNIap.requestPurchase(productId);
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   /** ---------- Listeners ---------- */
   // Listen for keyboard show/hide events
   Keyboard.addListener("keyboardDidShow", () => {
@@ -200,6 +242,21 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
       setIsBillActive(false);
     }
   }, [date, endDate, minDate, maxDate]);
+
+  //Get products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const products = await RNIap.getProducts({ skus: productIds });
+        console.log("Productss fetched: ", products);
+        setProducts(products);
+      } catch (err) {
+        console.warn(err);
+        console.log("Error fetching products", err);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <Sheet
@@ -326,7 +383,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                 <StyledButton
                   create={!!billName && !billNameError}
                   disabled={!billName || billNameError}
-                  onPress={onCreateBill}
+                  onPress={() => onCreateBill(selectedPlan)}
                 >
                   Pay
                 </StyledButton>

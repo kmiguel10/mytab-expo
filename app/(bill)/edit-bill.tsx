@@ -89,8 +89,6 @@ export const EditBill = () => {
         if (data) {
           if (data[0].ownerid === userId) {
             setIsOwner(true);
-            console.log("IsOwner", data[0].ownerid === userId);
-            console.log("DATA", data);
           }
         }
       }

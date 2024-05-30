@@ -12,7 +12,10 @@ import {
   YGroup,
 } from "tamagui";
 import UserTransactions from "./user-transactions-sheet";
-import { filterUserTransactions } from "@/lib/helpers";
+import {
+  filterUserTransactions,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { Pressable } from "react-native";
 
 interface Props extends CardProps {
@@ -86,8 +89,12 @@ const MemberCards: React.FC<Props> = ({
                       hoverTheme
                       icon={<Avatar url={member.avatar_url} size="$4.5" />}
                       title={member.displayName}
-                      subTitle={`Transaction Count: ${member.txnCount}`}
-                      iconAfter={<H1>${member.amountPaid}</H1>}
+                      subTitle={`Count: ${member.txnCount}`}
+                      iconAfter={
+                        <H1>
+                          ${truncateToTwoDecimalPlaces(member.amountPaid)}
+                        </H1>
+                      }
                     />
                   </YGroup.Item>
                 </YGroup>

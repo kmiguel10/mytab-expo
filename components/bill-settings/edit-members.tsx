@@ -18,19 +18,11 @@ interface Props {
 const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
   /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
+  const [includedMembers, setIncludedMembers] = useState<Member[]>([]);
+  const [requests, setRequests] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  /** ---------- Helper Functions ---------- */
-  const filteredMembers = members.filter((member) => member.userid !== ownerId);
-  const includedMembers = filteredMembers.filter(
-    (member) =>
-      member.isMemberIncluded === true && member.isRequestSent === false
-  );
-  const requests = filteredMembers.filter(
-    (member) =>
-      member.isMemberIncluded === false && member.isRequestSent === true
-  );
 
   /** ---------- Functions---------- */
   const fetchMembersData = async () => {
@@ -54,10 +46,35 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
   const timerRef = React.useRef(0);
 
   /** ---------- UseEffects---------- */
-  //Get included members
   useEffect(() => {
     fetchMembersData();
   }, [billId]);
+
+  useEffect(() => {
+    // Filter out the owner from members
+    let filtered = members.filter((member) => member.userid !== ownerId);
+
+    // Create included members and requests arrays
+    let included = filtered.filter(
+      (member) =>
+        member.isMemberIncluded === true && member.isRequestSent === false
+    );
+    const reqs = filtered.filter(
+      (member) =>
+        member.isMemberIncluded === false && member.isRequestSent === true
+    );
+
+    // Add the owner to the filteredMembers
+    const ownerMember = members.find((member) => member.userid === ownerId);
+    if (ownerMember) {
+      included = [...included, ownerMember];
+    }
+
+    // Set state with the updated arrays
+    setFilteredMembers(filtered);
+    setIncludedMembers(included);
+    setRequests(reqs);
+  }, [members, ownerId]);
 
   return (
     <View height={height} padding="$3">
@@ -82,6 +99,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
             includedMembers={includedMembers}
             fetchMembersData={fetchMembersData}
             isOwner={isOwner}
+            ownerId={ownerId}
           />
         )}
       </ScrollView>

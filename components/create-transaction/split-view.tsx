@@ -15,16 +15,10 @@ import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
-  amount: string;
   isEven: boolean;
 }
 
-const SplitView: React.FC<Props> = ({
-  memberSplits,
-  amount,
-  isEven,
-  ...props
-}) => {
+const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
@@ -45,7 +39,12 @@ const SplitView: React.FC<Props> = ({
                   title={member.displayName}
                   icon={<Avatar url={member.avatarUrl} size="$3.5" />}
                   iconAfter={
-                    <Text>${truncateToTwoDecimalPlaces(member.amount)}</Text>
+                    <Text>
+                      $
+                      {truncateToTwoDecimalPlaces(
+                        !!member.amount ? member.amount : 0
+                      )}
+                    </Text>
                   }
                 />
               </YGroup.Item>

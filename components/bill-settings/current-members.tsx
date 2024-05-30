@@ -9,12 +9,14 @@ interface Props {
   includedMembers: Member[];
   fetchMembersData: () => void;
   isOwner: boolean;
+  ownerId: string;
 }
 
 const CurrentMembers: React.FC<Props> = ({
   includedMembers,
   fetchMembersData,
   isOwner,
+  ownerId,
 }) => {
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
@@ -39,9 +41,11 @@ const CurrentMembers: React.FC<Props> = ({
                 key={index}
                 icon={<Avatar url={member.avatar_url} size="$4" />}
                 title={member.displayName}
-                subTitle={"Member"}
+                subTitle={member.userid === ownerId ? "Owner" : "Member"}
                 iconAfter={
                   !isOwner ? (
+                    <View />
+                  ) : member.userid === ownerId ? (
                     <View />
                   ) : (
                     <XStack gap="$2">

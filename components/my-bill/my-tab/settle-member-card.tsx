@@ -1,35 +1,24 @@
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  Card,
-  CardProps,
-  H4,
-  H6,
-  ScrollView,
-  XStack,
-  YStack,
-  useWindowDimensions,
-  View,
-  YGroup,
-  ListItem,
-  H1,
-} from "tamagui";
+import Avatar from "@/components/login/avatar";
+import { findUserDisplayName, truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import {
   Member,
-  MyTabInfo,
   SettleCardInfo,
   SettlementInfo,
   Transaction,
 } from "@/types/global";
-import {
-  findUserAvatar,
-  findUserDisplayName,
-  roundToNearestTenth,
-  truncateToTwoDecimalPlaces,
-} from "@/lib/helpers";
-import UserSettlementsSheet from "./user-settlements-sheet";
+import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import Avatar from "@/components/login/avatar";
+import {
+  CardProps,
+  H4,
+  ListItem,
+  ScrollView,
+  useWindowDimensions,
+  View,
+  XStack,
+  YGroup,
+} from "tamagui";
+import UserSettlementsSheet from "./user-settlements-sheet";
 
 interface Props extends CardProps {
   members: SettleCardInfo[];
@@ -227,6 +216,7 @@ const SettleMemberCard: React.FC<Props> = ({
               >
                 <YGroup.Item>
                   <ListItem
+                    key={index}
                     hoverTheme
                     icon={
                       <Avatar

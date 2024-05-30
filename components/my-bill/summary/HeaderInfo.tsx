@@ -1,3 +1,4 @@
+import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import React from "react";
 import {
   CardProps,
@@ -46,7 +47,7 @@ const HeaderInfo: React.FC<Props> = ({
         <View>
           <Text>Total Amount</Text>
           <H4 height={height * 0.25} width={windowWidth * 0.35}>
-            ${totalPaid}
+            ${truncateToTwoDecimalPlaces(totalPaid)}
           </H4>
         </View>
         <View>

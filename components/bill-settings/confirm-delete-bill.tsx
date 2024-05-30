@@ -19,8 +19,6 @@ interface Props {
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   const router = useRouter();
   const onDelete = async () => {
-    console.log("delete bill", billId);
-
     const { data, error } = await supabase
       .from("bills")
       .update({ isdeleted: true })
@@ -28,12 +26,18 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
       .select();
 
     if (data) {
-      console.log("Deleted bill: ", data);
       router.replace({
-        pathname: "/(homepage)/[id]",
-        params: { id: userId.toString() },
+        pathname: `/(homepage)/[id]`,
+        params: {
+          id: userId.toString(),
+          successDeletedBillMsg: "Successfully Deleted Bill",
+        },
       });
     } else if (error) {
+      router.replace({
+        pathname: `/(homepage)/[id]`,
+        params: { id: userId.toString(), errorMessage: "Error Deleting bill" },
+      });
     }
   };
   return (
@@ -76,19 +80,18 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           y={0}
         >
           <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+            <AlertDialog.Title>Delete Bill</AlertDialog.Title>
             <AlertDialog.Description>
               Are you sure you want to delete bill?
             </AlertDialog.Description>
-
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
                 <Button>Cancel</Button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={onDelete}>
+                <StyledButton active={true} onPress={onDelete}>
                   Accept
-                </Button>
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>

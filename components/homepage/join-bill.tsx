@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { AlertDialog, Input, XStack, YStack } from "tamagui";
 import { StyledButton } from "../button/button";
+import { getMembers, getMembersWithBillcode } from "@/lib/api";
 
 interface Props {
   avatarUrl: string | null;
@@ -22,11 +23,30 @@ const JoinBill: React.FC<Props> = ({
   const [code, setCode] = useState("");
   const router = useRouter();
 
+  /**
+   * Cannot join if there are 12 or more members
+   * @returns
+   */
   const joinAsMember = async () => {
     if (!code) {
       console.error("Error: Billcode cannot be null");
       return;
     }
+
+    //First check if members is >= 12 , if it is then send an error saying that the limit of members has reached... 12
+    const membersData = await getMembersWithBillcode(code);
+
+    if (membersData.length >= 12) {
+      console.log("XXXXX Bill members length: ", membersData.length);
+      router.replace({
+        pathname: `/(homepage)/${id}`,
+        params: {
+          errorMessage: "The max amount of 12 members has been reached.",
+        },
+      });
+      return;
+    }
+
     let { data, error } = await supabase
       .from("members")
       .insert([
