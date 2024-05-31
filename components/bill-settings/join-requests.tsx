@@ -31,7 +31,6 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
       .select();
 
     if (data) {
-      console.log("data", data);
       // Remove the accepted member from localRequests
       setLocalRequests((prevRequests) =>
         prevRequests.filter((member) => member.memberid !== memberId)
@@ -67,7 +66,7 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
     setLocalRequests(requests);
     fetchMembersData();
     console.log(" ### UseEffect in join requests");
-  }, [localRequests]);
+  }, [requests]);
 
   return (
     <View>

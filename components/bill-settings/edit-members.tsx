@@ -59,7 +59,7 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
       (member) =>
         member.isMemberIncluded === true && member.isRequestSent === false
     );
-    const reqs = filtered.filter(
+    let reqs = filtered.filter(
       (member) =>
         member.isMemberIncluded === false && member.isRequestSent === true
     );
