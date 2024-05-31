@@ -86,13 +86,8 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
     }
   };
 
-  const fetchBills = () => {
-    console.log("TESTING REFRESH HOMEPAGE");
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
-    fetchBills();
   };
 
   return (

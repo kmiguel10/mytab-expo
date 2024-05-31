@@ -152,7 +152,7 @@ export const getBillsForUserIdWithUrls = async (
       memberUrls: memberUrlsMap[bill.billid] || [],
     }));
 
-    console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
+    // console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
     return billsWithUrls;
   } catch (error) {
     console.error("Error fetching bills:", error);
@@ -286,7 +286,7 @@ export const getProfileInfo = async (
       .select("displayName,lastName,firstName,avatar_url,email")
       .eq("id", userId);
 
-    console.log("Profile info data", profile);
+    //console.log("Profile info data", profile);
 
     if (error) {
       throw new Error(error.message);
