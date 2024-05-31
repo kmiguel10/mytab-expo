@@ -3,12 +3,8 @@ import { Trash } from "@tamagui/lucide-icons";
 import React from "react";
 import { AlertDialog, Button, XStack, YStack } from "tamagui";
 import { StyledButton } from "../button/button";
+import { Member } from "@/types/global";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
   user: Member;
   fetchMembersData: () => void;
@@ -25,7 +21,6 @@ export const ConfirmationDialog: React.FC<Props> = ({
   setDeletedMember,
 }) => {
   const onDeleteUser = async () => {
-    console.log("Delete user");
     const { data, error } = await supabase
       .from("members")
       .update({ isMemberIncluded: false })
@@ -36,7 +31,7 @@ export const ConfirmationDialog: React.FC<Props> = ({
     if (data) {
       fetchMembersData();
       setOpen(true);
-      setDeletedMember(data[0].memberid);
+      setDeletedMember(data[0].displayName);
     } else if (error) {
       setProcessError(true);
     }
@@ -77,19 +72,20 @@ export const ConfirmationDialog: React.FC<Props> = ({
           y={0}
         >
           <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+            <AlertDialog.Title paddingBottom="$2">
+              Delete user
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to remove {user.userid} from the bill
+              Are you sure you want to remove {user.displayName} from the bill?
             </AlertDialog.Description>
-
-            <XStack gap="$3" justifyContent="flex-end">
+            <XStack gap="$4" justifyContent="flex-end" paddingTop="$4">
               <AlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
+                <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={onDeleteUser}>
+                <StyledButton active={true} onPress={onDeleteUser}>
                   Accept
-                </Button>
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>
