@@ -36,7 +36,7 @@ const EditTransaction: React.FC<Props> = ({
   billOwnerId,
 }) => {
   /*********** States and Variables ***********/
-  const [position, setPosition] = useState(0);
+
   const [isAmountChanged, setIsAmountChanged] = useState(false);
   const [isVisibleForUser, setIsVisibleForUser] = useState(false);
   const [amount, setAmount] = useState("");
@@ -56,6 +56,7 @@ const EditTransaction: React.FC<Props> = ({
     SelectedMemberSplitAmount[]
   >([]);
   const [isEven, setIsEven] = useState(true);
+  const [sheetZIndex, setSheetZIndex] = useState(100000);
   const { width, height } = useWindowDimensions();
 
   /*********** Helpers ***********/
@@ -171,7 +172,6 @@ const EditTransaction: React.FC<Props> = ({
             const editedTxn: Transaction = data[0];
             setCurrentTxnToEdit(editedTxn);
             setLocalTxn(editedTxn);
-            console.log("Edited Transaction: ", editedTxn);
             router.replace({
               pathname: `/(bill)/${editedTxn.billid}`,
               params: { userId: _userId, editedTxnName: editedTxn.name },
@@ -221,8 +221,6 @@ const EditTransaction: React.FC<Props> = ({
     );
 
     setIncludedMembers(newSelectedSplits);
-
-    console.log("Parent Selected members: ", JSON.stringify(newSelectedSplits));
   };
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
@@ -264,9 +262,8 @@ const EditTransaction: React.FC<Props> = ({
   useEffect(() => {
     // Reset localTxn values when modal is opened
     if (open) {
+      setSheetZIndex(100000);
       setLocalTxn(transaction);
-      console.log("Edit page transaction: ", transaction);
-      console.log("Edit page open: ", open);
     }
     setLocalTxn(transaction);
     setAmount(transaction.amount.toString());
@@ -274,9 +271,6 @@ const EditTransaction: React.FC<Props> = ({
 
   //component is visible to user if user is the bill owner or transaction payer
   useEffect(() => {
-    console.log("userId", userId);
-    console.log("billOwnerId", billOwnerId);
-    console.log("localTxn.payerid", localTxn.payerid);
     if (userId === billOwnerId || userId === localTxn.payerid) {
       setIsVisibleForUser(true);
     } else {
@@ -296,9 +290,7 @@ const EditTransaction: React.FC<Props> = ({
       snapPoints={[90]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
-      position={position}
-      onPositionChange={setPosition}
-      zIndex={100000}
+      zIndex={sheetZIndex}
       animation="medium"
     >
       <Sheet.Overlay
@@ -326,6 +318,7 @@ const EditTransaction: React.FC<Props> = ({
                 userId={userId.toString()}
                 transaction={localTxn}
                 setOpen={setOpen}
+                setSheetZIndex={setSheetZIndex}
               />
               <Form.Trigger asChild>
                 <StyledButton

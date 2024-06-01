@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { Trash, Trash2 } from "@tamagui/lucide-icons";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AlertDialog,
   Button,
@@ -20,6 +20,7 @@ interface Member {
 interface Props {
   userId: string;
   setOpen: (open: boolean) => void;
+  setSheetZIndex: (zIndex: number) => void;
   transaction: Transaction;
 }
 
@@ -27,6 +28,7 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
   userId,
   transaction,
   setOpen,
+  setSheetZIndex,
 }) => {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
@@ -52,7 +54,6 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
 
       if (data) {
         const _deletedTxn: Transaction = data[0];
-        console.log("Deleted txn", _deletedTxn);
         router.navigate({
           pathname: `/(bill)/${transaction.billid}`,
           params: { userId: _userId, deletedTxnName: _deletedTxn.name },
@@ -65,6 +66,7 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
       });
     }
   };
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -73,7 +75,10 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
           delete={true}
           icon={<Trash2 size={"$1"} color={"$red9"} />}
           width={width * 0.25}
-          onPress={() => setOpen(false)}
+          onPress={() => {
+            setOpen(true);
+            setSheetZIndex(0);
+          }}
         />
       </AlertDialog.Trigger>
 
@@ -110,10 +115,15 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
               Are you sure you want to delete transaction? : "{transaction.name}
               "
             </AlertDialog.Description>
-
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
-                <StyledButton>Cancel</StyledButton>
+                <StyledButton
+                  onPress={() => {
+                    setOpen(false);
+                  }}
+                >
+                  Cancel
+                </StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <StyledButton delete={true} onPress={onDeleteTxn}>
