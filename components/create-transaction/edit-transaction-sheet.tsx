@@ -205,8 +205,6 @@ const EditTransaction: React.FC<Props> = ({
       ...prevTransaction,
       split: newSplits,
     }));
-
-    console.log("***** Splits initialized");
   };
 
   const initiateIncludedMembers = () => {
