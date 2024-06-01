@@ -1,4 +1,4 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Keyboard, StyleSheet, useWindowDimensions } from "react-native";
 
 import {
   Button,
@@ -30,6 +30,9 @@ export default function Profile() {
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   const router = useRouter();
 
   /** Functions */
@@ -122,6 +125,15 @@ export default function Profile() {
       return null; // or any other default value if needed
     });
   };
+  /** ---------- Listeners ---------- */
+  // Listen for keyboard show/hide events
+  Keyboard.addListener("keyboardDidShow", () => {
+    setIsKeyboardVisible(true);
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    setIsKeyboardVisible(false);
+  });
 
   /** useEffects */
   useEffect(() => {
@@ -157,10 +169,8 @@ export default function Profile() {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
-        {/* <Text>{userId}</Text>
-          <Text>{JSON.stringify(profileInfo)}</Text> */}
         <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-          <YStack height={height * 0.75} gap={"$5"}>
+          <YStack height={height * 0.75} gap={"$3"}>
             <View paddingVertical={"$3"}>
               <Avatar
                 url={avatarUrl}
@@ -172,20 +182,25 @@ export default function Profile() {
               />
             </View>
             <Separator />
+            {isKeyboardVisible && (
+              <XStack justifyContent="flex-end">
+                <Form.Trigger asChild>
+                  <StyledButton
+                    disabled={!profileInfo?.displayName}
+                    active={profileInfo?.displayName ? true : false}
+                    width={width * 0.25}
+                    size={"$3.5"}
+                  >
+                    Save
+                  </StyledButton>
+                </Form.Trigger>
+              </XStack>
+            )}
             <XStack>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
                   Display name (required)
                 </Text>
-                {/* <Input
-                  id="display-name"
-                  placeholder="Display Name"
-                  defaultValue=""
-                  value={profileInfo?.displayName}
-                  onChangeText={handleDisplayNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-               
-                /> */}
                 <StyledInput
                   id="display-name"
                   placeholder="Display Name"
@@ -240,33 +255,22 @@ export default function Profile() {
               </Fieldset>
             </XStack>
           </YStack>
-
           <XStack justifyContent="flex-end">
             <Form.Trigger asChild>
-              <StyledButton
-                disabled={!profileInfo?.displayName}
-                active={profileInfo?.displayName ? true : false}
-                width={width * 0.25}
-                size={"$3.5"}
-              >
-                Save
-              </StyledButton>
+              {!isKeyboardVisible && (
+                <StyledButton
+                  disabled={!profileInfo?.displayName}
+                  active={profileInfo?.displayName ? true : false}
+                  width={width * 0.25}
+                  size={"$3.5"}
+                >
+                  Save
+                </StyledButton>
+              )}
             </Form.Trigger>
           </XStack>
         </Form>
       </BodyContainer>
-      {/* <FooterContainer
-        justifyContent="space-between"
-        height={height}
-      ></FooterContainer> */}
     </OuterContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonsContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    marginBottom: 16, // Add some bottom margin for spacing
-  },
-});
