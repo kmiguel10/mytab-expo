@@ -25,6 +25,7 @@ interface Props {
   height: number;
   width: number;
   setRefreshing: (toggle: boolean) => void;
+  resetToasts: () => void;
   refreshing: boolean;
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
@@ -35,6 +36,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
   width,
   setRefreshing,
   refreshing,
+  resetToasts,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -88,6 +90,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    resetToasts();
   };
 
   return (
