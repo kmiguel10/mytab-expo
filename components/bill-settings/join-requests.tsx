@@ -66,7 +66,7 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
     setLocalRequests(requests);
     fetchMembersData();
     console.log(" ### UseEffect in join requests");
-  }, [requests]);
+  }, []);
 
   return (
     <View>
