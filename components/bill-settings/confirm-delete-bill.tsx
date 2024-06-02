@@ -5,16 +5,10 @@ import React from "react";
 import { AlertDialog, Button, XStack, YStack } from "tamagui";
 import { StyledButton } from "../button/button";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
   billId: number;
   userId: string;
 }
-//pass: name, billId, userId
 
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   const router = useRouter();
@@ -79,7 +73,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           opacity={1}
           y={0}
         >
-          <YStack gap>
+          <YStack gap="$4">
             <AlertDialog.Title>Delete Bill</AlertDialog.Title>
             <AlertDialog.Description>
               Are you sure you want to delete bill?
@@ -89,8 +83,8 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
                 <Button>Cancel</Button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <StyledButton active={true} onPress={onDelete}>
-                  Accept
+                <StyledButton decline={true} onPress={onDelete}>
+                  Delete
                 </StyledButton>
               </AlertDialog.Action>
             </XStack>
