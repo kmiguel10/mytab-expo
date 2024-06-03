@@ -12,11 +12,6 @@ import { StyledButton } from "../button/button";
 import { useRouter } from "expo-router";
 import { Transaction } from "@/types/global";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
   userId: string;
   setOpen: (open: boolean) => void;
@@ -109,8 +104,8 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
           opacity={1}
           y={0}
         >
-          <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+          <YStack gap="$3">
+            <AlertDialog.Title>Delete transaction?</AlertDialog.Title>
             <AlertDialog.Description>
               Are you sure you want to delete transaction? : "{transaction.name}
               "
@@ -126,7 +121,7 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
                 </StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <StyledButton delete={true} onPress={onDeleteTxn}>
+                <StyledButton decline={true} onPress={onDeleteTxn}>
                   Delete
                 </StyledButton>
               </AlertDialog.Action>
