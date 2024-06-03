@@ -1,25 +1,21 @@
 import { MemberData } from "@/types/global";
-import { Link } from "expo-router";
 import { useState } from "react";
-import { LayoutRectangle, RefreshControl } from "react-native";
+import { LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
 import {
   AnimatePresence,
-  H6,
-  ScrollView,
   SizableText,
   styled,
   Tabs,
   View,
-  XStack,
   YStack,
 } from "tamagui";
-import BillCard from "./bill-card";
-import BillCardSkeleton from "../skeletons/bill-card-skeleton";
+import UserBills from "./user-bills";
 interface Props {
   bills: MemberData[];
+  inactiveBills: MemberData[];
   loadingBills: boolean;
   userId: string;
   height: number;
@@ -30,6 +26,7 @@ interface Props {
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
+  inactiveBills,
   loadingBills,
   userId,
   height,
@@ -88,6 +85,9 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
     }
   };
 
+  /**
+   * Needs to be on parent because it will be used for
+   */
   const handleRefresh = async () => {
     setRefreshing(true);
     resetToasts();
@@ -176,70 +176,21 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           <Tabs.Content value={currentTab} forceMount flex={1} paddingTop="$2">
             <View height={"100%"}>
               {currentTab === "active" ? (
-                <ScrollView
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={handleRefresh}
-                    />
-                  }
-                >
-                  {!loadingBills ? (
-                    bills.map((item, index) => (
-                      <XStack
-                        key={`${item.memberid}-${index}`}
-                        backgroundColor="transparent"
-                        justifyContent="center"
-                        padding="$1.5"
-                      >
-                        <Link
-                          key={`${item.memberid}-${index}`}
-                          href={{
-                            pathname: `/(bill)/${item.billid}`,
-                            params: { userId: userId },
-                          }}
-                          disabled={
-                            item.isRequestSent && item.ownerid !== userId
-                          }
-                          asChild
-                        >
-                          <BillCard
-                            key={`${item.memberid}-${index}`}
-                            animation="bouncy"
-                            size="$3"
-                            width={360}
-                            height={110}
-                            scale={0.9}
-                            hoverStyle={{ scale: 0.925 }}
-                            pressStyle={{ scale: 0.875 }}
-                            bill={item}
-                            membership={
-                              item.ownerid === userId ? "Owner" : "Member"
-                            }
-                          />
-                        </Link>
-                      </XStack>
-                    ))
-                  ) : (
-                    <XStack
-                      backgroundColor="transparent"
-                      justifyContent="center"
-                      padding="$1.5"
-                    >
-                      <BillCardSkeleton
-                        width={360}
-                        height={110}
-                        scale={0.9}
-                        size="$3"
-                        hoverStyle={{ scale: 0.925 }}
-                        pressStyle={{ scale: 0.875 }}
-                        show={loadingBills}
-                      />
-                    </XStack>
-                  )}
-                </ScrollView>
+                <UserBills
+                  bills={bills}
+                  loadingBills={loadingBills}
+                  userId={userId}
+                  refreshing={refreshing}
+                  handleRefresh={handleRefresh}
+                />
               ) : (
-                <H6> "Inactive Test This"</H6>
+                <UserBills
+                  bills={inactiveBills}
+                  loadingBills={loadingBills}
+                  userId={userId}
+                  refreshing={refreshing}
+                  handleRefresh={handleRefresh}
+                />
               )}
             </View>
           </Tabs.Content>
