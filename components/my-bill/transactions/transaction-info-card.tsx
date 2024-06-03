@@ -29,6 +29,7 @@ interface Props extends CardProps {
   setTransactions: (transactions: Transaction[]) => void;
   isLocked: boolean;
   billOwnerId: string;
+  billId: number;
 }
 
 const TransactionInfoCard: React.ForwardRefRenderFunction<
@@ -42,9 +43,10 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   setTransactions,
   isLocked,
   billOwnerId,
+  billId,
   ...props
 }) => {
-  /** ---------- States ---------- */
+  /** ---------- States and Variables ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
   const [currentTxnToEdit, setCurrentTxnToEdit] = useState<Transaction>({
     billid: 0,
@@ -69,11 +71,8 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   const fetchTransactions = async () => {
     if (currentUser) {
       const transactionData: Transaction[] = await getActiveTransactions(
-        transactions ? transactions[0].billid.toString() : "0"
+        billId ? billId?.toString() : "0"
       );
-      console.log("currentUser", currentUser);
-      console.log("Bill id", currentTxnToEdit.billid.toString());
-      console.log("*** Fetched transactions on refresh: ", transactionData);
       if (transactionData) setRefreshing(false);
       setTransactions(transactionData);
     }
@@ -94,13 +93,10 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
       }
     );
     setOpenEditTxn(true);
-
-    //set the current transaction to edit
-    console.log("--- islocked: ", isLocked);
   };
 
+  /** ---------- UseEffects  ---------- */
   useEffect(() => {
-    console.log("Info card open state: ", openEditTxn);
     if (!openEditTxn) {
       setCurrentTxnToEdit({
         billid: 0,
@@ -112,7 +108,6 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
         split: [],
         isdeleted: false,
       });
-      console.log("cleared transaction to edit");
     }
   }, [openEditTxn]);
 
