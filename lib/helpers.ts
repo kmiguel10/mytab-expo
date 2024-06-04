@@ -135,3 +135,15 @@ export const formatDateToMonthDay = (dateString: Date): string => {
 export const formatDate = (date: Date) => {
   return date?.toLocaleString("en-US", { month: "long", day: "numeric" });
 };
+
+export const convertToLocalDate = (dateString: string): Date => {
+  const utcDate = new Date(dateString);
+
+  // Get the timezone offset in milliseconds
+  const timezoneOffsetInMillis = utcDate.getTimezoneOffset() * 60 * 1000;
+
+  // Convert the UTC date to local time by subtracting the timezone offset
+  const localDateMillis = utcDate.getTime() - timezoneOffsetInMillis;
+
+  return new Date(localDateMillis);
+};
