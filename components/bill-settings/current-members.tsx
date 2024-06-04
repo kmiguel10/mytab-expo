@@ -35,6 +35,7 @@ const CurrentMembers: React.FC<Props> = ({
             width={"100%"}
             size="$5"
             padding={"$1"}
+            key={index}
           >
             <YGroup.Item>
               <ListItem
