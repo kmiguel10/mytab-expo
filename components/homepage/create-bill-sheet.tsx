@@ -1,6 +1,11 @@
+import { formatDateToYMD } from "@/lib/helpers";
+import { supabase } from "@/lib/supabase";
+import { BillData } from "@/types/global";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
 import DatePicker from "react-native-date-picker";
+import * as RNIap from "react-native-iap";
 import {
   Card,
   H4,
@@ -17,10 +22,6 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
-import { supabase } from "@/lib/supabase";
-import { BillData } from "@/types/global";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import * as RNIap from "react-native-iap";
 
 /**
  *
@@ -32,14 +33,15 @@ interface Props {
   setOpen: (open: boolean) => void;
 }
 
+/**
+ * Dates send to the Database are in UTC, all the calculations will be in UTC except what is shown to the user which will be transformed to localTime
+ */
 const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   /** ---------- States and Variables ---------- */
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [position, setPosition] = useState(0);
   const [isPlanSelected, setIsPlanSelected] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  // const [selectedProductId, setSelectedProductId] =
-  //   useState<RNIap.RequestPurchase>();
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
   );
@@ -47,46 +49,29 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [billNameError, setBillNameError] = useState(false);
   const [isBillActive, setIsBillActive] = useState(false);
 
-  //Default is 7 days
-  const [planDuration, setPlanDuration] = useState(7);
+  // Dates are initialized in UTC
   const [date, setDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [openDate, setOpenDate] = useState(false);
-  const [payButtonHeight, setPayButtonHeight] = useState(windowHeight * 0.57);
 
+  // Default is 7 days
+  const [planDuration, setPlanDuration] = useState(7);
+  const [openDate, setOpenDate] = useState(false);
+
+  const [payButtonHeight, setPayButtonHeight] = useState(windowHeight * 0.57);
   const router = useRouter();
   const { id } = useLocalSearchParams();
-
-  const plans = [
-    { title: "Free", subtitle: "2 Users for 1 week", price: "Free" },
-    {
-      title: "1 Week",
-      subtitle: "2 - 12 Users for 1 week",
-      price: "$1.99",
-      productCode: "com.mytab.1week",
-    },
-    {
-      title: "2 Weeks",
-      subtitle: "2 - 12 Users for 2 weeks",
-      price: "$1.99",
-      productCode: "com.mytab.2weeks",
-    },
-  ];
-
   const productIds = ["com.mytab.1week", "com.mytab.2weeks"];
-
-  // Explicitly define the type for products state
   const [products, setProducts] = useState<RNIap.Product[]>([]);
 
   /** ---------- Functions ---------- */
 
-  const onPlanSelected = (index: number) => {
+  const onPlanSelected = (productId: string) => {
     setIsPlanSelected(true);
     setDate(new Date());
-    setSelectedPlan(index);
+    setSelectedPlan(productId);
 
-    //2 week plan
-    if (index === 2) {
+    // 2 week plan
+    if (productId === "com.mytab.2weeks") {
       setPlanDuration(14);
 
       const newEndDate = new Date(date);
@@ -103,7 +88,28 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     }
   };
 
-  const onCreateBill = async (productId: any) => {
+  // const onCreateBill = async () => {
+  //   try {
+  //     if (selectedProductId) {
+  //       console.log("Product Id: ", selectedProductId);
+
+  //       await RNIap.requestPurchase({
+  //         sku: selectedProductId,
+  //         andDangerouslyFinishTransactionAutomaticallyIOS: false,
+  //       });
+  //       console.log("Finished request purchase", selectedProductId);
+  //     } else {
+  //       console.error("Error: No product selected");
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
+
+  /**
+   * At this point the DatePicker has converted the dates to UTC so no need for conversion when sending it to the database
+   */
+  const onCreateBill = async () => {
     // try {
     //   if (selectedProductId) {
     //     console.log("Product Id: ", selectedProductId);
@@ -126,8 +132,8 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
         {
           ownerid: id,
           name: billName,
-          start_date: date,
-          end_date: endDate,
+          start_date: date, //UTC
+          end_date: endDate, //UTC
           isActive: isBillActive,
         },
       ])
@@ -150,9 +156,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     }
   };
 
-  /**
-   * Clear state when closing
-   */
   const onOpenChange = () => {
     setOpen(!open);
     setIsPlanSelected(false);
@@ -161,21 +164,9 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setDate(new Date());
     setBillName("");
 
-    //Reset end date
     const newEndDate = new Date(date);
     newEndDate.setDate(newEndDate.getDate() + 7);
     setEndDate(newEndDate);
-  };
-
-  const onDateConfirm = (_date: Date) => {
-    {
-      setOpenDate(false);
-      setDate(date);
-
-      const newEndDate = new Date(date);
-      newEndDate.setDate(newEndDate.getDate() + planDuration);
-      setEndDate(newEndDate);
-    }
   };
 
   const formatDate = (date: Date) => {
@@ -189,8 +180,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     } else {
       setBillNameError(true);
     }
-
-    console.log("BILLNAME TOO LONG", billNameError);
   };
 
   const onBackClick = () => {
@@ -200,13 +189,11 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setDate(new Date());
     setBillName("");
 
-    //Reset end date
     const newEndDate = new Date(date);
     newEndDate.setDate(newEndDate.getDate() + 7);
     setEndDate(newEndDate);
   };
 
-  // Calculate the maximum date (30 days from today)
   const minDate = new Date();
   const maxDate = new Date(
     minDate.getFullYear(),
@@ -233,9 +220,12 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   });
 
   /** ---------- UseEffect ---------- */
+
   useEffect(() => {
     const currentDate = new Date();
-    console.log("Current date", currentDate >= date && currentDate <= endDate);
+
+    //console.log("Current Date local: ", currentDate.toString());
+
     if (currentDate >= date && currentDate <= endDate) {
       setIsBillActive(true);
     } else {
@@ -243,20 +233,58 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     }
   }, [date, endDate, minDate, maxDate]);
 
-  //Get products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const products = await RNIap.getProducts({ skus: productIds });
-        console.log("Productss fetched: ", products);
+        //console.log("Products fetched: ", products);
         setProducts(products);
       } catch (err) {
         console.warn(err);
-        console.log("Error fetching products", err);
       }
     };
     fetchProducts();
   }, []);
+
+  // useEffect(() => {
+  //   const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
+  //     (purchase) => {
+  //       console.log("********** Purchase Updated: ", purchase);
+  //       if (purchase.transactionReceipt) {
+  //         // Handle purchase confirmation here
+  //         console.log(
+  //           "Purchase successful with receipt: ",
+  //           purchase.transactionReceipt
+  //         );
+  //         Alert.alert("Purchase Successful", "Thank you for your purchase!");
+  //         RNIap.finishTransaction({ purchase, isConsumable: true });
+
+  //         // Close the sheet after successful purchase
+  //         setOpen(false);
+  //       }
+  //     }
+  //   );
+
+  //   const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
+  //     console.warn("Purchase Error: ", error);
+  //     Alert.alert("Purchase Error", "An error occurred during the purchase.");
+  //   });
+
+  //   return () => {
+  //     if (purchaseUpdateSubscription) {
+  //       purchaseUpdateSubscription.remove();
+  //     }
+  //     if (purchaseErrorSubscription) {
+  //       purchaseErrorSubscription.remove();
+  //     }
+  //   };
+  // });
+
+  useEffect(() => {
+    console.log("*********Date and EndDate");
+    console.log("Date: ", date);
+    console.log("End Date ", endDate);
+  }, [date, endDate]);
 
   return (
     <Sheet
@@ -297,28 +325,30 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
           <Separator marginVertical={"$3"} />
           <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
             <YGroup.Item>
-              {plans.map((plan, index) => (
+              {products.map((product, index) => (
                 <ListItem
-                  key={index}
+                  key={product.productId}
                   hoverTheme
-                  title={<H6 fontSize={"$4"}>{plan.title}</H6>}
-                  subTitle={plan.subtitle}
+                  title={<H6 fontSize={"$4"}>{product.title}</H6>}
+                  subTitle={product.description}
                   iconAfter={
                     <StyledButton
                       size="$3"
                       active={true}
-                      onPress={() => onPlanSelected(index)}
+                      onPress={() => onPlanSelected(product.productId)}
                       disabled={isPlanSelected}
                     >
                       {"  "}
-                      {plan.price}
+                      {product.price}
                       {"  "}
                     </StyledButton>
                   }
                   size={"$5"}
                   borderRadius={"$4"}
                   display={
-                    isPlanSelected && selectedPlan !== index ? "none" : "flex"
+                    isPlanSelected && selectedPlan !== product.productId
+                      ? "none"
+                      : "flex"
                   }
                 />
               ))}
@@ -348,6 +378,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                     <XStack justifyContent="space-between" alignItems="center">
                       <Text alignItems="center">
                         {formatDate(date)} - {formatDate(endDate)}
+                        {/* {convertToLocalDate(date.toString()).toString()}-{convertToLocalDate(endDate.toString()).toString()} */}
                       </Text>
                       <StyledButton
                         size={"$3.5"}
@@ -366,12 +397,20 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                     minimumDate={new Date()}
                     maximumDate={maxDate}
                     onConfirm={(date) => {
+                      //Date is in UTC
                       setOpenDate(false);
                       setDate(date);
 
                       const newEndDate = new Date(date);
                       newEndDate.setDate(newEndDate.getDate() + planDuration);
                       setEndDate(newEndDate);
+
+                      console.log("***** onConfirm *****");
+                      console.log("date: ", date);
+                      console.log(
+                        "end date: ",
+                        newEndDate.getDate() + planDuration
+                      );
                     }}
                     onCancel={() => {
                       setOpenDate(false);
@@ -383,7 +422,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                 <StyledButton
                   create={!!billName && !billNameError}
                   disabled={!billName || billNameError}
-                  onPress={() => onCreateBill(selectedPlan)}
+                  onPress={onCreateBill}
                 >
                   Pay
                 </StyledButton>
