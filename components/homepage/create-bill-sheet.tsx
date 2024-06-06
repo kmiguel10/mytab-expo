@@ -23,6 +23,9 @@ import {
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
 
+import moment from "moment";
+import "moment-timezone";
+
 /**
  *
  * @returns Display Plans and Payment UI
@@ -49,9 +52,9 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [billNameError, setBillNameError] = useState(false);
   const [isBillActive, setIsBillActive] = useState(false);
 
-  // Dates are initialized in UTC
-  const [date, setDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  // Dates are initialized in Local Time Zone
+  const [date, setDate] = useState(moment());
+  const [endDate, setEndDate] = useState(moment());
 
   // Default is 7 days
   const [planDuration, setPlanDuration] = useState(7);
@@ -67,22 +70,22 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
   const onPlanSelected = (productId: string) => {
     setIsPlanSelected(true);
-    setDate(new Date());
+    setDate(moment()); //current date
     setSelectedPlan(productId);
 
     // 2 week plan
     if (productId === "com.mytab.2weeks") {
       setPlanDuration(14);
 
-      const newEndDate = new Date(date);
-      newEndDate.setDate(newEndDate.getDate() + 14);
+      const newEndDate = moment();
+      newEndDate.add(14, "days");
       setEndDate(newEndDate);
       setSelectedProductId("com.mytab.2weeks");
     } else {
       setPlanDuration(7);
 
-      const newEndDate = new Date(date);
-      newEndDate.setDate(newEndDate.getDate() + 7);
+      const newEndDate = moment();
+      newEndDate.add(7, "days");
       setEndDate(newEndDate);
       setSelectedProductId("com.mytab.1week");
     }
@@ -132,8 +135,8 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
         {
           ownerid: id,
           name: billName,
-          start_date: date, //UTC
-          end_date: endDate, //UTC
+          start_date: date.utc(), //UTC
+          end_date: endDate.utc(), //UTC
           isActive: isBillActive,
         },
       ])
@@ -161,11 +164,12 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setIsPlanSelected(false);
     setSelectedPlan(null);
     setPlanDuration(7);
-    setDate(new Date());
+    setDate(moment());
     setBillName("");
 
-    const newEndDate = new Date(date);
-    newEndDate.setDate(newEndDate.getDate() + 7);
+    const newEndDate = moment();
+    // newEndDate.setDate(newEndDate.getDate() + 7);
+    newEndDate.add(7, "days");
     setEndDate(newEndDate);
   };
 
@@ -186,11 +190,12 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setIsPlanSelected(false);
     setSelectedPlan(null);
     setPlanDuration(7);
-    setDate(new Date());
+    setDate(moment());
     setBillName("");
 
-    const newEndDate = new Date(date);
-    newEndDate.setDate(newEndDate.getDate() + 7);
+    const newEndDate = moment();
+    //newEndDate.setDate(newEndDate.getDate() + 7);
+    newEndDate.add(7, "days");
     setEndDate(newEndDate);
   };
 
@@ -222,13 +227,15 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   /** ---------- UseEffect ---------- */
 
   useEffect(() => {
-    const currentDate = new Date();
+    const currentDate = moment();
 
     //console.log("Current Date local: ", currentDate.toString());
-
+    //Need to rethink this...
     if (currentDate >= date && currentDate <= endDate) {
+      //Bill is sent to active Tab
       setIsBillActive(true);
     } else {
+      //Bills is sent to Inactive tab
       setIsBillActive(false);
     }
   }, [date, endDate, minDate, maxDate]);
@@ -282,8 +289,17 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
   useEffect(() => {
     console.log("*********Date and EndDate");
-    console.log("Date: ", date);
-    console.log("End Date ", endDate);
+    console.log("Date: ", date.toLocaleString());
+    console.log("End Date ", endDate.toLocaleString());
+    // const now = moment();
+    // const offSet = date.utcOffset();
+    // const offSetNow = now;
+    // const todayMoment = moment();
+    // console.log("Now", now.toLocaleString());
+    // console.log("Timezone offset", offSet, offSetNow);
+    // console.log("Today moment: ", todayMoment.toLocaleString());
+    // console.log("Today moment utc: ", todayMoment.utc());
+    // console.log("Today moment utc: ", todayMoment.utcOffset());
   }, [date, endDate]);
 
   return (
@@ -377,8 +393,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                     <Text>Duration</Text>
                     <XStack justifyContent="space-between" alignItems="center">
                       <Text alignItems="center">
-                        {formatDate(date)} - {formatDate(endDate)}
-                        {/* {convertToLocalDate(date.toString()).toString()}-{convertToLocalDate(endDate.toString()).toString()} */}
+                        {date.format("MMM D")}- {endDate.format("MMM D")}
                       </Text>
                       <StyledButton
                         size={"$3.5"}
@@ -389,27 +404,29 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                       </StyledButton>
                     </XStack>
                   </YStack>
+                  {/* Date picker receive date in localTime and converts it to UTC */}
                   <DatePicker
                     modal
                     mode={"date"}
                     open={openDate}
-                    date={date}
+                    date={date.utc().toDate()}
                     minimumDate={new Date()}
                     maximumDate={maxDate}
                     onConfirm={(date) => {
                       //Date is in UTC
                       setOpenDate(false);
-                      setDate(date);
+                      setDate(moment(date));
 
-                      const newEndDate = new Date(date);
-                      newEndDate.setDate(newEndDate.getDate() + planDuration);
-                      setEndDate(newEndDate);
+                      //Set new end date
+                      const newEndDate = moment(date);
+                      newEndDate.add(planDuration, "days");
+                      setEndDate(moment(newEndDate));
 
                       console.log("***** onConfirm *****");
                       console.log("date: ", date);
                       console.log(
                         "end date: ",
-                        newEndDate.getDate() + planDuration
+                        newEndDate.add(planDuration, "days")
                       );
                     }}
                     onCancel={() => {
