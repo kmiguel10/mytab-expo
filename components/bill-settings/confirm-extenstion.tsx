@@ -1,24 +1,46 @@
+import { convertToLocalDate, formatDate } from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
-import { Trash } from "@tamagui/lucide-icons";
-import { useRouter } from "expo-router";
-import React from "react";
+import { BillInfo } from "@/types/global";
+import React, { useEffect, useState } from "react";
 import {
   AlertDialog,
   Button,
+  Card,
+  H4,
+  Paragraph,
   useWindowDimensions,
   XStack,
   YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
+import { AlertCircle } from "@tamagui/lucide-icons";
 
-const ConfirmExtension = () => {
+interface Props {
+  setOpenExtendDuration: (open: boolean) => void;
+  currentEndDateUTC: Date;
+  billId: number;
+  setBillInfo: (billInfo: BillInfo[]) => void;
+  setErrorMessage: (error: string) => void;
+}
+
+const ConfirmExtension: React.FC<Props> = ({
+  currentEndDateUTC,
+  billId,
+  setBillInfo,
+  setOpenExtendDuration,
+  setErrorMessage,
+}) => {
   /************ States and Variables ************/
+  const [extendedEndDateUTC, setExtendedEndDateUTC] = useState(new Date());
+  const [extendedEndDateLocalTime, setExtendedEndDateLocalTime] = useState(
+    new Date()
+  );
+
   const { width, height } = useWindowDimensions();
-  const confirmSaveMessage = `Are you sure you want to save changes to bill: ""`;
 
-  const confirmPurchaseMessage =
-    "Are you sure you want to extend your bill for 1 week?";
-
+  const confirmPurchaseMessage = `Do you want to extend your bill for 1 week for $1.99?\n\nThis bill will have a new expiration date of ${formatDate(
+    extendedEndDateLocalTime
+  )}`;
   const title = "Purchase extension";
 
   /************ Functions ************/
@@ -42,10 +64,68 @@ const ConfirmExtension = () => {
     //     setSaveNameError(true);
     //   }
     // }
+    //work on this tomorrow
+    //change the date and endDate of the bill
   };
-  const purchaseExtension = () => {
+  const purchaseExtension = async () => {
     console.log("Purchase extension");
+    console.log("Extending to new duration: ", new Date(), extendedEndDateUTC);
+    try {
+      const { data, error } = await supabase
+        .from("bills")
+        .update({ start_date: new Date(), end_date: extendedEndDateUTC })
+        .eq("billid", billId)
+        .select();
+
+      //if success - close dialog and come back to edit bill and show success message with updates duration
+
+      if (data) {
+        setBillInfo(data);
+        setOpenExtendDuration(true);
+        console.log("New bill", data);
+        console.log(
+          "Extended duration for bill: ",
+          data[0]?.billId,
+          data[0].start_date,
+          data[0].endDate
+        );
+      }
+
+      if (error) {
+        console.log("Error extending: ", error);
+        setOpenExtendDuration(true);
+        setErrorMessage(error.message);
+      }
+
+      //if error - show error message and comeback to edit bill
+    } catch (error: any) {
+      //show error
+
+      console.log("Error extending: ", error);
+      setOpenExtendDuration(true);
+      setErrorMessage(error.message);
+    }
   };
+
+  /************ UseEffects ************/
+
+  /**
+   * Sanitize current end date
+   */
+  useEffect(() => {
+    console.log("currentEndDateUTC", currentEndDateUTC);
+    //add 7 days
+    //convert the new extended time to local time
+    const newEndate = new Date(currentEndDateUTC);
+    newEndate.setDate(newEndate.getDate() + 7);
+    setExtendedEndDateUTC(newEndate);
+    setExtendedEndDateLocalTime(convertToLocalDate(newEndate.toString()));
+    console.log("Extended end date UTC", newEndate.toString());
+    console.log(
+      "Extended end date local time",
+      convertToLocalDate(newEndate.toString())
+    );
+  }, [currentEndDateUTC]);
 
   return (
     <AlertDialog native={false}>
@@ -90,11 +170,19 @@ const ConfirmExtension = () => {
           <YStack gap="$4">
             <AlertDialog.Title>{title}</AlertDialog.Title>
             <AlertDialog.Description>
-              {confirmPurchaseMessage}
+              <Card backgroundColor={"$yellow7Light"} padding="$2">
+                <XStack alignItems="center" gap="$2">
+                  <AlertCircle />
+                  <H4>Warning</H4>
+                </XStack>
+                <Card.Header>
+                  <Paragraph>{confirmPurchaseMessage}</Paragraph>
+                </Card.Header>
+              </Card>
             </AlertDialog.Description>
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
+                <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <StyledButton active={true} onPress={purchaseExtension}>
