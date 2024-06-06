@@ -1,14 +1,15 @@
+import { getMonthAndDateFromISOString } from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
-import { Trash } from "@tamagui/lucide-icons";
+import { AlertCircle } from "@tamagui/lucide-icons";
 import React from "react";
 import {
   AlertDialog,
-  Button,
   Card,
+  H4,
+  Paragraph,
   useWindowDimensions,
   XStack,
   YStack,
-  Text,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 
@@ -26,6 +27,9 @@ interface Props {
   endDate: Date;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSaveNameError: React.Dispatch<React.SetStateAction<boolean>>;
+  setInitialDate: (date: string) => void;
+  newInitialDate: string;
+  newExpirationDate: string;
 }
 //pass: name, billId, userId
 
@@ -36,12 +40,23 @@ export const ConfirmSaveName: React.FC<Props> = ({
   disabled,
   setOpen,
   setSaveNameError,
+  setInitialDate,
   date,
   endDate,
+  newInitialDate,
+  newExpirationDate,
 }) => {
   /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
-  const confirmSaveMessage = `Are you sure you want to save changes to bill: "${name}"`;
+  const confirmSaveMessage = `Are you sure you want to save changes to bill: \n"${name}"`;
+
+  const changeDateToTodayMsg =
+    "You are activating the bill today. This action cannot be undone. ";
+
+  const newExpirationDateMsg = `New Expiration Date: ${newExpirationDate}`;
+  const today = new Date();
+  const todayMonthDate = getMonthAndDateFromISOString(today.toISOString());
+  const dateMonthDate = getMonthAndDateFromISOString(date.toISOString());
 
   /************ Functions ************/
   const onSubmit = async () => {
@@ -56,6 +71,7 @@ export const ConfirmSaveName: React.FC<Props> = ({
         console.log("submitted bill: ", data);
         setOpen(true);
         setSaveNameError(false);
+        setInitialDate(data[0].start_date);
         // router.replace({
         //   pathname: `/(bill)/mybill/${billId}`,
         //   params: { userId: userId.toString() },
@@ -107,10 +123,22 @@ export const ConfirmSaveName: React.FC<Props> = ({
           opacity={1}
           y={0}
         >
-          <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+          <YStack gap="$2">
+            <AlertDialog.Title>Save changes</AlertDialog.Title>
             <AlertDialog.Description>
-              {confirmSaveMessage}
+              <YStack gap="$2">
+                <Paragraph>{confirmSaveMessage}</Paragraph>
+                {todayMonthDate === dateMonthDate && (
+                  <Card backgroundColor={"$yellow7Light"} padding="$2">
+                    <XStack alignItems="center" gap="$2">
+                      <AlertCircle />
+                      <H4>Warning</H4>
+                    </XStack>
+                    <Paragraph padding="$1">{changeDateToTodayMsg}</Paragraph>
+                    <Paragraph padding="$1">{newExpirationDateMsg}</Paragraph>
+                  </Card>
+                )}
+              </YStack>
             </AlertDialog.Description>
 
             <XStack gap="$3" justifyContent="flex-end">
@@ -119,7 +147,7 @@ export const ConfirmSaveName: React.FC<Props> = ({
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <StyledButton active={true} onPress={onSubmit}>
-                  Accept
+                  Save
                 </StyledButton>
               </AlertDialog.Action>
             </XStack>
