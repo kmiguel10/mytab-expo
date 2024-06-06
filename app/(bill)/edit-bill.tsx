@@ -1,4 +1,5 @@
 import ConfirmDeleteBill from "@/components/bill-settings/confirm-delete-bill";
+import ConfirmExtension from "@/components/bill-settings/confirm-extenstion";
 import ConfirmSaveName from "@/components/bill-settings/confirm-save-name";
 import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
@@ -7,40 +8,71 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { StyledInput } from "@/components/input/input";
 import { getBillInfo } from "@/lib/api";
-import { formatDate, formatDateToMonthDay } from "@/lib/helpers";
+import {
+  convertToLocalDate,
+  formatDate,
+  formatDateToMonthDay,
+  getMonthAndDateFromISOString,
+} from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-native-date-picker";
 import {
+  Card,
   Fieldset,
   Form,
-  useWindowDimensions,
-  XStack,
   Text,
-  YStack,
+  useWindowDimensions,
   View,
-  Card,
+  XStack,
+  YStack,
 } from "tamagui";
 
+/**
+ * This component's features are only visible to the bill owner
+ * The following can be edited and saved
+ * 1. Bill Name
+ * 2. Bill Duration
+ *  a. Bill Duration can be edited only if the bill has not started
+ *    - It can be extended within one month
+ *  b. Bill Duration can be extended for one week only after it has become inactive (meaning expired) or on the last day of the billduration
+ *  c. Once the bill has become active, the duration cannot be changed and it expires on the given expiration date
+ *
+ * @returns
+ */
 export const EditBill = () => {
   /** ---------- States ---------- */
   const { width, height } = useWindowDimensions();
   const { id, userId } = useLocalSearchParams();
   const [billInfo, setBillInfo] = useState<BillInfo[]>([]);
   const [open, setOpen] = useState(false);
+  const [openExtendDuration, setOpenExtendDuration] = useState(false);
+  const [extendDurationErrorMsg, setExtendDurationErrorMsg] = useState("");
   const [saveNameError, setSaveNameError] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [openDate, setOpenDate] = useState(false);
   const [planDuration, setPlanDuration] = useState(7);
   const [date, setDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [isBillActive, setIsBillActive] = useState(false);
+  const [isDateRangeChangeable, setIsDateRangeChangeable] = useState(false);
+  const [dateCalculation, setDateCalculation] = useState(new Date());
+  const [endDateCalculation, setEndDateCalculation] = useState(new Date());
+  const expirationWarningMessage = `${billInfo[0]?.name} expires today. Do you want to extend for another week for $1.99?`;
+
+  //Initial Values
+  let initialName = "";
+
+  const [initialStartDate, setInitialStartDate] = useState("");
+
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   let duration: number = 0;
+
+  // Get the timezone offset of the device
+  const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
   // Calculate the maximum date (30 days from today)
   const minDate = new Date();
@@ -50,7 +82,10 @@ export const EditBill = () => {
     minDate.getDate() + 30
   );
 
-  /** Functions */
+  const todayMonthDate = getMonthAndDateFromISOString(minDate.toISOString());
+  const endDateMonthDate = getMonthAndDateFromISOString(endDate.toISOString());
+
+  /** ---------- Functions ---------- */
   //This only changes the name
   const onSubmit = async () => {
     if (billInfo.length > 0) {
@@ -68,6 +103,9 @@ export const EditBill = () => {
     }
   };
 
+  const onPurchaseExtension = async () => {};
+
+  /** ---------- Handlers ---------- */
   const handleBillNameChange = (billName: string) => {
     setBillInfo((prevBillInfo) =>
       prevBillInfo.map((bill) => ({
@@ -77,7 +115,7 @@ export const EditBill = () => {
     );
   };
 
-  /** --- UseEffects --- */
+  /** ---------- UseEffects ---------- */
   useEffect(() => {
     //Fetch bill info
     async function fetchBillInfo() {
@@ -94,22 +132,50 @@ export const EditBill = () => {
       }
     }
     fetchBillInfo();
-  }, [id, userId]);
+  }, [id, userId, initialStartDate]);
 
-  //set the date and endDate initially
   useEffect(() => {
     if (billInfo && billInfo.length > 0) {
+      console.log("- - - Date fresh from API ");
+
+      console.log("billInfo[0]?.start_date", billInfo[0]?.start_date);
+      console.log("billInfo[0]?.end_date", billInfo[0]?.end_date);
+
       const startDate = new Date(billInfo[0]?.start_date);
       const endDate = new Date(billInfo[0]?.end_date);
 
+      //Save initial name and date
+      initialName = billInfo[0].name;
+      setInitialStartDate(formatDateToMonthDay(startDate));
+
+      console.log("initialName", initialName);
+      console.log("initialStartDate", initialStartDate);
+
+      console.log("startDate", startDate);
+      console.log("endDate", endDate);
+
+      let formattedStartDate = formatDate(startDate);
+      let formattedEndDate = formatDate(endDate);
+
+      console.log("Formatted date:");
+      console.log("formattedStartDate:", formattedStartDate);
+      console.log("formattedEndDate:", formattedEndDate);
+
       if (startDate && endDate) {
+        //set the date and endDate initially in UTC, used when saving the updated duration
         setDate(startDate);
         setEndDate(endDate);
+
+        //set dates for calculations locally, in localTime. These are used for local calculations
+        setDateCalculation(convertToLocalDate(startDate.toString()));
+        setEndDateCalculation(convertToLocalDate(endDate.toString()));
 
         const durationInMilliseconds = endDate.getTime() - startDate.getTime();
         const durationInDays = Math.ceil(
           durationInMilliseconds / (1000 * 60 * 60 * 24)
         );
+
+        console.log("Duration in days", durationInDays);
 
         setPlanDuration(durationInDays);
 
@@ -118,14 +184,43 @@ export const EditBill = () => {
     }
   }, [billInfo]);
 
+  //Can be deleted, just logs
   useEffect(() => {
-    const today = new Date();
-    if (today >= date && today <= endDate) {
-      setIsBillActive(false);
+    console.log("DATES in UTC");
+    console.log("start date", date);
+    console.log("end date", endDate);
+
+    console.log("DATES in localTime");
+    console.log("start date", dateCalculation);
+    console.log("end date", endDateCalculation);
+  }, [date, endDate]);
+
+  /**
+   * 1. Bill is active if it is within the date range or better if the bill is before the start date then it can be changed still
+   * 2. The bill's date range can be changed if the bill is not active yet
+   *
+   * Calculations must be based on UTC
+   */
+  useEffect(() => {
+    console.log("+++++++++++");
+    const today = new Date(); //in UTC
+    const localToday = convertToLocalDate(today.toString());
+    console.log("Today", today);
+    console.log("Date", date);
+    console.log("Local today", localToday);
+
+    setDateCalculation(convertToLocalDate(date.toString()));
+    setEndDateCalculation(convertToLocalDate(endDate.toString()));
+
+    if (today < date) {
+      console.log("isDateRangeChangeable", isDateRangeChangeable, today < date);
+      console.log(date, localToday, dateCalculation);
+      setIsDateRangeChangeable(true);
     } else {
-      setIsBillActive(true);
+      console.log("isDateRangeChangeable", isDateRangeChangeable);
+      console.log(date, localToday, dateCalculation);
+      setIsDateRangeChangeable(false);
     }
-    console.log("IsBillActive", today >= date && today <= endDate, today);
   }, [date, endDate]);
 
   return (
@@ -148,7 +243,17 @@ export const EditBill = () => {
           right={0}
         />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <View margin="$1">
+          <View margin="$1" gap="$2">
+            {/* <Card
+              bordered
+              backgroundColor="$yellow7Light"
+              borderRadius={"$5"}
+              height={windowHeight * 0.05}
+              gap="$4.5"
+              padding="$2.5"
+            >
+              <paragra>{expirationWarningMessage}</paragra>
+            </Card> */}
             <Card
               bordered
               backgroundColor="white"
@@ -178,24 +283,66 @@ export const EditBill = () => {
                   disabled={!billInfo[0]?.name}
                   date={date}
                   endDate={endDate}
+                  setInitialDate={setInitialStartDate}
+                  newInitialDate={formatDateToMonthDay(dateCalculation)}
+                  newExpirationDate={formatDateToMonthDay(endDateCalculation)}
                 />
               </XStack>
               <YStack paddingLeft="$2">
-                <Text>Duration</Text>
+                <XStack gap="$2">
+                  <Text>Duration</Text>
+                  {initialStartDate.toString() !==
+                    formatDateToMonthDay(dateCalculation) && (
+                    <View
+                      backgroundColor={"$yellow5Light"}
+                      paddingHorizontal={"$2"}
+                      paddingVertical={"$1"}
+                      alignItems="center"
+                      borderRadius={"$12"}
+                    >
+                      <Text fontSize={"$1"}>Unsaved Changes</Text>
+                    </View>
+                  )}
+                </XStack>
+
                 <XStack justifyContent="space-between" alignItems="center">
                   <Text alignItems="center" justifyContent="flex-start">
-                    {formatDate(date)} - {formatDate(endDate)}
+                    {formatDateToMonthDay(dateCalculation)} -
+                    {formatDateToMonthDay(endDateCalculation)}
                   </Text>
-                  {isOwner && (
+                  {todayMonthDate === endDateMonthDate && (
+                    <View
+                      backgroundColor={"$yellow5Light"}
+                      paddingHorizontal={"$2"}
+                      paddingVertical={"$1"}
+                      alignItems="center"
+                      borderRadius={"$12"}
+                    >
+                      <Text fontSize={"$1"}>Expires today</Text>
+                    </View>
+                  )}
+
+                  {isOwner && isDateRangeChangeable && (
                     <StyledButton
                       size={"$3.5"}
-                      active={isBillActive}
-                      disabled={!isBillActive}
+                      active={isDateRangeChangeable}
+                      disabled={!isDateRangeChangeable}
                       onPress={() => setOpenDate(true)}
                     >
                       Select Date
                     </StyledButton>
                   )}
+                  {isOwner &&
+                    !isDateRangeChangeable &&
+                    todayMonthDate === endDateMonthDate && (
+                      <ConfirmExtension
+                        currentEndDateUTC={endDate}
+                        billId={parseInt(id.toString())}
+                        setBillInfo={setBillInfo}
+                        setOpenExtendDuration={setOpenExtendDuration}
+                        setErrorMessage={setExtendDurationErrorMsg}
+                      />
+                    )}
                 </XStack>
               </YStack>
               <DatePicker
@@ -208,9 +355,10 @@ export const EditBill = () => {
                 onConfirm={(date) => {
                   setOpenDate(false);
                   setDate(date);
-
+                  console.log("Start from datepicker", date);
                   const newEndDate = new Date(date);
                   newEndDate.setDate(newEndDate.getDate() + planDuration);
+                  console.log("End date", newEndDate.getDate() + planDuration);
                   setEndDate(newEndDate);
                 }}
                 onCancel={() => {
@@ -227,6 +375,7 @@ export const EditBill = () => {
               userId={userId.toString()}
               billId={parseInt(id.toString())}
               isLocked={billInfo[0]?.isLocked}
+              disabled={isDateRangeChangeable}
             />
           </XStack>
         )}
@@ -245,12 +394,17 @@ export const EditBill = () => {
             />
           </XStack>
         )}
-
         <SaveNameToast
           setOpen={setOpen}
           open={open}
           billName={billInfo[0]?.name}
           saveNameError={saveNameError}
+        />
+        <ExtendDurationToast
+          setOpenExtendDuration={setOpenExtendDuration}
+          openExtendDuration={openExtendDuration}
+          extendErrorMessage={extendDurationErrorMsg}
+          bill={billInfo}
         />
       </BodyContainer>
     </OuterContainer>
@@ -258,6 +412,48 @@ export const EditBill = () => {
 };
 
 export default EditBill;
+
+interface ExtendDurationToastProps {
+  setOpenExtendDuration: React.Dispatch<React.SetStateAction<boolean>>;
+  openExtendDuration: boolean;
+  extendErrorMessage: string;
+  bill: BillInfo[];
+}
+
+const ExtendDurationToast: React.FC<ExtendDurationToastProps> = ({
+  setOpenExtendDuration,
+  openExtendDuration,
+  extendErrorMessage,
+  bill,
+}) => {
+  const errorTitle = "Error extending duration";
+  const successTitle = `Bill Duration Extended for ${bill[0]?.name}`;
+
+  const successMsg = ` New Duration ${formatDate(
+    convertToLocalDate(bill[0]?.start_date.toString())
+  )} - ${formatDate(convertToLocalDate(bill[0]?.end_date.toString()))}`;
+  return (
+    <Toast
+      onOpenChange={setOpenExtendDuration}
+      open={openExtendDuration}
+      animation="100ms"
+      enterStyle={{ x: -20, opacity: 0 }}
+      exitStyle={{ x: -20, opacity: 0 }}
+      opacity={1}
+      x={0}
+      backgroundColor={extendErrorMessage ? "$red8Light" : "$green8Light"}
+      width={"80%"}
+      justifyContent="center"
+    >
+      <Toast.Title textAlign="left">
+        {extendErrorMessage ? errorTitle : successTitle}
+      </Toast.Title>
+      <Toast.Description>
+        {extendErrorMessage ? extendErrorMessage : successMsg}
+      </Toast.Description>
+    </Toast>
+  );
+};
 
 interface SaveNameToastProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
