@@ -126,9 +126,9 @@ export const truncateToTwoDecimalPlaces = (amount: number): number => {
 };
 
 export const formatDateToMonthDay = (dateString: Date): string => {
-  const date = new Date(dateString);
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
+  //const date = new Date(dateString);
+  const month = (dateString.getMonth() + 1).toString().padStart(2, "0");
+  const day = dateString.getDate().toString().padStart(2, "0");
   return `${month}/${day}`;
 };
 
@@ -136,7 +136,25 @@ export const formatDate = (date: Date) => {
   return date?.toLocaleString("en-US", { month: "long", day: "numeric" });
 };
 
-export const convertToLocalDate = (dateString: string): Date => {
+// export const convertToLocalDate = (dateString: string): Date => {
+//   const utcDate = new Date(dateString);
+
+//   // Get the timezone offset in milliseconds
+//   const timezoneOffsetInMillis = utcDate.getTimezoneOffset() * 60 * 1000;
+
+//   // Convert the UTC date to local time by subtracting the timezone offset
+//   const localDateMillis = utcDate.getTime() - timezoneOffsetInMillis;
+
+//   return new Date(localDateMillis);
+// };
+
+/**
+ * Ensures that dates are equal which needs to be accurate and must ignore time for calculations.
+ *
+ * @param dateString
+ * @returns date with time set to 00:00:00
+ */
+export const convertToLocalDate1 = (dateString: string): Date => {
   const utcDate = new Date(dateString);
 
   // Get the timezone offset in milliseconds
@@ -145,5 +163,49 @@ export const convertToLocalDate = (dateString: string): Date => {
   // Convert the UTC date to local time by subtracting the timezone offset
   const localDateMillis = utcDate.getTime() - timezoneOffsetInMillis;
 
-  return new Date(localDateMillis);
+  const test = utcDate.toLocaleDateString();
+
+  // Create a new Date object from the local time in milliseconds
+  const localDate = new Date(test);
+
+  // Set the time to the start of the day (00:00:00)
+  //localDate.setHours(0, 0, 0, 0);
+
+  return localDate;
+};
+
+export const convertToLocalDate = (dateString: string): Date => {
+  const utcDate = new Date(dateString);
+
+  // Create a new Date object in the local time zone
+  const localDate = new Date(
+    utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
+  );
+
+  // Extract just the date part (YYYY-MM-DD) and create a new Date object from it
+  const localDateString = localDate.toString();
+  const dateOnly = new Date(localDateString);
+
+  return dateOnly;
+};
+
+export const formatDateToYMD = (date: Date) => {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export const getMonthAndDateFromISOString = (isoString: string) => {
+  const date = new Date(isoString);
+
+  // Extract the month and date
+  const month = date.getMonth() + 1; // getMonth() returns 0-11, so add 1
+  const day = date.getDate();
+
+  // Format month and date as a string
+  const formattedMonth = month.toString().padStart(2, "0"); // Ensure two digits
+  const formattedDay = day.toString().padStart(2, "0"); // Ensure two digits
+
+  return `${formattedMonth}-${formattedDay}`;
 };
