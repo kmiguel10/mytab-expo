@@ -55,8 +55,11 @@ export const EditBill = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [openDate, setOpenDate] = useState(false);
   const [planDuration, setPlanDuration] = useState(7);
+
+  //Dates these dates are in localtimezones
   const [date, setDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+
   const [isDateRangeChangeable, setIsDateRangeChangeable] = useState(false);
   const [dateCalculation, setDateCalculation] = useState(new Date());
   const [endDateCalculation, setEndDateCalculation] = useState(new Date());
@@ -141,6 +144,7 @@ export const EditBill = () => {
       console.log("billInfo[0]?.start_date", billInfo[0]?.start_date);
       console.log("billInfo[0]?.end_date", billInfo[0]?.end_date);
 
+      //Start date and end date are assumed to be in UTC format from the database
       const startDate = new Date(billInfo[0]?.start_date);
       const endDate = new Date(billInfo[0]?.end_date);
 
@@ -203,22 +207,33 @@ export const EditBill = () => {
    */
   useEffect(() => {
     console.log("+++++++++++");
-    const today = new Date(); //in UTC
+    const today = new Date(); //in localtime
     const localToday = convertToLocalDate(today.toString());
     console.log("Today", today);
-    console.log("Date", date);
+    console.log("Start Date", date);
     console.log("Local today", localToday);
 
     setDateCalculation(convertToLocalDate(date.toString()));
     setEndDateCalculation(convertToLocalDate(endDate.toString()));
 
+    //The calculations should be done with the month/day format of the dates. So it counts the entire day and not the timestamp.
+    //So when is it changeable?
+    //When is it not changeable anymore?
     if (today < date) {
-      console.log("isDateRangeChangeable", isDateRangeChangeable, today < date);
-      console.log(date, localToday, dateCalculation);
+      console.log("isDateRangeChangeable", isDateRangeChangeable);
+      console.log("today < date", today < date);
+      console.log("today", today);
+      console.log("date: ", date);
+      console.log("localToday", localToday);
+      console.log("dateCalculation", localToday);
       setIsDateRangeChangeable(true);
     } else {
       console.log("isDateRangeChangeable", isDateRangeChangeable);
-      console.log(date, localToday, dateCalculation);
+      console.log("today < date", today < date);
+      console.log("today", today);
+      console.log("date: ", date);
+      console.log("localToday", localToday);
+      console.log("dateCalculation", localToday);
       setIsDateRangeChangeable(false);
     }
   }, [date, endDate]);
@@ -353,9 +368,11 @@ export const EditBill = () => {
                 minimumDate={new Date()}
                 maximumDate={maxDate}
                 onConfirm={(date) => {
+                  //What might be happening here is. The native date is already in UTC for example 12:00:00 UTC but the datepicker is converting that date to UTC also by adding 4-5 more hours...
+                  //need to be able to determine which timezone currently
                   setOpenDate(false);
                   setDate(date);
-                  console.log("Start from datepicker", date);
+                  console.log("*** Start from datepicker", date);
                   const newEndDate = new Date(date);
                   newEndDate.setDate(newEndDate.getDate() + planDuration);
                   console.log("End date", newEndDate.getDate() + planDuration);
