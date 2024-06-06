@@ -13,7 +13,7 @@ export const getMembers = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members: ", JSON.stringify(data));
+    //console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -33,7 +33,7 @@ export const getMembersWithBillcode = async (billCode: string) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members: ", JSON.stringify(data));
+    //console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -52,7 +52,7 @@ export const getMembersAndRequests = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members and requests: ", JSON.stringify(data));
+    // console.log(">>> Get members and requests: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -280,7 +280,7 @@ export const getProfileInfo = async (
   userId: string
 ): Promise<ProfileInfo | null> => {
   try {
-    console.log("getProfileInfo userId ", userId);
+    //console.log("getProfileInfo userId ", userId);
     let { data: profile, error } = await supabase
       .from("profiles")
       .select("displayName,lastName,firstName,avatar_url,email")
