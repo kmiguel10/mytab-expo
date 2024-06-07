@@ -195,6 +195,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     value={profileInfo?.displayName}
                     onChangeText={handleDisplayNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={20}
                   />
                 </Fieldset>
               </XStack>
@@ -210,6 +211,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     value={profileInfo?.firstName}
                     onChangeText={handleFirstNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={20}
                   />
                 </Fieldset>
                 <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -223,6 +225,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     value={profileInfo?.lastName}
                     onChangeText={handleLastNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={20}
                   />
                 </Fieldset>
               </XStack>
