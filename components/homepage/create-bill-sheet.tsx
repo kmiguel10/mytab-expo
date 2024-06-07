@@ -424,10 +424,10 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
                       console.log("***** onConfirm *****");
                       console.log("date: ", date);
-                      console.log(
-                        "end date: ",
-                        newEndDate.add(planDuration, "days")
-                      );
+                      // console.log(
+                      //   "end date: ",
+                      //   newEndDate.add(planDuration, "days")
+                      // );
                     }}
                     onCancel={() => {
                       setOpenDate(false);
