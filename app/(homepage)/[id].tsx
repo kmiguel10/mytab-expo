@@ -1,5 +1,4 @@
 import { YStack } from "tamagui";
-
 import CreateBill from "@/components/homepage/create-bill";
 import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
 import JoinBill from "@/components/homepage/join-bill";
@@ -10,46 +9,52 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, Platform, useWindowDimensions } from "react-native";
 import { Text } from "tamagui";
-
 import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { HeaderContainer } from "@/components/containers/header-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import Avatar from "@/components/login/avatar";
 import React from "react";
-
-// import "react-native-reanimated";
-// import "react-native-gesture-handler";
 import { Skeleton } from "moti/skeleton";
 import CreateBillSheet from "@/components/homepage/create-bill-sheet";
 import { StyledButton } from "@/components/button/button";
-
 import * as RNIap from "react-native-iap";
 
 const Home = () => {
-  /********** States and Variables ***********/
   const {
     id,
-    newBillId,
-    joinedBillCode,
-    errorMessage,
-    errorCreateMessage,
-    successDeletedBillMsg,
+    newBillId: initialNewBillId,
+    joinedBillCode: initialJoinedBillCode,
+    errorMessage: initialErrorMessage,
+    errorCreateMessage: initialErrorCreateMessage,
+    successDeletedBillMsg: initialSuccessDeletedBillMsg,
   } = useLocalSearchParams();
+
+  const [newBillId, setNewBillId] = useState(initialNewBillId || "");
+  const [joinedBillCode, setJoinedBillCode] = useState(
+    initialJoinedBillCode || ""
+  );
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage || "");
+  const [errorCreateMessage, setErrorCreateMessage] = useState(
+    initialErrorCreateMessage || ""
+  );
+  const [successDeletedBillMsg, setSuccessDeletedBillMsg] = useState(
+    initialSuccessDeletedBillMsg || ""
+  );
+
   const [bills, setBills] = useState<MemberData[]>([]);
+  const [inactiveBills, setInactiveBills] = useState<MemberData[]>([]);
   const [loadingBills, setLoadingBills] = useState(true);
   const [newBill, setNewBill] = useState<MemberData | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-
-  const timerRef = React.useRef(0);
-  const [error, setError] = useState("") || null;
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-
   const [isCreateBillOpen, setIsCreateBillOpen] = useState(false);
   const [products, setProducts] = useState<RNIap.Product[]>([]);
+  const [purchase, setPurchase] = useState<RNIap.Purchase | null>(null);
 
   const productSkus = Platform.select({
     ios: ["com.mytab.1week", "com.mytab.2weeks"],
@@ -60,21 +65,85 @@ const Home = () => {
     setIsCreateBillOpen(true);
   };
 
-  /********** UseEffects ***********/
+  const handlePurchaseSuccess = async (purchase: RNIap.Purchase) => {
+    console.log("ENTERING handlePurchaseSuccess: ", purchase);
+    try {
+      const receipt = purchase.transactionReceipt;
+      const purchases = RNIap.getAvailablePurchases();
+
+      console.log("Available Purchases: ", purchases);
+
+      if (receipt) {
+        console.log("Purchase successful: ", receipt);
+
+        // Verify receipt (front-end only)
+        Alert.alert("Purchase Success", "Your purchase was successful!");
+
+        // Grant access for the specified duration
+        // This is where you'd implement your access logic
+
+        // Finish the transaction
+        await RNIap.finishTransaction({ purchase, isConsumable: true });
+        console.log("Transaction finished");
+      } else {
+        console.error("No transaction receipt found");
+        Alert.alert("Purchase Error", "No transaction receipt found.");
+      }
+    } catch (error) {
+      console.error("Error finishing transaction:", error);
+      Alert.alert(
+        "Purchase Error",
+        "An error occurred while finishing the transaction."
+      );
+    }
+  };
+
+  const handlePurchaseError = (error: RNIap.PurchaseError) => {
+    console.log("Purchase error:", error);
+    Alert.alert("Purchase Error", error.message);
+  };
+
+  const handleToastClose = () => {
+    setOpen(false);
+  };
+
+  //resetToasts on pulldown refresh
+  const resetToasts = () => {
+    setOpen(false);
+    console.log("RESETTING");
+    setNewBillId("");
+    setJoinedBillCode("");
+    setErrorMessage("");
+    setErrorCreateMessage("");
+    setSuccessDeletedBillMsg("");
+  };
 
   useEffect(() => {
-    console.log("*** Homepage: Fetch bills for user", id);
+    //console.log("*** Homepage: Fetch bills for user", id);
     async function fetchBills() {
       if (!id) return;
 
       const billsData = await getBillsForUserIdWithUrls(id.toString());
+      //console.log("billsData", JSON.stringify(billsData));
+      const filteredInactiveBills = billsData.filter(
+        (member) =>
+          (member.isMemberIncluded === true || member.isRequestSent === true) &&
+          member.isBillActive === false
+      );
       const filteredBillsData = billsData.filter(
         (member) =>
-          member.isMemberIncluded === true || member.isRequestSent === true
+          (member.isMemberIncluded === true || member.isRequestSent === true) &&
+          member.isBillActive === true
       );
       setBills(filteredBillsData);
+      setInactiveBills(filteredInactiveBills);
       setLoadingBills(false);
       setRefreshing(false);
+
+      // if (refreshing) {
+      //   console.log("REFRESHINGGG")
+      //   resetToasts()
+      // }
 
       if (newBillId || joinedBillCode) {
         let newBill: MemberData = {
@@ -131,31 +200,63 @@ const Home = () => {
           };
         }
 
-        if (newBill) {
+        if (newBill.memberid) {
           setNewBill(newBill);
           setOpen(true);
         }
       }
-      if (errorMessage) {
-        setOpen(true);
-      }
-      if (errorCreateMessage) {
-        setOpen(true);
-      }
-      if (successDeletedBillMsg) {
-        setOpen(true);
-      }
+
+      // if (initialJoinedBillCode) {
+      //   setJoinedBillCode(initialJoinedBillCode);
+      //   setOpen(true);
+      // }
+      // if (initialErrorMessage) {
+      //   setErrorMessage(initialErrorMessage);
+      //   setOpen(true);
+      // }
+      // if (initialErrorCreateMessage) {
+      //   setErrorCreateMessage(initialErrorCreateMessage);
+      //   setOpen(true);
+      // }
+      // if (initialSuccessDeletedBillMsg) {
+      //   setSuccessDeletedBillMsg(initialSuccessDeletedBillMsg);
+      //   setOpen(true);
+      // }
     }
 
     fetchBills();
     setError(errorMessage?.toString());
   }, [
     id,
+    refreshing,
     newBillId,
     joinedBillCode,
     errorMessage,
-    refreshing,
+    errorCreateMessage,
     successDeletedBillMsg,
+  ]);
+
+  useEffect(() => {
+    if (
+      initialNewBillId ||
+      initialJoinedBillCode ||
+      initialErrorMessage ||
+      initialErrorCreateMessage ||
+      initialSuccessDeletedBillMsg
+    ) {
+      setOpen(true);
+      setNewBillId(initialNewBillId);
+      setJoinedBillCode(initialJoinedBillCode);
+      setErrorMessage(initialErrorMessage);
+      setErrorCreateMessage(initialErrorCreateMessage);
+      setSuccessDeletedBillMsg(initialSuccessDeletedBillMsg);
+    }
+  }, [
+    initialNewBillId,
+    initialJoinedBillCode,
+    initialErrorMessage,
+    initialErrorCreateMessage,
+    initialSuccessDeletedBillMsg,
   ]);
 
   useEffect(() => {
@@ -244,87 +345,60 @@ const Home = () => {
   useEffect(() => {
     const initIAP = async () => {
       try {
-        console.log("* * * Initializing IAP connection * * * ");
+        //console.log("* * * Initializing IAP connection * * * ");
         await RNIap.initConnection();
-        console.log("* * * Initialization Completeded IAP connection * * * ");
-        await fetchProducts();
+        //console.log("* * * Initialization Completed IAP connection * * * ");
+        //await fetchProducts();
       } catch (err) {
         console.warn(err);
       }
     };
 
+    // const fetchProducts = async () => {
+    //   try {
+    //     console.log("Fetching products with IDs:", productSkus);
+    //     if (productSkus && productSkus.length > 0) {
+    //       const fetchedProducts = await RNIap.getProducts({
+    //         skus: productSkus,
+    //       });
+    //       console.log("Products fetched:", fetchedProducts);
+    //       if (fetchedProducts.length === 0) {
+    //         console.error("No products found");
+    //       }
+    //       setProducts(fetchedProducts);
+    //     } else {
+    //       console.warn("No product SKUs provided");
+    //     }
+    //   } catch (err) {
+    //     console.error("Error fetching products:", err);
+    //   }
+    // };
+
     initIAP();
 
     const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-      async (purchase) => {
-        const receipt = purchase.transactionReceipt;
-        if (receipt) {
-          try {
-            const response = await fetch(
-              "https://localhost:3000/verify-receipt",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  receiptData: receipt,
-                  isSandbox: true,
-                }),
-              }
-            );
-
-            const result = await response.json();
-
-            if (result.status === 0) {
-              // Acknowledge the purchase after verification
-              await RNIap.finishTransaction({ purchase });
-              Alert.alert(
-                "Purchase Successful",
-                "Receipt validated successfully"
-              );
-            } else {
-              Alert.alert("Purchase Failed", "Invalid receipt");
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        }
+      (purchase) => {
+        console.log("Purchase updated:", purchase);
+        handlePurchaseSuccess(purchase);
       }
     );
 
     const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
-      console.warn("purchaseErrorListener", error);
-      Alert.alert("Purchase Error", error.message);
+      handlePurchaseError(error);
+      console.log("Purchase error HAHA: ", error);
     });
-
-    const fetchProducts = async () => {
-      try {
-        console.log("Fetching products with IDs:", productSkus);
-        if (productSkus && productSkus.length > 0) {
-          const fetchedProducts = await RNIap.getProducts({
-            skus: productSkus,
-          });
-          console.log("Products fetched:", fetchedProducts);
-          if (fetchedProducts.length === 0) {
-            console.error("No products found");
-          }
-          setProducts(fetchedProducts);
-        } else {
-          console.warn("No product SKUs provided");
-        }
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      }
-    };
 
     return () => {
       purchaseUpdateSubscription.remove();
       purchaseErrorSubscription.remove();
-      console.log("Ending IAP connection");
+      //console.log("Ending IAP connection");
       RNIap.endConnection();
     };
   }, []);
+
+  // useEffect(() => {
+  //   console.log("JoinedBillCode", joinedBillCode, initialJoinedBillCode);
+  // }, [refreshing]);
 
   return (
     <OuterContainer>
@@ -370,12 +444,14 @@ const Home = () => {
         <BodyContainer height={windowHeight * 0.62}>
           <TabsAdvancedUnderline
             bills={bills}
+            inactiveBills={inactiveBills}
             userId={id.toString()}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
             setRefreshing={setRefreshing}
             refreshing={refreshing}
             loadingBills={loadingBills}
+            resetToasts={resetToasts}
           />
         </BodyContainer>
       </YStack>
@@ -387,7 +463,6 @@ const Home = () => {
           buttonWidth={windowWidth * 0.25}
           buttonSize={"$3.5"}
         />
-        {/* <CreateBill buttonWidth={windowWidth * 0.25} buttonSize={"$3.5"} /> */}
         <StyledButton
           create={true}
           size={"$3.5"}
@@ -440,9 +515,6 @@ const Home = () => {
           <Toast.Title alignItems="center">
             You sent a request to join " {newBill?.name} "
           </Toast.Title>
-          {/* <Toast.Description>
-              Share Bill Code to your friends: {newBill?.billcode}
-            </Toast.Description> */}
         </Toast>
       )}
       {(errorMessage || errorCreateMessage) && (
@@ -462,7 +534,6 @@ const Home = () => {
           <Toast.Title alignContent="center">
             {errorMessage ? errorMessage : errorCreateMessage}
           </Toast.Title>
-          {/* <Toast.Description>{error}</Toast.Description> */}
         </Toast>
       )}
       {successDeletedBillMsg && (
@@ -482,9 +553,6 @@ const Home = () => {
           <Toast.Title alignItems="center">
             Bill is deleted successfully!
           </Toast.Title>
-          {/* <Toast.Description>
-              Share Bill Code to your friends: {newBill?.billcode}
-            </Toast.Description> */}
         </Toast>
       )}
     </OuterContainer>

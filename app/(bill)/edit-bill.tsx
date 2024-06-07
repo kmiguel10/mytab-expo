@@ -193,6 +193,8 @@ export const EditBill = () => {
         setDateCalculation(startDate.local().format("MMM D"));
         setEndDateCalculation(endDate.local().format("MMM D"));
 
+        console.log("date calc", startDate.local().format("MMM D"));
+
         // const durationInMilliseconds = endDate.getTime() - startDate.getTime();
         // const durationInDays = Math.ceil(
         //   durationInMilliseconds / (1000 * 60 * 60 * 24)
@@ -231,19 +233,24 @@ export const EditBill = () => {
     const today = moment().utc().format("YYYY-MM-DD"); //in localtime
     const todayFormatted = moment(today).utc().format("YYYY-MM-DD");
     const dateFormatted = date.utc().format("YYYY-MM-DD");
+    const dateLocalFormatted = date.local().format("YYYY-MM-DD");
 
     const localToday = convertToLocalDate(today.toString());
-    console.log("Today", todayFormatted.toString());
-    console.log("Start Date", dateFormatted.toString());
+    console.log("Today", todayFormatted.toString(), moment().utc().toString());
+    console.log("Start Date", dateFormatted);
+    console.log("Start Date local: ", dateLocalFormatted);
     console.log("Local today", localToday);
+    console.log(
+      "todayFormatted < dateFormatted",
+      todayFormatted < dateFormatted
+    );
 
     setDateCalculation(date.local().format("MMM D"));
     setEndDateCalculation(endDate.local().format("MMM D"));
 
     //The calculations should be done with the month/day format of the dates. So it counts the entire day and not the timestamp.
-    //So when is it changeable? must compute MMM DD format
-    //When is it not changeable anymore?
-    if (todayFormatted < dateFormatted) {
+    //Changeable if today is less than the local start date or the UTC start Date
+    if (todayFormatted < dateLocalFormatted || todayFormatted < dateFormatted) {
       // console.log("isDateRangeChangeable", isDateRangeChangeable);
       // console.log("today < date", today < date);
       // console.log("today", today);
