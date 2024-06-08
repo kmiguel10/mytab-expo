@@ -13,6 +13,7 @@ import {
   ListItem,
   Separator,
   Sheet,
+  SizableText,
   Text,
   useWindowDimensions,
   View,
@@ -56,10 +57,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const [date, setDate] = useState(moment());
   const [endDate, setEndDate] = useState(moment());
 
-  // Default is 7 days
-  const [planDuration, setPlanDuration] = useState(7);
-  const [openDate, setOpenDate] = useState(false);
-
   const [payButtonHeight, setPayButtonHeight] = useState(windowHeight * 0.57);
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -75,15 +72,11 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
 
     // 2 week plan
     if (productId === "com.mytab.2weeks") {
-      setPlanDuration(14);
-
       const newEndDate = moment();
       newEndDate.add(14, "days");
       setEndDate(newEndDate);
       setSelectedProductId("com.mytab.2weeks");
     } else {
-      setPlanDuration(7);
-
       const newEndDate = moment();
       newEndDate.add(7, "days");
       setEndDate(newEndDate);
@@ -163,7 +156,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     setOpen(!open);
     setIsPlanSelected(false);
     setSelectedPlan(null);
-    setPlanDuration(7);
     setDate(moment());
     setBillName("");
 
@@ -178,8 +170,15 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   };
 
   const onBillNameInput = (_billName: string) => {
-    if (_billName.length <= 20) {
-      setBillName(_billName);
+    // Trim the input to remove leading and trailing spaces
+    const trimmedBillName = _billName.trim();
+
+    // Check if the trimmed bill name is empty or exceeds the character limit
+    if (trimmedBillName.length === 0) {
+      setBillNameError(true);
+      setBillName(_billName); // Optionally set the original bill name with spaces for the user to see
+    } else if (trimmedBillName.length <= 20) {
+      setBillName(_billName); // Set the original input to keep the spaces as the user entered them
       setBillNameError(false);
     } else {
       setBillNameError(true);
@@ -189,7 +188,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const onBackClick = () => {
     setIsPlanSelected(false);
     setSelectedPlan(null);
-    setPlanDuration(7);
     setDate(moment());
     setBillName("");
 
@@ -287,21 +285,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   //   };
   // });
 
-  useEffect(() => {
-    console.log("*********Date and EndDate");
-    console.log("Date: ", date.toLocaleString());
-    console.log("End Date ", endDate.toLocaleString());
-    // const now = moment();
-    // const offSet = date.utcOffset();
-    // const offSetNow = now;
-    // const todayMoment = moment();
-    // console.log("Now", now.toLocaleString());
-    // console.log("Timezone offset", offSet, offSetNow);
-    // console.log("Today moment: ", todayMoment.toLocaleString());
-    // console.log("Today moment utc: ", todayMoment.utc());
-    // console.log("Today moment utc: ", todayMoment.utcOffset());
-  }, [date, endDate]);
-
   return (
     <Sheet
       forceRemoveScrollEnabled={open}
@@ -343,7 +326,7 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
             <YGroup.Item>
               {products.map((product, index) => (
                 <ListItem
-                  key={product.productId}
+                  key={product.productId + index}
                   hoverTheme
                   title={<H6 fontSize={"$4"}>{product.title}</H6>}
                   subTitle={product.description}
@@ -381,58 +364,23 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                   height={windowHeight * 0.2}
                 >
                   <YStack gap="$2" margin="$3.5">
-                    <Text>Bill Name</Text>
+                    <H6>Bill Name</H6>
                     <StyledInput
                       placeholder="Ex: Mexico Trip"
                       value={billName}
                       onChangeText={onBillNameInput}
                       error={billNameError}
+                      maxLength={20}
                     />
                   </YStack>
-                  <YStack marginHorizontal="$3.5">
-                    <Text>Duration</Text>
+                  <YStack marginHorizontal="$3.5" gap="$2">
+                    <H6>Duration</H6>
                     <XStack justifyContent="space-between" alignItems="center">
-                      <Text alignItems="center">
-                        {date.format("MMM D")}- {endDate.format("MMM D")}
-                      </Text>
-                      <StyledButton
-                        size={"$3.5"}
-                        active={true}
-                        onPress={() => setOpenDate(true)}
-                      >
-                        Select Date
-                      </StyledButton>
+                      <SizableText>
+                        {date.format("MMM D")} - {endDate.format("MMM D")}
+                      </SizableText>
                     </XStack>
                   </YStack>
-                  {/* Date picker receive date in localTime and converts it to UTC */}
-                  <DatePicker
-                    modal
-                    mode={"date"}
-                    open={openDate}
-                    date={date.utc().toDate()}
-                    minimumDate={new Date()}
-                    maximumDate={maxDate}
-                    onConfirm={(date) => {
-                      //Date is in UTC
-                      setOpenDate(false);
-                      setDate(moment(date));
-
-                      //Set new end date
-                      const newEndDate = moment(date);
-                      newEndDate.add(planDuration, "days");
-                      setEndDate(moment(newEndDate));
-
-                      console.log("***** onConfirm *****");
-                      console.log("date: ", date);
-                      // console.log(
-                      //   "end date: ",
-                      //   newEndDate.add(planDuration, "days")
-                      // );
-                    }}
-                    onCancel={() => {
-                      setOpenDate(false);
-                    }}
-                  />
                 </Card>
               </View>
               <View paddingTop="$2">
