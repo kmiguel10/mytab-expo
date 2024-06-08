@@ -22,6 +22,7 @@ import {
   Card,
   Fieldset,
   Form,
+  H6,
   Text,
   useWindowDimensions,
   View,
@@ -33,6 +34,7 @@ import ExtendDurationToast from "@/components/bill-settings/extend-duration-toas
 import SaveNameToast from "@/components/bill-settings/save-name-toast";
 import moment from "moment";
 import "moment-timezone";
+import { AlertCircle } from "@tamagui/lucide-icons";
 
 /**
  * This component's features are only visible to the bill owner
@@ -59,33 +61,26 @@ export const EditBill = () => {
   const [extendDurationErrorMsg, setExtendDurationErrorMsg] = useState("");
   const [saveNameError, setSaveNameError] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [openDate, setOpenDate] = useState(false);
-  const [planDuration, setPlanDuration] = useState(7);
 
   //Dates these dates are in localtimezones
   const [date, setDate] = useState(moment());
   const [endDate, setEndDate] = useState(moment());
-  const [dateCalculation, setDateCalculation] = useState("");
-  const [endDateCalculation, setEndDateCalculation] = useState("");
+  const [dateLocalTime, setDateLocalTime] = useState("");
+  const [endDateLocalTime, setEndDateLocalTime] = useState("");
 
-  const [isDateRangeChangeable, setIsDateRangeChangeable] = useState(false);
+  const [isBillNameError, setIsBillNameError] = useState(false);
 
   //Initial Values
-  let initialName = "";
-  const [initialStartDate, setInitialStartDate] = useState("");
+  const [initialName, setInitialName] = useState("");
+  const [newBillName, setNewBillName] = useState("");
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // Calculate the maximum date (30 days from today)
-  const minDate = new Date();
-  const maxDate = new Date(
-    minDate.getFullYear(),
-    minDate.getMonth(),
-    minDate.getDate() + 30
-  );
+  const today = moment().utc();
 
-  const todayMonthDate = getMonthAndDateFromISOString(minDate.toISOString());
-  const endDateMonthDate = getMonthAndDateFromISOString(endDate.toISOString());
+  const todayMonthDate = today.format("MMM D");
+  const endDateMonthDate = endDate.format("MMM D");
 
   /** ---------- Functions ---------- */
 
@@ -113,13 +108,21 @@ export const EditBill = () => {
   const onPurchaseExtension = async () => {};
 
   /** ---------- Handlers ---------- */
-  const handleBillNameChange = (billName: string) => {
-    setBillInfo((prevBillInfo) =>
-      prevBillInfo.map((bill) => ({
-        ...bill,
-        name: billName,
-      }))
-    );
+
+  // Handle Bill Name Change
+  const handleBillNameChange = (_billName: string) => {
+    const trimmedBillName = _billName.trim();
+
+    if (trimmedBillName.length === 0) {
+      setIsBillNameError(true);
+      setNewBillName(_billName);
+    } else if (trimmedBillName.length <= 20) {
+      setIsBillNameError(false);
+      setNewBillName(_billName);
+    } else {
+      setIsBillNameError(true);
+      setNewBillName(_billName);
+    }
   };
 
   /** ---------- UseEffects ---------- */
@@ -143,46 +146,20 @@ export const EditBill = () => {
       }
     }
     fetchBillInfo();
-  }, [id, userId, initialStartDate]);
+  }, [id, userId]);
 
   /**
    * Initializes dates
    */
   useEffect(() => {
     if (billInfo && billInfo.length > 0) {
-      console.log("- - - Date fresh from API ");
-
-      console.log("billInfo[0]?.start_date", billInfo[0]?.start_date);
-      console.log("billInfo[0]?.end_date", billInfo[0]?.end_date);
-
-      const localDate = moment.utc(billInfo[0]?.start_date).local();
-
-      console.log("moment billInfo[0]?.start_date", localDate.toString());
-      console.log(
-        "moment billInfo[0]?.end_date",
-        moment(billInfo[0]?.end_date).utc()
-      );
-
       //Start date and end date are assumed to be in UTC format from the database
       const startDate = moment(billInfo[0]?.start_date).utc();
       const endDate = moment(billInfo[0]?.end_date).utc();
 
       //Save initial name and date
-      initialName = billInfo[0].name;
-      setInitialStartDate(startDate.format("MMM D"));
-
-      console.log("initialName", initialName);
-      console.log("initialStartDate", initialStartDate);
-
-      console.log("startDate", startDate);
-      console.log("endDate", endDate);
-
-      let formattedStartDate = startDate.format("MMM D");
-      let formattedEndDate = endDate.format("MMM D");
-
-      console.log("Formatted date:");
-      console.log("formattedStartDate:", formattedStartDate);
-      console.log("formattedEndDate:", formattedEndDate);
+      setInitialName(billInfo[0].name);
+      setNewBillName(billInfo[0].name);
 
       if (startDate && endDate) {
         //set the date and endDate initially in UTC, used when saving the updated duration
@@ -190,37 +167,11 @@ export const EditBill = () => {
         setEndDate(moment(endDate));
 
         //set dates for calculations locally, in localTime. These are used for local calculations
-        setDateCalculation(startDate.local().format("MMM D"));
-        setEndDateCalculation(endDate.local().format("MMM D"));
-
-        console.log("date calc", startDate.local().format("MMM D"));
-
-        // const durationInMilliseconds = endDate.getTime() - startDate.getTime();
-        // const durationInDays = Math.ceil(
-        //   durationInMilliseconds / (1000 * 60 * 60 * 24)
-        // );
-
-        const durationInDays = endDate.diff(startDate, "days");
-
-        console.log("Duration in days", durationInDays);
-
-        setPlanDuration(durationInDays);
-
-        console.log("Duration in days:", durationInDays);
+        setDateLocalTime(startDate.local().format("MMM D"));
+        setEndDateLocalTime(endDate.local().format("MMM D"));
       }
     }
   }, [billInfo]);
-
-  //Can be deleted, just logs
-  // useEffect(() => {
-  //   console.log("DATES in UTC");
-  //   console.log("start date", date);
-  //   console.log("end date", endDate);
-
-  //   console.log("DATES in localTime");
-  //   console.log("start date", dateCalculation);
-  //   console.log("end date", endDateCalculation);
-  // }, [date, endDate]);
 
   /**
    * 1. Bill is active if it is within the date range or better if the bill is before the start date then it can be changed still
@@ -229,44 +180,8 @@ export const EditBill = () => {
    * Calculations must be based on UTC
    */
   useEffect(() => {
-    console.log("+++++++++++");
-    const today = moment().utc().format("YYYY-MM-DD"); //in localtime
-    const todayFormatted = moment(today).utc().format("YYYY-MM-DD");
-    const dateFormatted = date.utc().format("YYYY-MM-DD");
-    const dateLocalFormatted = date.local().format("YYYY-MM-DD");
-
-    const localToday = convertToLocalDate(today.toString());
-    console.log("Today", todayFormatted.toString(), moment().utc().toString());
-    console.log("Start Date", dateFormatted);
-    console.log("Start Date local: ", dateLocalFormatted);
-    console.log("Local today", localToday);
-    console.log(
-      "todayFormatted < dateFormatted",
-      todayFormatted < dateFormatted
-    );
-
-    setDateCalculation(date.local().format("MMM D"));
-    setEndDateCalculation(endDate.local().format("MMM D"));
-
-    //The calculations should be done with the month/day format of the dates. So it counts the entire day and not the timestamp.
-    //Changeable if today is less than the local start date or the UTC start Date
-    if (todayFormatted < dateLocalFormatted || todayFormatted < dateFormatted) {
-      // console.log("isDateRangeChangeable", isDateRangeChangeable);
-      // console.log("today < date", today < date);
-      // console.log("today", today);
-      // console.log("date: ", date);
-      // console.log("localToday", localToday);
-      // console.log("dateCalculation", localToday);
-      setIsDateRangeChangeable(true);
-    } else {
-      // console.log("isDateRangeChangeable", isDateRangeChangeable);
-      // console.log("today < date", today < date);
-      // console.log("today", today);
-      // console.log("date: ", date);
-      // console.log("localToday", localToday);
-      // console.log("dateCalculation", localToday);
-      setIsDateRangeChangeable(false);
-    }
+    setDateLocalTime(date.local().format("MMM D"));
+    setEndDateLocalTime(endDate.local().format("MMM D"));
   }, [date, endDate]);
 
   return (
@@ -290,137 +205,85 @@ export const EditBill = () => {
         />
         <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
           <View margin="$1" gap="$2">
-            {/* <Card
-              bordered
-              backgroundColor="$yellow7Light"
-              borderRadius={"$5"}
-              height={windowHeight * 0.05}
-              gap="$4.5"
-              padding="$2.5"
-            >
-              <paragra>{expirationWarningMessage}</paragra>
-            </Card> */}
             <Card
               bordered
               backgroundColor="white"
               borderRadius={"$5"}
-              height={windowHeight * 0.175}
+              height={windowHeight * 0.225}
               gap="$4.5"
               padding="$2.5"
             >
-              <XStack
-                justifyContent="space-between"
-                alignItems="center"
-                gap="$2"
-              >
-                <Fieldset horizontal={false} gap={"$2"} width={width * 0.5}>
-                  <StyledInput
-                    defaultValue={billInfo[0]?.name}
-                    onChangeText={handleBillNameChange}
-                    error={!billInfo[0]?.name}
-                  />
-                </Fieldset>
-                <ConfirmSaveName
-                  name={billInfo[0]?.name}
-                  billId={billInfo[0]?.billid}
-                  userId={userId.toString()}
-                  setOpen={setOpen}
-                  setSaveNameError={setSaveNameError}
-                  disabled={!billInfo[0]?.name}
-                  date={date.utc().toDate()}
-                  endDate={endDate.utc().toDate()}
-                  setInitialDate={setInitialStartDate}
-                  newInitialDate={dateCalculation}
-                  newExpirationDate={endDateCalculation}
-                />
-              </XStack>
               <YStack paddingLeft="$2">
-                <XStack gap="$2">
-                  <Text>Duration</Text>
-                  {initialStartDate !== date.utc().format("MMM D") && (
-                    <View
+                <XStack gap="$2" alignItems="center" paddingBottom="$2">
+                  <H6>Bill Name</H6>
+                </XStack>
+                <XStack
+                  justifyContent="space-between"
+                  alignItems="center"
+                  gap="$2"
+                >
+                  <Fieldset horizontal={false} gap={"$2"} width={width * 0.5}>
+                    <StyledInput
+                      defaultValue={billInfo[0]?.name}
+                      onChangeText={handleBillNameChange}
+                      error={isBillNameError}
+                      maxLength={20}
+                    />
+                  </Fieldset>
+                  <ConfirmSaveName
+                    billId={billInfo[0]?.billid}
+                    userId={userId.toString()}
+                    setOpen={setOpen}
+                    setSaveNameError={setSaveNameError}
+                    disabled={newBillName === initialName || isBillNameError}
+                    setInitialName={setInitialName}
+                    newBillName={newBillName}
+                  />
+                </XStack>
+              </YStack>
+
+              <YStack paddingLeft="$2">
+                <XStack gap="$2" alignItems="center">
+                  <H6>Duration</H6>
+                  {todayMonthDate === endDateMonthDate && (
+                    <XStack
                       backgroundColor={"$yellow5Light"}
                       paddingHorizontal={"$2"}
                       paddingVertical={"$1"}
                       alignItems="center"
                       borderRadius={"$12"}
+                      gap="$2"
                     >
-                      <Text fontSize={"$1"}>Unsaved Changes</Text>
-                    </View>
+                      <AlertCircle size="$1" />
+                      <Text fontSize={"$1"}>Expires today</Text>
+                    </XStack>
                   )}
                 </XStack>
 
                 <XStack justifyContent="space-between" alignItems="center">
                   <Text alignItems="center" justifyContent="flex-start">
-                    {dateCalculation} -{endDateCalculation}
+                    {dateLocalTime} - {endDateLocalTime}
                   </Text>
-                  {todayMonthDate === endDateMonthDate && (
-                    <View
-                      backgroundColor={"$yellow5Light"}
-                      paddingHorizontal={"$2"}
-                      paddingVertical={"$1"}
-                      alignItems="center"
-                      borderRadius={"$12"}
-                    >
-                      <Text fontSize={"$1"}>Expires today</Text>
-                    </View>
-                  )}
 
-                  {isOwner && isDateRangeChangeable && (
-                    <StyledButton
-                      size={"$3.5"}
-                      active={isDateRangeChangeable}
-                      disabled={!isDateRangeChangeable}
-                      onPress={() => setOpenDate(true)}
-                    >
-                      Select Date
-                    </StyledButton>
+                  {isOwner && todayMonthDate === endDateMonthDate && (
+                    <ConfirmExtension
+                      currentEndDateUTC={endDate.utc().toDate()}
+                      billId={parseInt(id.toString())}
+                      setBillInfo={setBillInfo}
+                      setOpenExtendDuration={setOpenExtendDuration}
+                      setErrorMessage={setExtendDurationErrorMsg}
+                    />
                   )}
-                  {isOwner &&
-                    !isDateRangeChangeable &&
-                    todayMonthDate === endDateMonthDate && (
-                      <ConfirmExtension
-                        currentEndDateUTC={endDate.utc().toDate()}
-                        billId={parseInt(id.toString())}
-                        setBillInfo={setBillInfo}
-                        setOpenExtendDuration={setOpenExtendDuration}
-                        setErrorMessage={setExtendDurationErrorMsg}
-                      />
-                    )}
+                  {/* For testing */}
+                  {/* <ConfirmExtension
+                    currentEndDateUTC={endDate.utc().toDate()}
+                    billId={parseInt(id.toString())}
+                    setBillInfo={setBillInfo}
+                    setOpenExtendDuration={setOpenExtendDuration}
+                    setErrorMessage={setExtendDurationErrorMsg}
+                  /> */}
                 </XStack>
               </YStack>
-              {/* When picking a date, it is initialized to today in order for the time to be accurate */}
-              <DatePicker
-                modal
-                mode={"date"}
-                open={openDate}
-                date={moment().toDate()}
-                minimumDate={moment().toDate()}
-                maximumDate={maxDate}
-                onConfirm={(_date) => {
-                  //What might be happening here is. The native date is already in UTC for example 12:00:00 UTC but the datepicker is converting that date to UTC also by adding 4-5 more hours...
-                  //need to be able to determine which timezone currently
-                  setOpenDate(false);
-                  setDate(moment(_date));
-                  console.log(
-                    "*** Start from datepicker",
-                    moment(_date).utc().toDate()
-                  );
-                  const newEndDate = moment(_date);
-                  console.log(
-                    "new endate",
-                    newEndDate.toString(),
-                    date.toString()
-                  );
-                  console.log("DURATION", planDuration);
-                  newEndDate.add(planDuration, "days");
-                  setEndDate(newEndDate);
-                  // console.log("End date", newEndDate.add(planDuration, "days"));
-                }}
-                onCancel={() => {
-                  setOpenDate(false);
-                }}
-              />
             </Card>
           </View>
         </Form>
@@ -431,15 +294,14 @@ export const EditBill = () => {
               userId={userId.toString()}
               billId={parseInt(id.toString())}
               isLocked={billInfo[0]?.isLocked}
-              disabled={isDateRangeChangeable}
+              disabled={!isOwner}
             />
           </XStack>
         )}
-
         <EditMembers
           billId={parseInt(id.toString())}
           ownerId={billInfo[0]?.ownerid}
-          height={height * 0.5}
+          height={height * 0.45}
           isOwner={isOwner}
         />
         {isOwner && (
