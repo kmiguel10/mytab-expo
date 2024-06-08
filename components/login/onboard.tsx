@@ -86,22 +86,15 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     if (trimmedDisplayName.length === 0) {
       setIsDisplayNameError(true);
       setDisplayName(_displayName);
-    } else if (trimmedDisplayName.length <= 20) {
+    } else if (trimmedDisplayName.length <= 2) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else if (trimmedDisplayName.length <= 10) {
       setIsDisplayNameError(false);
       setDisplayName(_displayName);
     } else {
       setIsDisplayNameError(true);
     }
-
-    // setProfileInfo((prevProfileInfo) => {
-    //   if (prevProfileInfo) {
-    //     return {
-    //       ...prevProfileInfo,
-    //       displayName: _displayName,
-    //     };
-    //   }
-    //   return null; // or any other default value if needed
-    // });
   };
 
   const handleFirstNameChange = (_firstName: string) => {
