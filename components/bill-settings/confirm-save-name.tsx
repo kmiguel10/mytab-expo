@@ -94,7 +94,7 @@ export const ConfirmSaveName: React.FC<Props> = ({
           x={0}
           scale={1}
           opacity={1}
-          y={0}
+          y={-50}
         >
           <YStack gap="$2">
             <AlertDialog.Title>Save changes</AlertDialog.Title>
