@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabase";
 import Avatar from "./avatar";
 import { StyledButton } from "../button/button";
 import { Keyboard } from "react-native";
+import { StyledInput } from "../input/input";
 
 interface Props {
   userId: string;
@@ -37,6 +38,11 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const { width, height } = useWindowDimensions();
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isDisplayNameError, setIsDisplayNameError] = useState(false);
+  const [initialDisplayName, setInitialDisplayName] = useState("");
+
   const [avatarUrl, setAvatarUrl] = useState("");
   const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.28);
   const router = useRouter();
@@ -47,12 +53,14 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       const { data, error } = await supabase
         .from("profiles")
         .update({
-          displayName: profileInfo?.displayName,
-          firstName: profileInfo?.firstName,
-          lastName: profileInfo?.lastName,
+          displayName: displayName,
+          firstName: firstName,
+          lastName: lastName,
         })
         .eq("id", userId)
         .select();
+
+      console.log("");
 
       if (data) {
         console.log("*** User updated: ", data);
@@ -60,6 +68,8 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
           pathname: "/(homepage)/[id]",
           params: { id: userId },
         });
+      } else if (error) {
+        console.log("Error", error.message);
       }
     } catch (error) {
       console.log("Error onboarding user", error);
@@ -71,39 +81,35 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     console.log("USER SIGNED OUT");
   };
   const handleDisplayNameChange = (_displayName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          displayName: _displayName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
+    const trimmedDisplayName = _displayName.trim();
+
+    if (trimmedDisplayName.length === 0) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else if (trimmedDisplayName.length <= 20) {
+      setIsDisplayNameError(false);
+      setDisplayName(_displayName);
+    } else {
+      setIsDisplayNameError(true);
+    }
+
+    // setProfileInfo((prevProfileInfo) => {
+    //   if (prevProfileInfo) {
+    //     return {
+    //       ...prevProfileInfo,
+    //       displayName: _displayName,
+    //     };
+    //   }
+    //   return null; // or any other default value if needed
+    // });
   };
 
   const handleFirstNameChange = (_firstName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          firstName: _firstName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
+    setFirstName(_firstName);
   };
 
   const handleLastNameChange = (_lastName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          lastName: _lastName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
+    setLastName(_lastName);
   };
 
   const updateProfile = async ({ avatar_url }: { avatar_url: string }) => {
@@ -148,7 +154,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       try {
         const profile: ProfileInfo | null = await getProfileInfo(userId);
         setProfileInfo(profile);
-
+        setInitialDisplayName(profile?.displayName || "");
         setDisplayName(profile?.displayName || "");
       } catch (error) {
         console.error("Error fetching profile info:", error);
@@ -165,7 +171,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       backgroundColor={"whitesmoke"}
       height={height}
     >
-      {!displayName ? (
+      {!initialDisplayName ? (
         <BodyContainer
           height={height * 0.86}
           borderBottomRightRadius={"$11"}
@@ -188,14 +194,14 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Text paddingLeft="$1.5" fontSize={"$1"}>
                     Display name *
                   </Text>
-                  <Input
+                  <StyledInput
                     id="display-name"
                     placeholder="Display Name"
                     defaultValue=""
-                    value={profileInfo?.displayName}
+                    value={displayName}
                     onChangeText={handleDisplayNameChange}
                     backgroundColor={"$backgroundTransparent"}
-                    maxLength={20}
+                    maxLength={10}
                   />
                 </Fieldset>
               </XStack>
@@ -208,10 +214,10 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     id="first-name"
                     placeholder="First Name"
                     defaultValue=""
-                    value={profileInfo?.firstName}
+                    value={firstName}
                     onChangeText={handleFirstNameChange}
                     backgroundColor={"$backgroundTransparent"}
-                    maxLength={20}
+                    maxLength={10}
                   />
                 </Fieldset>
                 <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -222,10 +228,10 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     id="last-name"
                     placeholder="Last Name"
                     defaultValue=""
-                    value={profileInfo?.lastName}
+                    value={lastName}
                     onChangeText={handleLastNameChange}
                     backgroundColor={"$backgroundTransparent"}
-                    maxLength={20}
+                    maxLength={10}
                   />
                 </Fieldset>
               </XStack>
@@ -248,7 +254,12 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
             <XStack justifyContent="space-between">
               <Button onPress={signOutUser}>Sign out</Button>
               <Form.Trigger asChild>
-                <StyledButton create={true}> Save</StyledButton>
+                <StyledButton
+                  create={!!displayName && !isDisplayNameError}
+                  disabled={!displayName || isDisplayNameError}
+                >
+                  Save
+                </StyledButton>
               </Form.Trigger>
             </XStack>
           </Form>
