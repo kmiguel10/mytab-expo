@@ -28,6 +28,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   /********** States and variables ***********/
   const [position, setPosition] = useState(0);
   const [amount, setAmount] = useState("");
+  const [isAmountError, setIsAmountError] = useState(false);
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
     submittedbyid: "",
@@ -46,6 +47,9 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   const [isEven, setIsEven] = useState(true);
   const { width, height } = useWindowDimensions();
 
+  const [transactionName, setTransactionName] = useState("");
+  const [isTransactionNameError, setIsTransactionNameError] = useState(false);
+
   /********** Functions ***********/
   const getDisplayName = (userId: string) => {
     const user = members.find((member) => member.userid === userId);
@@ -54,10 +58,21 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   };
 
   const handleNameChange = (txnName: string) => {
-    setTransaction((prevTransaction) => ({
-      ...prevTransaction,
-      name: txnName,
-    }));
+    const trimmedTxnName = txnName.trim();
+    // setTransaction((prevTransaction) => ({
+    //   ...prevTransaction,
+    //   name: txnName,
+    // }));
+
+    if (trimmedTxnName.length === 0) {
+      setIsTransactionNameError(true);
+      setTransactionName(txnName);
+    } else if (trimmedTxnName.length <= 20) {
+      setTransactionName(txnName);
+      setIsTransactionNameError(false);
+    } else {
+      setIsTransactionNameError(true);
+    }
   };
 
   const handlePayerChange = (selectedPayer: string) => {
@@ -69,6 +84,16 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   };
 
   const handleAmountChange = (_amount: string) => {
+    //set error state
+    if (_amount.length === 0) {
+      setIsAmountError(true);
+    } else if (parseFloat(_amount) === 0) {
+      setIsAmountError(true);
+    } else if (_amount.length <= 5 && parseFloat(_amount) > 0) {
+      setIsAmountError(false);
+    } else {
+      setIsAmountError(true);
+    }
     // Allow only digits optionally followed by a dot and then more digits
     const regex = /^\d*\.?\d*$/;
 
@@ -94,6 +119,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     // Default to 0 if the input is empty or just a dot
     if (amount === "" || amount === ".") {
       setAmount("0");
+      setIsAmountError(true);
     } else if (amount.endsWith(".")) {
       // Remove trailing dot if present
       setAmount(amount.slice(0, -1));
@@ -112,6 +138,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     transaction.submittedbyid = _userId;
     transaction.billid = Number(id);
     transaction.amount = parseFloat(amount);
+    transaction.name = transactionName;
 
     try {
       const { data: isBillLocked, error: billError } = await supabase
@@ -214,6 +241,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     if (open) {
       setOpen(false);
       setAmount("");
+      setTransactionName("");
     }
   };
 
@@ -236,6 +264,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
       }));
       setOpen(true);
     }
+    setTransactionName("");
     setAmount("");
   }, [open]);
 
@@ -266,7 +295,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
         gap="$5"
       >
         <Form
-          onSubmit={onCreateTxn}
+          onSubmit={() => console.log("")}
           rowGap="$3"
           borderRadius="$6"
           padding="$3"
@@ -277,8 +306,19 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               <StyledButton
                 width={width * 0.25}
                 size={"$3.5"}
-                create={!!(transaction.name && amount)}
-                disabled={!!(transaction.name && amount)}
+                create={
+                  !!transactionName &&
+                  !isTransactionNameError &&
+                  !!amount &&
+                  !isAmountError
+                }
+                disabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
+                onPress={onCreateTxn}
               >
                 Create
               </StyledButton>
@@ -298,6 +338,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
               autoFocus={true}
+              maxLength={5}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -306,12 +347,14 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 Transaction name (*)
               </Text>
               <StyledInput
-                id={`create-transaction-name=${transaction.name}`}
+                id={`create-transaction-name=${transactionName}`}
                 placeholder="Enter name"
                 defaultValue=""
-                value={transaction.name}
+                value={transactionName}
+                error={isTransactionNameError}
                 backgroundColor={"white"}
                 onChangeText={handleNameChange}
+                maxLength={20}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -322,7 +365,12 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={true}
+                isVisibleToUser={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </Fieldset>
           </XStack>
@@ -333,7 +381,12 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               onSaveSplits={handleSaveSplits}
               setIsEven={setIsEven}
               includedMembers={includedMembers}
-              isDisabled={!!(transaction.name && amount)}
+              isDisabled={
+                !transactionName ||
+                isTransactionNameError ||
+                !amount ||
+                isAmountError
+              }
             />
           </XStack>
           <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
