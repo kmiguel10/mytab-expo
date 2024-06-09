@@ -7,6 +7,7 @@ import {
   Form,
   Separator,
   Sheet,
+  SizableText,
   Text,
   useWindowDimensions,
   XStack,
@@ -324,7 +325,8 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               </StyledButton>
             </XStack>
           </Form.Trigger>
-          <Fieldset gap="$4" horizontal justifyContent="center">
+          <Fieldset horizontal justifyContent="center">
+            <SizableText size={"$9"}>$</SizableText>
             <StyledInput
               id="create-txn-amount-input"
               placeholder="0"
@@ -334,7 +336,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               onChangeText={handleAmountChange}
               onBlur={handleBlur}
               inputMode="decimal"
-              size={"$12"}
+              size={"$11"}
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
               autoFocus={true}
