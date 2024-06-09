@@ -12,6 +12,7 @@ import {
   XStack,
 } from "tamagui";
 import Avatar from "../login/avatar";
+import { formatToDollarCurrency } from "@/lib/helpers";
 
 interface Props extends CardProps {
   bill: MemberData;
@@ -45,7 +46,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
             {bill.name}
           </H5>
           <H4 maxWidth={"50%"} overflow="hidden">
-            ${bill.amount}
+            {formatToDollarCurrency(bill.amount ? bill.amount : 0)}
           </H4>
         </XStack>
         {bill.isMemberIncluded && (

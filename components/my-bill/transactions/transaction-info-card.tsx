@@ -5,6 +5,7 @@ import {
   findUserAvatar,
   findUserDisplayName,
   formatDateToMonthDay,
+  formatToDollarCurrency,
 } from "@/lib/helpers";
 import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
@@ -165,7 +166,13 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
                           txn.payerid,
                           members
                         )}`}
-                        iconAfter={<H1>${txn.amount}</H1>}
+                        iconAfter={
+                          <H1>
+                            {formatToDollarCurrency(
+                              txn.amount ? txn.amount : 0
+                            )}
+                          </H1>
+                        }
                       />
                     </YGroup.Item>
                   </YGroup>
