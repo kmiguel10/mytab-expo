@@ -3,21 +3,15 @@ import ConfirmExtension from "@/components/bill-settings/confirm-extenstion";
 import ConfirmSaveName from "@/components/bill-settings/confirm-save-name";
 import EditMembers from "@/components/bill-settings/edit-members";
 import LockSwitch from "@/components/bill-settings/lock-switch";
-import { StyledButton } from "@/components/button/button";
 import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import { StyledInput } from "@/components/input/input";
 import { getBillInfo } from "@/lib/api";
-import {
-  convertToLocalDate,
-  getMonthAndDateFromISOString,
-} from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
 import { BillInfo } from "@/types/global";
 import { ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import DatePicker from "react-native-date-picker";
 import {
   Card,
   Fieldset,
@@ -32,9 +26,9 @@ import {
 
 import ExtendDurationToast from "@/components/bill-settings/extend-duration-toast";
 import SaveNameToast from "@/components/bill-settings/save-name-toast";
+import { AlertCircle } from "@tamagui/lucide-icons";
 import moment from "moment";
 import "moment-timezone";
-import { AlertCircle } from "@tamagui/lucide-icons";
 
 /**
  * This component's features are only visible to the bill owner
