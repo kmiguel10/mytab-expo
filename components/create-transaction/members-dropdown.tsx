@@ -71,7 +71,7 @@ export default function MembersDropdown({
       disablePreventBodyScroll
       {...props}
     >
-      <Select.Trigger disabled={!isVisibleToUser}>
+      <Select.Trigger disabled={isVisibleToUser}>
         <Select.Value placeholder={defaultPayer} />
       </Select.Trigger>
 

@@ -7,6 +7,7 @@ import {
   Form,
   Separator,
   Sheet,
+  SizableText,
   Text,
   useWindowDimensions,
   XStack,
@@ -59,6 +60,10 @@ const EditTransaction: React.FC<Props> = ({
   const [sheetZIndex, setSheetZIndex] = useState(100000);
   const { width, height } = useWindowDimensions();
 
+  const [transactionName, setTransactionName] = useState("");
+  const [isAmountError, setIsAmountError] = useState(false);
+  const [isTransactionNameError, setIsTransactionNameError] = useState(false);
+
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
     const user = members.find((member) => member.userid === userId);
@@ -67,10 +72,16 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   const handleNameChange = (txnName: string): void => {
-    setLocalTxn((prevTransaction) => ({
-      ...prevTransaction,
-      name: txnName,
-    }));
+    const trimmedTxnName = txnName.trim();
+    if (trimmedTxnName.length === 0) {
+      setIsTransactionNameError(true);
+      setTransactionName(txnName);
+    } else if (trimmedTxnName.length <= 20) {
+      setTransactionName(txnName);
+      setIsTransactionNameError(false);
+    } else {
+      setIsTransactionNameError(true);
+    }
   };
 
   const handlePayerChange = (selectedPayer: string) => {
@@ -82,6 +93,17 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   const handleAmountChange = (_amount: string) => {
+    //set error state
+    if (_amount.length === 0) {
+      setIsAmountError(true);
+    } else if (parseFloat(_amount) === 0) {
+      setIsAmountError(true);
+    } else if (_amount.length <= 5 && parseFloat(_amount) > 0) {
+      setIsAmountError(false);
+    } else {
+      setIsAmountError(true);
+    }
+
     // Allow only digits optionally followed by a dot and then more digits
     const regex = /^\d*\.?\d*$/;
 
@@ -108,6 +130,7 @@ const EditTransaction: React.FC<Props> = ({
     // Default to 0 if the input is empty or just a dot
     if (amount === "" || amount === ".") {
       setAmount("0");
+      setIsAmountError(true);
     } else if (amount.endsWith(".")) {
       // Remove trailing dot if present
       setAmount(amount.slice(0, -1));
@@ -128,6 +151,7 @@ const EditTransaction: React.FC<Props> = ({
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
     localTxn.amount = parseFloat(amount);
+    localTxn.name = transactionName;
 
     //first check if bill is locked...
     //yes, then route to homepage
@@ -243,6 +267,7 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   /*********** UseEffects ***********/
+  //Gets members
   useEffect(() => {
     if (members.length > 0) {
       initiateIncludedMembers();
@@ -265,6 +290,7 @@ const EditTransaction: React.FC<Props> = ({
     }
     setLocalTxn(transaction);
     setAmount(transaction.amount.toString());
+    setTransactionName(transaction.name);
   }, [open, transaction]);
 
   //component is visible to user if user is the bill owner or transaction payer
@@ -322,8 +348,18 @@ const EditTransaction: React.FC<Props> = ({
                 <StyledButton
                   width={width * 0.25}
                   size={"$3.5"}
-                  active={!!(localTxn.name && amount) && amount !== "0"}
-                  disabled={!!(localTxn.name && amount) && amount === "0"}
+                  active={
+                    !!transactionName &&
+                    !isTransactionNameError &&
+                    !!amount &&
+                    !isAmountError
+                  }
+                  disabled={
+                    !transactionName ||
+                    isTransactionNameError ||
+                    !amount ||
+                    isAmountError
+                  }
                 >
                   Submit
                 </StyledButton>
@@ -332,6 +368,7 @@ const EditTransaction: React.FC<Props> = ({
           )}
 
           <Fieldset gap="$4" horizontal justifyContent="center">
+            <SizableText size={"$9"}>$</SizableText>
             <StyledInput
               id={`edit-amount-input - ${localTxn.name}`}
               placeholder="0"
@@ -340,12 +377,13 @@ const EditTransaction: React.FC<Props> = ({
               onChangeText={handleAmountChange}
               onBlur={handleBlur}
               inputMode="decimal"
-              size={"$12"}
+              size={"$11"}
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
               autoFocus={true}
               clearTextOnFocus={false}
               disabled={!isVisibleForUser}
+              maxLength={5}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -357,10 +395,11 @@ const EditTransaction: React.FC<Props> = ({
                 id={`local-txn-name - ${localTxn.billid}`}
                 placeholder="Enter name"
                 defaultValue=""
-                value={localTxn.name}
-                error={!localTxn.name}
+                value={transactionName}
+                error={isTransactionNameError}
                 onChangeText={handleNameChange}
                 disabled={!isVisibleForUser}
+                maxLength={20}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -371,7 +410,13 @@ const EditTransaction: React.FC<Props> = ({
                 members={members}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={isVisibleForUser}
+                isVisibleToUser={
+                  !isVisibleForUser ||
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </Fieldset>
           </XStack>
@@ -383,7 +428,12 @@ const EditTransaction: React.FC<Props> = ({
                 onSaveSplits={handleSaveSplits}
                 setIsEven={setIsEven}
                 includedMembers={includedMembers}
-                isDisabled={!!(localTxn.name && amount) && amount !== "0"}
+                isDisabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </XStack>
           )}

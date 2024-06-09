@@ -200,8 +200,8 @@ const CustomSplit: React.FC<Props> = ({
       <Dialog.Trigger asChild alignContent="flex-end">
         <StyledButton
           backgroundColor="$blue3"
-          disabled={!isDisabled}
-          active={isDisabled}
+          disabled={isDisabled}
+          active={!isDisabled}
           size="$3.5"
           width="30%"
           icon={<Axe size="$1.5" />}
