@@ -148,7 +148,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             value="active"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Active</SizableText>
+            <SizableText>Active ({bills.length})</SizableText>
           </Tabs.Tab>
           <Tabs.Tab
             unstyled
@@ -157,7 +157,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             value="inactive"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Inactive</SizableText>
+            <SizableText>Expired ({inactiveBills.length})</SizableText>
           </Tabs.Tab>
         </Tabs.List>
       </YStack>
