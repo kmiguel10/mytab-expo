@@ -65,7 +65,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
                 <SizableText size={"$1"}>Locked</SizableText>
               </View>
             )}
-            {/* <View
+            <View
               backgroundColor={"$yellow4Light"}
               paddingHorizontal={"$2"}
               paddingVertical={"$1"}
@@ -73,7 +73,18 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
               borderRadius={"$12"}
             >
               <SizableText size={"$1"}>Expires Today</SizableText>
-            </View> */}
+            </View>
+            {bill.isFree && (
+              <View
+                backgroundColor={"$blue4Light"}
+                paddingHorizontal={"$2"}
+                paddingVertical={"$1"}
+                alignItems="center"
+                borderRadius={"$12"}
+              >
+                <SizableText size={"$1"}>Free</SizableText>
+              </View>
+            )}
           </XStack>
         )}
 

@@ -1,10 +1,8 @@
-import { formatDateToYMD } from "@/lib/helpers";
 import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
-import DatePicker from "react-native-date-picker";
 import * as RNIap from "react-native-iap";
 import {
   Card,
@@ -382,41 +380,61 @@ const CreateBillSheet: React.FC<Props> = ({
             <>
               <Separator marginVertical={"$3"} />
               <View gap="$4.5" height={payButtonHeight}>
-                <Card
-                  bordered
-                  backgroundColor="white"
-                  borderRadius={"$5"}
-                  height={windowHeight * 0.2}
-                >
-                  <YStack gap="$2" margin="$3.5">
-                    <H6>Bill Name</H6>
-                    <StyledInput
-                      placeholder="Ex: Mexico Trip"
-                      value={billName}
-                      onChangeText={onBillNameInput}
-                      error={billNameError}
-                      maxLength={20}
-                    />
-                  </YStack>
-                  <YStack marginHorizontal="$3.5" gap="$2">
-                    <H6>Duration</H6>
-                    <XStack justifyContent="space-between" alignItems="center">
-                      <SizableText>
-                        {date.format("MMM D")} - {endDate.format("MMM D")}
-                      </SizableText>
-                    </XStack>
-                  </YStack>
-                </Card>
+                {selectedPlan === "free.plan" && isFreeBillActive ? (
+                  <Card
+                    bordered
+                    backgroundColor="white"
+                    borderRadius={"$5"}
+                    height={windowHeight * 0.2}
+                  >
+                    <SizableText>
+                      Cannot create a free bill while there is an active free
+                      bill
+                    </SizableText>
+                  </Card>
+                ) : (
+                  <Card
+                    bordered
+                    backgroundColor="white"
+                    borderRadius={"$5"}
+                    height={windowHeight * 0.2}
+                  >
+                    <YStack gap="$2" margin="$3.5">
+                      <H6>Bill Name</H6>
+                      <StyledInput
+                        placeholder="Ex: Mexico Trip"
+                        value={billName}
+                        onChangeText={onBillNameInput}
+                        error={billNameError}
+                        maxLength={20}
+                      />
+                    </YStack>
+                    <YStack marginHorizontal="$3.5" gap="$2">
+                      <H6>Duration</H6>
+                      <XStack
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <SizableText>
+                          {date.format("MMM D")} - {endDate.format("MMM D")}
+                        </SizableText>
+                      </XStack>
+                    </YStack>
+                  </Card>
+                )}
               </View>
-              <Text>{isFreeBillActive}</Text>
               <View paddingTop="$2">
-                <StyledButton
-                  create={!!billName && !billNameError && !isFreeBillActive}
-                  disabled={(!billName || billNameError) && isFreeBillActive}
-                  onPress={onCreateBill}
-                >
-                  Pay
-                </StyledButton>
+                {selectedPlan === "free.plan" && isFreeBillActive ? (
+                  <Text>Expand the current free bill?</Text>
+                ) : (
+                  <StyledButton
+                    create={!!billName && !billNameError}
+                    disabled={!billName || billNameError}
+                    onPress={onCreateBill}
+                  >
+                    Pay
+                  </StyledButton>
+                )}
               </View>
             </>
           )}

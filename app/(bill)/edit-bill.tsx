@@ -68,6 +68,8 @@ export const EditBill = () => {
   const [initialName, setInitialName] = useState("");
   const [newBillName, setNewBillName] = useState("");
 
+  const [isFreeBill, setIsFreeBill] = useState(false);
+
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // Calculate the maximum date (30 days from today)
@@ -154,6 +156,7 @@ export const EditBill = () => {
       //Save initial name and date
       setInitialName(billInfo[0].name);
       setNewBillName(billInfo[0].name);
+      setIsFreeBill(billInfo[0].isFree);
 
       if (startDate && endDate) {
         //set the date and endDate initially in UTC, used when saving the updated duration
@@ -297,6 +300,7 @@ export const EditBill = () => {
           ownerId={billInfo[0]?.ownerid}
           height={height * 0.45}
           isOwner={isOwner}
+          isFreeBill={isFreeBill}
         />
         {isOwner && (
           <XStack justifyContent="space-between" padding="$3">

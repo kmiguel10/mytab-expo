@@ -1,4 +1,12 @@
-import { View, Text, YStack, YGroup, ListItem, XStack } from "tamagui";
+import {
+  View,
+  Text,
+  YStack,
+  YGroup,
+  ListItem,
+  XStack,
+  SizableText,
+} from "tamagui";
 import ConfirmationDialog from "./confirmation-dialog";
 import { Member } from "@/types/global";
 import { Toast } from "@tamagui/toast";
@@ -10,6 +18,7 @@ interface Props {
   fetchMembersData: () => void;
   isOwner: boolean;
   ownerId: string;
+  isFreeBill: boolean;
 }
 
 const CurrentMembers: React.FC<Props> = ({
@@ -17,6 +26,7 @@ const CurrentMembers: React.FC<Props> = ({
   fetchMembersData,
   isOwner,
   ownerId,
+  isFreeBill,
 }) => {
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
@@ -24,9 +34,22 @@ const CurrentMembers: React.FC<Props> = ({
 
   return (
     <View>
-      <Text paddingBottom="$3" paddingTop={"$3"}>
-        Members
-      </Text>
+      <XStack alignItems="center" gap="$2">
+        <SizableText paddingBottom="$3" paddingTop={"$3"}>
+          Members ({includedMembers.length > 0 ? includedMembers.length : 0})
+        </SizableText>
+        {isFreeBill && (
+          <View
+            backgroundColor={"$blue4Light"}
+            paddingHorizontal={"$2"}
+            paddingVertical={"$1"}
+            alignItems="center"
+            borderRadius={"$12"}
+          >
+            <SizableText fontSize={"$2"}>{"Max: 2"}</SizableText>
+          </View>
+        )}
+      </XStack>
       <YStack gap="$1.5">
         {includedMembers.map((member, index) => (
           <YGroup
