@@ -77,6 +77,7 @@ type MemberData = {
   isdeleted: boolean; // Boolean (Not nullable)
   isRequestSent: boolean; // Boolean or NULL
   memberUrls: string[];
+  isFree: boolean;
 };
 
 type Split = {
@@ -118,6 +119,7 @@ type BillInfo = {
   isLocked: boolean;
   start_date: Date;
   end_date: Date;
+  isFree: boolean;
 };
 
 type SummaryInfo = {

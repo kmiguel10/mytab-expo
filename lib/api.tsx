@@ -113,8 +113,9 @@ export const getBillsForUserIdWithUrls = async (
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
-      .eq("userid", userId)
-      .eq("isdeleted", false);
+      .eq("userid", userId);
+    // .eq("isdeleted", false);
+    // .eq("isActive", true);
 
     if (error) {
       throw new Error(error.message);

@@ -12,10 +12,11 @@ interface Props {
 
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   const router = useRouter();
+  //Set flags for bills
   const onDelete = async () => {
     const { data, error } = await supabase
       .from("bills")
-      .update({ isdeleted: true })
+      .update({ isdeleted: true, isActive: false })
       .eq("billid", billId)
       .select();
 

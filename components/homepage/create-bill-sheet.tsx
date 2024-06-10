@@ -35,12 +35,17 @@ import "moment-timezone";
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
+  isFreeBillActive: boolean;
 }
 
 /**
  * Dates send to the Database are in UTC, all the calculations will be in UTC except what is shown to the user which will be transformed to localTime
  */
-const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
+const CreateBillSheet: React.FC<Props> = ({
+  open,
+  setOpen,
+  isFreeBillActive,
+}) => {
   /** ---------- States and Variables ---------- */
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [position, setPosition] = useState(0);
@@ -51,7 +56,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   );
   const [billName, setBillName] = useState("");
   const [billNameError, setBillNameError] = useState(false);
-  const [isBillActive, setIsBillActive] = useState(false);
 
   // Dates are initialized in Local Time Zone
   const [date, setDate] = useState(moment());
@@ -62,6 +66,13 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   const { id } = useLocalSearchParams();
   const productIds = ["com.mytab.1week", "com.mytab.2weeks"];
   const [products, setProducts] = useState<RNIap.Product[]>([]);
+
+  const freeProduct = {
+    title: "Free Plan",
+    description: "1 Week, 2 users, 20 entries",
+    productId: "free.plan",
+    price: "Free",
+  };
 
   /** ---------- Functions ---------- */
 
@@ -122,6 +133,8 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
     //   return;
     // }
 
+    let isFree = selectedPlan === "free.plan" ? true : false;
+
     const { data, error } = await supabase
       .from("bills")
       .insert([
@@ -130,7 +143,8 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
           name: billName,
           start_date: date.utc(), //UTC
           end_date: endDate.utc(), //UTC
-          isActive: isBillActive,
+          isActive: true,
+          isFree: isFree,
         },
       ])
       .select();
@@ -225,20 +239,6 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
   /** ---------- UseEffect ---------- */
 
   useEffect(() => {
-    const currentDate = moment();
-
-    //console.log("Current Date local: ", currentDate.toString());
-    //Need to rethink this...
-    if (currentDate >= date && currentDate <= endDate) {
-      //Bill is sent to active Tab
-      setIsBillActive(true);
-    } else {
-      //Bills is sent to Inactive tab
-      setIsBillActive(false);
-    }
-  }, [date, endDate, minDate, maxDate]);
-
-  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const products = await RNIap.getProducts({ skus: productIds });
@@ -324,6 +324,31 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
           <Separator marginVertical={"$3"} />
           <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
             <YGroup.Item>
+              <ListItem
+                key={1}
+                hoverTheme
+                title={<H6 fontSize={"$4"}>{freeProduct.title}</H6>}
+                subTitle={freeProduct.description}
+                iconAfter={
+                  <StyledButton
+                    size="$3"
+                    active={true}
+                    onPress={() => onPlanSelected(freeProduct.productId)}
+                    disabled={isPlanSelected}
+                  >
+                    {"  "}
+                    {freeProduct.price}
+                    {"  "}
+                  </StyledButton>
+                }
+                size={"$5"}
+                borderRadius={"$4"}
+                display={
+                  isPlanSelected && selectedPlan !== "free.plan"
+                    ? "none"
+                    : "flex"
+                }
+              />
               {products.map((product, index) => (
                 <ListItem
                   key={product.productId + index}
@@ -383,10 +408,11 @@ const CreateBillSheet: React.FC<Props> = ({ open, setOpen }) => {
                   </YStack>
                 </Card>
               </View>
+              <Text>{isFreeBillActive}</Text>
               <View paddingTop="$2">
                 <StyledButton
-                  create={!!billName && !billNameError}
-                  disabled={!billName || billNameError}
+                  create={!!billName && !billNameError && !isFreeBillActive}
+                  disabled={(!billName || billNameError) && isFreeBillActive}
                   onPress={onCreateBill}
                 >
                   Pay

@@ -56,6 +56,8 @@ const Home = () => {
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [purchase, setPurchase] = useState<RNIap.Purchase | null>(null);
 
+  const [isFreeBillActive, setIsFreeBillActive] = useState(false);
+
   const productSkus = Platform.select({
     ios: ["com.mytab.1week", "com.mytab.2weeks"],
     android: [""],
@@ -118,13 +120,29 @@ const Home = () => {
     setSuccessDeletedBillMsg("");
   };
 
+  //Fetches bills
   useEffect(() => {
     //console.log("*** Homepage: Fetch bills for user", id);
     async function fetchBills() {
       if (!id) return;
 
       const billsData = await getBillsForUserIdWithUrls(id.toString());
-      //console.log("billsData", JSON.stringify(billsData));
+      //find an active free bill - if there is then set flag to false
+
+      let activeFreeBillFound = billsData.find(
+        (member) => member.isFree && member.isBillActive && !member.isdeleted
+      );
+
+      if (activeFreeBillFound) {
+        setIsFreeBillActive(!!activeFreeBillFound);
+      }
+      console.log(
+        "activeFreeBillFound",
+        isFreeBillActive,
+        !!activeFreeBillFound,
+        activeFreeBillFound
+      );
+
       const filteredInactiveBills = billsData.filter(
         (member) =>
           (member.isMemberIncluded === true || member.isRequestSent === true) &&
@@ -160,6 +178,7 @@ const Home = () => {
           isdeleted: false,
           isRequestSent: false,
           memberUrls: [],
+          isFree: false,
         };
 
         if (newBillId) {
@@ -179,6 +198,7 @@ const Home = () => {
             isdeleted: false,
             isRequestSent: false,
             memberUrls: [],
+            isFree: false,
           };
         } else {
           newBill = billsData?.find(
@@ -197,6 +217,7 @@ const Home = () => {
             isdeleted: false,
             isRequestSent: false,
             memberUrls: [],
+            isFree: false,
           };
         }
 
@@ -236,6 +257,7 @@ const Home = () => {
     successDeletedBillMsg,
   ]);
 
+  //Sets and resets toasts
   useEffect(() => {
     if (
       initialNewBillId ||
@@ -474,6 +496,7 @@ const Home = () => {
         <CreateBillSheet
           open={isCreateBillOpen}
           setOpen={setIsCreateBillOpen}
+          isFreeBillActive={isFreeBillActive}
         />
       </FooterContainer>
       {newBillId && (
