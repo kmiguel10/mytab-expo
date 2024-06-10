@@ -26,7 +26,7 @@ export const getMembersWithBillcode = async (billCode: string) => {
     const { data, error } = await supabase
       .from("members")
       .select(
-        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName, isFree"
       )
       .eq("isMemberIncluded", true)
       .eq("billcode", billCode);

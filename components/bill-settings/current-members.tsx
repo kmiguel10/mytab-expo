@@ -1,17 +1,9 @@
-import {
-  View,
-  Text,
-  YStack,
-  YGroup,
-  ListItem,
-  XStack,
-  SizableText,
-} from "tamagui";
-import ConfirmationDialog from "./confirmation-dialog";
 import { Member } from "@/types/global";
 import { Toast } from "@tamagui/toast";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
+import { ListItem, SizableText, View, XStack, YGroup, YStack } from "tamagui";
 import Avatar from "../login/avatar";
+import ConfirmationDialog from "./confirmation-dialog";
 
 interface Props {
   includedMembers: Member[];
@@ -46,7 +38,7 @@ const CurrentMembers: React.FC<Props> = ({
             alignItems="center"
             borderRadius={"$12"}
           >
-            <SizableText fontSize={"$2"}>{"Max: 2"}</SizableText>
+            <SizableText fontSize={"$2"}>{"Free Plan Max: 2"}</SizableText>
           </View>
         )}
       </XStack>

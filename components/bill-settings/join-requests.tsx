@@ -2,25 +2,28 @@ import { supabase } from "@/lib/supabase";
 import { Member } from "@/types/global";
 import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  YStack,
-  YGroup,
   ListItem,
-  Button,
+  SizableText,
+  Text,
+  View,
   XStack,
-  Separator,
-  H6,
+  YGroup,
+  YStack,
 } from "tamagui";
-import Avatar from "../login/avatar";
 import { StyledButton } from "../button/button";
+import Avatar from "../login/avatar";
 
 interface Props {
   requests: Member[];
   fetchMembersData: () => void;
+  isMaxMembersReached: boolean;
 }
 
-const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
+const JoinRequests: React.FC<Props> = ({
+  requests,
+  fetchMembersData,
+  isMaxMembersReached,
+}) => {
   const [localRequests, setLocalRequests] = useState<Member[]>([]);
 
   const onAccept = async (memberId: string) => {
@@ -50,7 +53,6 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
       .select();
 
     if (data) {
-      console.log("data", data);
       // Remove the declined member from localRequests
       setLocalRequests((prevRequests) =>
         prevRequests.filter((member) => member.memberid !== memberId)
@@ -65,12 +67,11 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
   useEffect(() => {
     setLocalRequests(requests);
     fetchMembersData();
-    console.log(" ### UseEffect in join requests");
-  }, []);
+  }, [requests.length]);
 
   return (
     <View>
-      <Text paddingBottom="$3">Requests</Text>
+      <SizableText paddingBottom="$3">Requests ({requests.length})</SizableText>
       <YStack gap="$1.5">
         {localRequests.map((member, index) => (
           <YGroup
@@ -89,9 +90,10 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
                 iconAfter={
                   <XStack gap="$2">
                     <StyledButton
-                      create={true}
+                      create={!isMaxMembersReached}
                       size="$2.5"
                       onPress={() => onAccept(member.memberid)}
+                      disabled={isMaxMembersReached}
                     >
                       Accept
                     </StyledButton>

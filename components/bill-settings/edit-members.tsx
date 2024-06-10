@@ -1,12 +1,11 @@
 import { getMembersAndRequests } from "@/lib/api";
-import { useEffect, useState } from "react";
-import { Button, ScrollView, Separator, View } from "tamagui";
+import { Member } from "@/types/global";
+import { Toast } from "@tamagui/toast";
+import React, { useEffect, useState } from "react";
+import { RefreshControl } from "react-native";
+import { ScrollView, Separator, View } from "tamagui";
 import CurrentMembers from "./current-members";
 import JoinRequests from "./join-requests";
-import { Toast, ToastViewport } from "@tamagui/toast";
-import React from "react";
-import { Member } from "@/types/global";
-import { RefreshControl } from "react-native";
 
 interface Props {
   billId: number;
@@ -30,6 +29,10 @@ const EditMembers: React.FC<Props> = ({
   const [requests, setRequests] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isMaxMembersReached, setIsMaxMembersReached] = useState(false);
+
+  const freeBillMaxMembers = 2;
+  const paidBillMaxMembers = 12;
 
   /** ---------- Functions---------- */
   const fetchMembersData = async () => {
@@ -45,7 +48,6 @@ const EditMembers: React.FC<Props> = ({
   };
 
   const handleRefresh = async () => {
-    console.log(" - - - Pull Down refresh Members - - - -");
     setRefreshing(true);
     fetchMembersData();
   };
@@ -55,7 +57,7 @@ const EditMembers: React.FC<Props> = ({
   /** ---------- UseEffects---------- */
   useEffect(() => {
     fetchMembersData();
-  }, [billId]);
+  }, [billId, refreshing]);
 
   useEffect(() => {
     // Filter out the owner from members
@@ -81,7 +83,14 @@ const EditMembers: React.FC<Props> = ({
     setFilteredMembers(filtered);
     setIncludedMembers(included);
     setRequests(reqs);
-  }, [members, ownerId]);
+
+    //determine if max members are reach
+    if (isFreeBill) {
+      setIsMaxMembersReached(freeBillMaxMembers <= included.length);
+    } else {
+      setIsMaxMembersReached(paidBillMaxMembers <= included.length);
+    }
+  }, [members, ownerId, refreshing]);
 
   return (
     <View height={height} padding="$3">
@@ -94,6 +103,7 @@ const EditMembers: React.FC<Props> = ({
           <JoinRequests
             requests={requests}
             fetchMembersData={fetchMembersData}
+            isMaxMembersReached={isMaxMembersReached}
           />
         )}
 
