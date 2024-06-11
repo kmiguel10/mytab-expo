@@ -64,6 +64,9 @@ export const EditBill = () => {
 
   const [isBillNameError, setIsBillNameError] = useState(false);
 
+  const [isBillExpired, setIsBillExpired] = useState(false);
+  const [isExpiringToday, setIsExpiringToday] = useState(false);
+
   //Initial Values
   const [initialName, setInitialName] = useState("");
   const [newBillName, setNewBillName] = useState("");
@@ -153,6 +156,20 @@ export const EditBill = () => {
       const startDate = moment(billInfo[0]?.start_date).utc();
       const endDate = moment(billInfo[0]?.end_date).utc();
 
+      //calculate in local time
+      const formattedTodayInUtc = moment().utc().local().startOf("day");
+      const formattedEndDate = endDate.local().startOf("day");
+
+      //Sets isExpired and isExpiring flags
+      if (formattedTodayInUtc.isSame(formattedEndDate)) {
+        setIsExpiringToday(true);
+        setIsBillExpired(false);
+      } else if (formattedTodayInUtc.isAfter(formattedEndDate)) {
+        /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
+        setIsBillExpired(true);
+        setIsExpiringToday(false);
+      }
+
       //Save initial name and date
       setInitialName(billInfo[0].name);
       setNewBillName(billInfo[0].name);
@@ -171,10 +188,7 @@ export const EditBill = () => {
   }, [billInfo]);
 
   /**
-   * 1. Bill is active if it is within the date range or better if the bill is before the start date then it can be changed still
-   * 2. The bill's date range can be changed if the bill is not active yet
-   *
-   * Calculations must be based on UTC
+   * sets if expiring today and if expired
    */
   useEffect(() => {
     setDateLocalTime(date.local().format("MMM D"));
@@ -242,7 +256,7 @@ export const EditBill = () => {
               <YStack paddingLeft="$2">
                 <XStack gap="$2" alignItems="center">
                   <H6>Duration</H6>
-                  {todayMonthDate === endDateMonthDate && (
+                  {isExpiringToday && (
                     <XStack
                       backgroundColor={"$yellow5Light"}
                       paddingHorizontal={"$2"}
@@ -255,6 +269,19 @@ export const EditBill = () => {
                       <Text fontSize={"$1"}>Expires today</Text>
                     </XStack>
                   )}
+                  {isBillExpired && (
+                    <XStack
+                      backgroundColor={"$red5Light"}
+                      paddingHorizontal={"$2"}
+                      paddingVertical={"$1"}
+                      alignItems="center"
+                      borderRadius={"$12"}
+                      gap="$2"
+                    >
+                      <AlertCircle size="$1" />
+                      <Text fontSize={"$1"}>Expired</Text>
+                    </XStack>
+                  )}
                 </XStack>
 
                 <XStack justifyContent="space-between" alignItems="center">
@@ -262,7 +289,7 @@ export const EditBill = () => {
                     {dateLocalTime} - {endDateLocalTime}
                   </Text>
 
-                  {isOwner && todayMonthDate === endDateMonthDate && (
+                  {isOwner && isExpiringToday && (
                     <ConfirmExtension
                       currentEndDateUTC={endDate.utc().toDate()}
                       billId={parseInt(id.toString())}
