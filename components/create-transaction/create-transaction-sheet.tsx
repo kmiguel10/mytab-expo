@@ -23,9 +23,15 @@ interface Props {
   setOpen: (open: boolean) => void;
   members: Member[];
   billId: string;
+  maxTransaction: number;
 }
 
-const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
+const CreateTransaction: React.FC<Props> = ({
+  open,
+  setOpen,
+  members,
+  maxTransaction,
+}) => {
   /********** States and variables ***********/
   const [position, setPosition] = useState(0);
   const [amount, setAmount] = useState("");
@@ -142,13 +148,25 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     transaction.name = transactionName;
 
     try {
-      const { data: isBillLocked, error: billError } = await supabase
+      const { data, error: billError } = await supabase
         .from("bills")
-        .select("isLocked")
+        .select("isLocked,activeTxnCount")
         .eq("billid", transaction.billid);
 
-      if (isBillLocked) {
-        if (isBillLocked[0].isLocked) {
+      if (data) {
+        //edit this in order to determine if free plan or paid
+        if (data[0].activeTxnCount >= maxTransaction) {
+          router.navigate({
+            pathname: `/(bill)/${id}`,
+            params: {
+              userId: _userId,
+              errorCreateMsg: `Reached maximum ${maxTransaction} transactions`,
+            }, //
+          });
+          setOpen(false);
+          return;
+        }
+        if (data[0].isLocked) {
           router.replace({
             pathname: `/(bill)/${transaction.billid}`,
             params: {

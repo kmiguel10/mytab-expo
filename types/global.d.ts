@@ -120,6 +120,7 @@ type BillInfo = {
   start_date: Date;
   end_date: Date;
   isFree: boolean;
+  productId: string;
 };
 
 type SummaryInfo = {

@@ -19,8 +19,11 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { YStack, useWindowDimensions } from "tamagui";
 
+// Define the possible product types
+type ProductType = "free.plan" | "com.mytab.1week" | "com.mytab.2weeks";
+
 const BillScreen = () => {
-  /** ---------- States ---------- */
+  /** ---------- States  and variables---------- */
   const {
     id,
     userId,
@@ -42,6 +45,8 @@ const BillScreen = () => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const [openCreateTxn, setOpenCreateTxn] = useState(false);
+  const [isMaxTxnsReached, setIsMaxTxnsReached] = useState(false);
+  const [maxTransactions, setMaxTransactions] = useState(0);
 
   // Create states for toast messages
   const [txnName, setTxnName] = useState(initialTxnName || "");
@@ -97,6 +102,11 @@ const BillScreen = () => {
     });
   };
 
+  // Type guard to check if a value is a valid ProductType
+  const isProductType = (value: string): value is ProductType => {
+    return ["free.plan", "com.mytab.1week", "com.mytab.2weeks"].includes(value);
+  };
+
   /** ---------- UseEffects ---------- */
 
   /** fetch summary info */
@@ -142,11 +152,46 @@ const BillScreen = () => {
     async function fetchBillInfo() {
       if (id) {
         const data: BillInfo[] | null = await getBillInfo(Number(id));
-        setBillInfo(data);
+
+        if (data) {
+          setBillInfo(data);
+        }
       }
     }
     fetchBillInfo();
   }, [id]);
+
+  useEffect(() => {
+    if (billInfo.length === 0) {
+      // Handle the case where billInfo is empty
+      setIsMaxTxnsReached(false);
+      return;
+    }
+
+    const transactionNumber = transactions.length;
+    const productType = billInfo[0]?.productId;
+
+    // Mapping product types to their respective max transactions
+    const planMaxTransactions: Record<ProductType, number> = {
+      "free.plan": 20,
+      "com.mytab.1week": 100,
+      "com.mytab.2weeks": 200,
+    };
+
+    // Determine if the max transaction number is reached based on the plan
+    if (productType && isProductType(productType)) {
+      const _maxTransactions = planMaxTransactions[productType];
+      setIsMaxTxnsReached(transactionNumber >= _maxTransactions);
+      setMaxTransactions(_maxTransactions);
+      console.log("setIsMaxTxnsReached", transactionNumber >= _maxTransactions);
+      console.log("transactionNumber", transactionNumber);
+      console.log("productType", productType);
+    } else {
+      // Handle unexpected product types if necessary
+      //setIsMaxTxnsReached(false);
+      console.error("Error not a valid productType: ", productType);
+    }
+  }, [billInfo, transactions]);
 
   // Update toast message states whenever search params change
   useEffect(() => {
@@ -183,6 +228,7 @@ const BillScreen = () => {
         members={members}
         open={openCreateTxn}
         setOpen={setOpenCreateTxn}
+        maxTransaction={maxTransactions}
       />
       <ToastViewport
         width={"100%"}
@@ -226,17 +272,15 @@ const BillScreen = () => {
           />
         </BodyContainer>
       </YStack>
-
       <FooterContainer
         height={windowHeight}
         justifyContent="flex-end"
         alignContent="center"
       >
         {/* <MembersView members={members} height={windowHeight} /> */}
-
         <StyledButton
-          disabled={billInfo[0]?.isLocked}
-          create={!billInfo[0]?.isLocked}
+          disabled={billInfo[0]?.isLocked || isMaxTxnsReached}
+          create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
           width={windowWidth * 0.38}
           size={"$3.5"}
           onPress={onOpenCreateTxn}

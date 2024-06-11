@@ -143,6 +143,7 @@ const CreateBillSheet: React.FC<Props> = ({
           end_date: endDate.utc(), //UTC
           isActive: true,
           isFree: isFree,
+          productId: selectedPlan,
         },
       ])
       .select();
@@ -240,7 +241,7 @@ const CreateBillSheet: React.FC<Props> = ({
     const fetchProducts = async () => {
       try {
         const products = await RNIap.getProducts({ skus: productIds });
-        //console.log("Products fetched: ", products);
+        console.log("Products fetched: ", products);
         setProducts(products);
       } catch (err) {
         console.warn(err);
