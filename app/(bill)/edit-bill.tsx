@@ -78,9 +78,6 @@ export const EditBill = () => {
   // Calculate the maximum date (30 days from today)
   const today = moment().utc();
 
-  const todayMonthDate = today.format("MMM D");
-  const endDateMonthDate = endDate.format("MMM D");
-
   /** ---------- Functions ---------- */
 
   //This saves the name and date
@@ -158,6 +155,8 @@ export const EditBill = () => {
 
       //calculate in local time
       const formattedTodayInUtc = moment().utc().local().startOf("day");
+      //testing
+      //const formattedTodayInUtc = endDate.local().add(1, "day").startOf("day");
       const formattedEndDate = endDate.local().startOf("day");
 
       //Sets isExpired and isExpiring flags
@@ -167,6 +166,9 @@ export const EditBill = () => {
       } else if (formattedTodayInUtc.isAfter(formattedEndDate)) {
         /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
         setIsBillExpired(true);
+        setIsExpiringToday(false);
+      } else {
+        setIsBillExpired(false);
         setIsExpiringToday(false);
       }
 
@@ -289,13 +291,15 @@ export const EditBill = () => {
                     {dateLocalTime} - {endDateLocalTime}
                   </Text>
 
-                  {isOwner && isExpiringToday && (
+                  {isOwner && (isExpiringToday || isBillExpired) && (
                     <ConfirmExtension
                       currentEndDateUTC={endDate.utc().toDate()}
                       billId={parseInt(id.toString())}
                       setBillInfo={setBillInfo}
                       setOpenExtendDuration={setOpenExtendDuration}
                       setErrorMessage={setExtendDurationErrorMsg}
+                      isBillExpired={isBillExpired}
+                      isBillExpiringToday={isExpiringToday}
                     />
                   )}
                   {/* For testing */}

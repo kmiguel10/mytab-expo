@@ -14,6 +14,7 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { AlertCircle } from "@tamagui/lucide-icons";
+import moment from "moment";
 
 interface Props {
   setOpenExtendDuration: (open: boolean) => void;
@@ -21,6 +22,8 @@ interface Props {
   billId: number;
   setBillInfo: (billInfo: BillInfo[]) => void;
   setErrorMessage: (error: string) => void;
+  isBillExpired: boolean;
+  isBillExpiringToday: boolean;
 }
 
 const ConfirmExtension: React.FC<Props> = ({
@@ -29,18 +32,20 @@ const ConfirmExtension: React.FC<Props> = ({
   setBillInfo,
   setOpenExtendDuration,
   setErrorMessage,
+  isBillExpired,
+  isBillExpiringToday,
 }) => {
   /************ States and Variables ************/
-  const [extendedEndDateUTC, setExtendedEndDateUTC] = useState(new Date());
-  const [extendedEndDateLocalTime, setExtendedEndDateLocalTime] = useState(
-    new Date()
-  );
+  const [extendedStartDateUTC, setExtendedStartDateUTC] = useState(moment());
+  const [extendedEndDateUTC, setExtendedEndDateUTC] = useState(moment());
+
+  const [extendedEndDateLocalTime, setExtendedEndDateLocalTime] = useState("");
+  const [extendedStartDateLocalTime, setExtendedStartDateLocalTime] =
+    useState("");
 
   const { width, height } = useWindowDimensions();
 
-  const confirmPurchaseMessage = `Do you want to extend your bill for 1 week for $1.99?\n\nThis bill will have a new expiration date of ${formatDate(
-    extendedEndDateLocalTime
-  )}`;
+  const confirmPurchaseMessage = `Do you want to extend your bill for 1 week for $1.99?\n\nNew Start Date: ${extendedStartDateLocalTime}\nNew Expiration Date: ${extendedEndDateLocalTime}`;
   const title = "Purchase extension";
 
   /************ Functions ************/
@@ -67,13 +72,18 @@ const ConfirmExtension: React.FC<Props> = ({
     //work on this tomorrow
     //change the date and endDate of the bill
   };
+
+  /**
+   * The extentions will be based on whether expiresToday = 8 days, expired = 7
+   */
   const purchaseExtension = async () => {
-    console.log("Purchase extension");
-    console.log("Extending to new duration: ", new Date(), extendedEndDateUTC);
     try {
       const { data, error } = await supabase
         .from("bills")
-        .update({ start_date: new Date(), end_date: extendedEndDateUTC })
+        .update({
+          start_date: extendedStartDateUTC,
+          end_date: extendedEndDateUTC,
+        })
         .eq("billid", billId)
         .select();
 
@@ -113,19 +123,35 @@ const ConfirmExtension: React.FC<Props> = ({
    * Sanitize current end date
    */
   useEffect(() => {
+    let extendedDays_startDate = 1;
+    let extendedDays_endDate = 8;
+
+    if (isBillExpired) {
+      //a full week
+      extendedDays_startDate = 0;
+      extendedDays_endDate = 7;
+    } else if (isBillExpiringToday) {
+      //take into account an additional day
+      extendedDays_startDate = 1;
+      extendedDays_endDate = 8;
+    }
+
     console.log("currentEndDateUTC", currentEndDateUTC);
-    //add 7 days
-    //convert the new extended time to local time
-    const newEndate = new Date(currentEndDateUTC);
-    newEndate.setDate(newEndate.getDate() + 7);
+
+    //set extended dates
+    const newStartDate = moment().utc().add(extendedDays_startDate, "days");
+    const newEndate = moment(currentEndDateUTC)
+      .add(extendedDays_endDate, "days")
+      .utc();
+
+    //utc
+    setExtendedStartDateUTC(newStartDate);
     setExtendedEndDateUTC(newEndate);
-    setExtendedEndDateLocalTime(convertToLocalDate(newEndate.toString()));
-    console.log("Extended end date UTC", newEndate.toString());
-    console.log(
-      "Extended end date local time",
-      convertToLocalDate(newEndate.toString())
-    );
-  }, [currentEndDateUTC]);
+
+    //local
+    setExtendedStartDateLocalTime(newStartDate.local().format("MMMM, D"));
+    setExtendedEndDateLocalTime(newEndate.local().format("MMMM, D"));
+  }, [currentEndDateUTC, isBillExpired, isBillExpiringToday]);
 
   return (
     <AlertDialog native={false}>
