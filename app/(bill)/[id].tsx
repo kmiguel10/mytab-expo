@@ -179,14 +179,17 @@ const BillScreen = () => {
     }
 
     /** Expires today */
-    const endDateInUtc = moment(billInfo[0].end_date).utc().startOf("day");
-    const todayInUtc = moment().utc().startOf("day");
-    //const todayInUtc = moment("2024-06-18").utc().startOf("day"); //test
+    const endDateInUtc = moment(billInfo[0].end_date)
+      .utc()
+      .local()
+      .startOf("day");
+    const todayInUtc = moment().utc().local().startOf("day");
 
-    console.log("end date DB: ", billInfo[0].end_date);
-    console.log("endDateInUtc: ", endDateInUtc);
-
-    console.log("todayInUtc: ", todayInUtc);
+    // const todayInUtc = moment(billInfo[0].end_date)
+    //   .add(1, "day")
+    //   .utc()
+    //   .local()
+    //   .startOf("day");
 
     if (todayInUtc.isSame(endDateInUtc)) {
       setIsExpiringToday(true);
