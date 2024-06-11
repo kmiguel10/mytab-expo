@@ -245,6 +245,8 @@ const BillScreen = () => {
               billName={billInfo[0]?.name}
               height={windowHeight * 0.15}
               width={windowWidth}
+              isMaxTransactionsReached={isMaxTxnsReached}
+              maxTransactions={maxTransactions}
             />
           ) : (
             <BillHeaderSkeleton

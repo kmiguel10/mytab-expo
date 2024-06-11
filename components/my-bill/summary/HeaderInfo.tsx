@@ -1,8 +1,8 @@
 import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import React from "react";
 import {
-  CardProps,
   H4,
+  SizableText,
   Text,
   View,
   XStack,
@@ -15,6 +15,8 @@ interface Props {
   billName: string;
   height: number;
   width: number;
+  isMaxTransactionsReached: boolean;
+  maxTransactions: number;
 }
 
 const HeaderInfo: React.FC<Props> = ({
@@ -22,6 +24,8 @@ const HeaderInfo: React.FC<Props> = ({
   billName,
   height,
   width,
+  isMaxTransactionsReached,
+  maxTransactions,
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   // Calculate total paid amount and total transaction count
@@ -35,13 +39,34 @@ const HeaderInfo: React.FC<Props> = ({
   );
   return (
     <YStack justifyContent="space-evenly" gap="$3" padding="$2">
-      <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
+      <XStack
+        width={windowWidth * 0.45}
+        gap="$3"
+        paddingHorizontal="$2"
+        alignItems="center"
+      >
         <View>
           <Text>Bill Name</Text>
-          <H4 height={height * 0.25} width={windowWidth * 0.35}>
+          <H4 height={height * 0.25} width={windowWidth * 0.4}>
             {billName}
           </H4>
         </View>
+        {isMaxTransactionsReached && (
+          <YStack>
+            <Text></Text>
+            <View
+              backgroundColor={"$red4Light"}
+              paddingHorizontal={"$2"}
+              paddingVertical={"$1"}
+              alignItems="center"
+              borderRadius={"$12"}
+            >
+              <SizableText fontSize={"$1"}>
+                Max {maxTransactions} Transactions
+              </SizableText>
+            </View>
+          </YStack>
+        )}
       </XStack>
       <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
