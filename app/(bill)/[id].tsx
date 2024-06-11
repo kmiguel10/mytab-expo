@@ -16,6 +16,7 @@ import {
 import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { YStack, useWindowDimensions } from "tamagui";
 
@@ -47,6 +48,9 @@ const BillScreen = () => {
   const [openCreateTxn, setOpenCreateTxn] = useState(false);
   const [isMaxTxnsReached, setIsMaxTxnsReached] = useState(false);
   const [maxTransactions, setMaxTransactions] = useState(0);
+
+  const [isBillExpired, setIsBillExpired] = useState(false);
+  const [isExpiringToday, setIsExpiringToday] = useState(false);
 
   // Create states for toast messages
   const [txnName, setTxnName] = useState(initialTxnName || "");
@@ -161,6 +165,12 @@ const BillScreen = () => {
     fetchBillInfo();
   }, [id]);
 
+  //Sets if max transactions reached based on productId and if expiredToday or
+  /**
+   * 1. Sets if max transactions reached based on productId and if expiredToday
+   * 2. Sets if expires today
+   * 3. sets if bill is expired
+   */
   useEffect(() => {
     if (billInfo.length === 0) {
       // Handle the case where billInfo is empty
@@ -168,6 +178,25 @@ const BillScreen = () => {
       return;
     }
 
+    /** Expires today */
+    const endDateInUtc = moment(billInfo[0].end_date).utc().startOf("day");
+    const todayInUtc = moment().utc().startOf("day");
+    //const todayInUtc = moment("2024-06-18").utc().startOf("day"); //test
+
+    console.log("end date DB: ", billInfo[0].end_date);
+    console.log("endDateInUtc: ", endDateInUtc);
+
+    console.log("todayInUtc: ", todayInUtc);
+
+    if (todayInUtc.isSame(endDateInUtc)) {
+      setIsExpiringToday(true);
+      setIsBillExpired(false);
+    } else if (todayInUtc.isAfter(endDateInUtc)) {
+      /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
+      setIsBillExpired(true);
+      setIsExpiringToday(false);
+    }
+    /** Max Transactions reached */
     const transactionNumber = transactions.length;
     const productType = billInfo[0]?.productId;
 
@@ -247,6 +276,8 @@ const BillScreen = () => {
               width={windowWidth}
               isMaxTransactionsReached={isMaxTxnsReached}
               maxTransactions={maxTransactions}
+              isExpiringToday={isExpiringToday}
+              isBillExpired={isBillExpired}
             />
           ) : (
             <BillHeaderSkeleton

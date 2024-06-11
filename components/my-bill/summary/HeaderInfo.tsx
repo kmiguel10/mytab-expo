@@ -17,6 +17,8 @@ interface Props {
   width: number;
   isMaxTransactionsReached: boolean;
   maxTransactions: number;
+  isExpiringToday: boolean;
+  isBillExpired: boolean;
 }
 
 const HeaderInfo: React.FC<Props> = ({
@@ -26,6 +28,8 @@ const HeaderInfo: React.FC<Props> = ({
   width,
   isMaxTransactionsReached,
   maxTransactions,
+  isExpiringToday,
+  isBillExpired,
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   // Calculate total paid amount and total transaction count
@@ -51,22 +55,41 @@ const HeaderInfo: React.FC<Props> = ({
             {billName}
           </H4>
         </View>
-        {isMaxTransactionsReached && (
-          <YStack>
-            <Text></Text>
+
+        <View gap="$1" alignSelf="flex-start">
+          {isMaxTransactionsReached && (
             <View
               backgroundColor={"$red4Light"}
               paddingHorizontal={"$2"}
-              paddingVertical={"$1"}
-              alignItems="center"
+              alignSelf="flex-start"
               borderRadius={"$12"}
             >
               <SizableText fontSize={"$1"}>
                 Max {maxTransactions} Transactions
               </SizableText>
             </View>
-          </YStack>
-        )}
+          )}
+          {isExpiringToday && (
+            <View
+              backgroundColor={"$yellow4Light"}
+              paddingHorizontal={"$2"}
+              borderRadius={"$12"}
+              alignSelf="flex-start"
+            >
+              <SizableText fontSize={"$1"}>Expires Today</SizableText>
+            </View>
+          )}
+          {isBillExpired && (
+            <View
+              backgroundColor={"$red4Light"}
+              paddingHorizontal={"$2"}
+              borderRadius={"$12"}
+              alignSelf="flex-start"
+            >
+              <SizableText fontSize={"$1"}>Expired</SizableText>
+            </View>
+          )}
+        </View>
       </XStack>
       <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
