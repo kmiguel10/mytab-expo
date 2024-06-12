@@ -150,11 +150,24 @@ const CreateTransaction: React.FC<Props> = ({
     try {
       const { data, error: billError } = await supabase
         .from("bills")
-        .select("isLocked,activeTxnCount")
+        .select("isLocked,activeTxnCount,isActive")
         .eq("billid", transaction.billid);
 
       if (data) {
-        //edit this in order to determine if free plan or paid
+        //Scenario if the bill is expired:
+        if (!data[0].isActive) {
+          router.navigate({
+            pathname: `/(bill)/${id}`,
+            params: {
+              userId: _userId,
+              errorCreateMsg: "Failed to add transaction: Bill is expired",
+            }, //
+          });
+          setOpen(false);
+          return;
+        }
+
+        //Scenario if the maxTransaction is reached
         if (data[0].activeTxnCount >= maxTransaction) {
           router.navigate({
             pathname: `/(bill)/${id}`,
@@ -167,6 +180,7 @@ const CreateTransaction: React.FC<Props> = ({
           return;
         }
         if (data[0].isLocked) {
+          //Scenario: if the Bill is locked
           router.replace({
             pathname: `/(bill)/${transaction.billid}`,
             params: {
@@ -175,6 +189,7 @@ const CreateTransaction: React.FC<Props> = ({
             },
           });
         } else {
+          //Scenario: able to add transaction
           const { data, error } = await supabase
             .from("transactions")
             .insert([transaction])
