@@ -80,11 +80,14 @@ const ConfirmExtension: React.FC<Props> = ({
    */
   const purchaseExtension = async () => {
     try {
+      //Update isActive=true and isLocked=falseflags also
       const { data, error } = await supabase
         .from("bills")
         .update({
           start_date: extendedStartDateUTC,
           end_date: extendedEndDateUTC,
+          isActive: true,
+          isLocked: false,
         })
         .eq("billid", billId)
         .select();
