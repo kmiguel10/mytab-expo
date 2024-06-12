@@ -178,6 +178,8 @@ const BillScreen = () => {
       return;
     }
 
+    const _isActive = billInfo[0].isActive;
+
     /** Expires today */
     const endDateInUtc = moment(billInfo[0].end_date)
       .utc()
@@ -194,7 +196,9 @@ const BillScreen = () => {
     if (todayInUtc.isSame(endDateInUtc)) {
       setIsExpiringToday(true);
       setIsBillExpired(false);
-    } else if (todayInUtc.isAfter(endDateInUtc)) {
+    } else if (!_isActive) {
+      //expired
+      //todayInUtc.isAfter(endDateInUtc)
       /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
       setIsBillExpired(true);
       setIsExpiringToday(false);
