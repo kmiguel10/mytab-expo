@@ -75,6 +75,8 @@ const ConfirmExtension: React.FC<Props> = ({
 
   /**
    * The extentions will be based on whether expiresToday = 8 days, expired = 7
+   * change the isActive = true and isLocked = false
+   * also change those values in members table
    */
   const purchaseExtension = async () => {
     try {
@@ -102,7 +104,6 @@ const ConfirmExtension: React.FC<Props> = ({
       }
 
       if (error) {
-        console.log("Error extending: ", error);
         setOpenExtendDuration(true);
         setErrorMessage(error.message);
       }
@@ -110,8 +111,6 @@ const ConfirmExtension: React.FC<Props> = ({
       //if error - show error message and comeback to edit bill
     } catch (error: any) {
       //show error
-
-      console.log("Error extending: ", error);
       setOpenExtendDuration(true);
       setErrorMessage(error.message);
     }
@@ -132,7 +131,7 @@ const ConfirmExtension: React.FC<Props> = ({
       extendedDays_endDate = 7;
     } else if (isBillExpiringToday) {
       //take into account an additional day
-      extendedDays_startDate = 1;
+      extendedDays_startDate = 0;
       extendedDays_endDate = 8;
     }
 
@@ -140,9 +139,7 @@ const ConfirmExtension: React.FC<Props> = ({
 
     //set extended dates
     const newStartDate = moment().utc().add(extendedDays_startDate, "days");
-    const newEndate = moment(currentEndDateUTC)
-      .add(extendedDays_endDate, "days")
-      .utc();
+    const newEndate = moment().utc().add(extendedDays_endDate, "days").utc();
 
     //utc
     setExtendedStartDateUTC(newStartDate);
