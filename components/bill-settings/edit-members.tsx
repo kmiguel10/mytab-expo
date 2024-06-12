@@ -13,6 +13,7 @@ interface Props {
   height: number;
   isOwner: boolean;
   isFreeBill: boolean;
+  isBillExpired: boolean;
 }
 
 const EditMembers: React.FC<Props> = ({
@@ -21,6 +22,7 @@ const EditMembers: React.FC<Props> = ({
   height,
   isOwner,
   isFreeBill,
+  isBillExpired,
 }) => {
   /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
@@ -104,6 +106,7 @@ const EditMembers: React.FC<Props> = ({
             requests={requests}
             fetchMembersData={fetchMembersData}
             isMaxMembersReached={isMaxMembersReached}
+            isBillExpired={isBillExpired}
           />
         )}
 
@@ -118,6 +121,7 @@ const EditMembers: React.FC<Props> = ({
             isOwner={isOwner}
             ownerId={ownerId}
             isFreeBill={isFreeBill}
+            isBillExpired={isBillExpired}
           />
         )}
       </ScrollView>

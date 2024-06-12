@@ -11,6 +11,7 @@ interface Props {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setProcessError: React.Dispatch<React.SetStateAction<boolean>>;
   setDeletedMember: React.Dispatch<React.SetStateAction<string>>;
+  isBillExpired: boolean;
 }
 
 export const ConfirmationDialog: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const ConfirmationDialog: React.FC<Props> = ({
   setOpen,
   setProcessError,
   setDeletedMember,
+  isBillExpired,
 }) => {
   const onDeleteUser = async () => {
     const { data, error } = await supabase
@@ -39,7 +41,11 @@ export const ConfirmationDialog: React.FC<Props> = ({
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <StyledButton size={"$2.5"} decline={true}>
+        <StyledButton
+          size={"$2.5"}
+          decline={!isBillExpired}
+          disabled={isBillExpired}
+        >
           Delete
         </StyledButton>
       </AlertDialog.Trigger>

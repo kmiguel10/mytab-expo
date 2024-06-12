@@ -11,6 +11,7 @@ interface Props {
   isOwner: boolean;
   ownerId: string;
   isFreeBill: boolean;
+  isBillExpired: boolean;
 }
 
 const CurrentMembers: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const CurrentMembers: React.FC<Props> = ({
   isOwner,
   ownerId,
   isFreeBill,
+  isBillExpired,
 }) => {
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
@@ -71,6 +73,7 @@ const CurrentMembers: React.FC<Props> = ({
                         setOpen={setOpen}
                         setProcessError={setProcessError}
                         setDeletedMember={setDeletedMember}
+                        isBillExpired={isBillExpired}
                       />
                     </XStack>
                   )

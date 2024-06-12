@@ -17,12 +17,14 @@ interface Props {
   requests: Member[];
   fetchMembersData: () => void;
   isMaxMembersReached: boolean;
+  isBillExpired: boolean;
 }
 
 const JoinRequests: React.FC<Props> = ({
   requests,
   fetchMembersData,
   isMaxMembersReached,
+  isBillExpired,
 }) => {
   const [localRequests, setLocalRequests] = useState<Member[]>([]);
 
@@ -90,15 +92,16 @@ const JoinRequests: React.FC<Props> = ({
                 iconAfter={
                   <XStack gap="$2">
                     <StyledButton
-                      create={!isMaxMembersReached}
+                      create={!isMaxMembersReached && !isBillExpired}
                       size="$2.5"
                       onPress={() => onAccept(member.memberid)}
-                      disabled={isMaxMembersReached}
+                      disabled={isMaxMembersReached || isBillExpired}
                     >
                       Accept
                     </StyledButton>
                     <StyledButton
-                      decline={true}
+                      disabled={isBillExpired}
+                      decline={!isBillExpired}
                       size="$2.5"
                       onPress={() => onDecline(member.memberid)}
                     >

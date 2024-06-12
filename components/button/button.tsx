@@ -21,10 +21,11 @@ export const StyledButton = styled(Button, {
       false: { backgroundColor: "$green5Light", color: "white" },
     },
     delete: {
-      true: { backgroundColor: "$red4Light", color: "white" },
+      true: { backgroundColor: "$red6Light", color: "white" },
     },
     decline: {
       true: { backgroundColor: "$red8Light", color: "white" },
+      false: { backgroundColor: "$red4Light", color: "white" },
     },
   } as const,
 });

@@ -72,6 +72,7 @@ export const EditBill = () => {
   const [newBillName, setNewBillName] = useState("");
 
   const [isFreeBill, setIsFreeBill] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -146,9 +147,14 @@ export const EditBill = () => {
 
   /**
    * Initializes dates
+   * Sets isExpired and isExpiring flags
    */
   useEffect(() => {
     if (billInfo && billInfo.length > 0) {
+      const _isActive = billInfo[0].isActive;
+      //set isLocked
+      setIsLocked(billInfo[0].isLocked);
+
       //Start date and end date are assumed to be in UTC format from the database
       const startDate = moment(billInfo[0]?.start_date).utc();
       const endDate = moment(billInfo[0]?.end_date).utc();
@@ -163,8 +169,9 @@ export const EditBill = () => {
       if (formattedTodayInUtc.isSame(formattedEndDate)) {
         setIsExpiringToday(true);
         setIsBillExpired(false);
-      } else if (formattedTodayInUtc.isAfter(formattedEndDate)) {
-        /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
+      } else if (!_isActive) {
+        //formattedTodayInUtc.isAfter(formattedEndDate)
+        /** TODO: use the isActive prop from the DB after implementing edge function of switching bills to expired */
         setIsBillExpired(true);
         setIsExpiringToday(false);
       } else {
@@ -241,6 +248,7 @@ export const EditBill = () => {
                       onChangeText={handleBillNameChange}
                       error={isBillNameError}
                       maxLength={20}
+                      disabled={isBillExpired || isLocked}
                     />
                   </Fieldset>
                   <ConfirmSaveName
@@ -321,8 +329,8 @@ export const EditBill = () => {
               size="$2"
               userId={userId.toString()}
               billId={parseInt(id.toString())}
-              isLocked={billInfo[0]?.isLocked}
-              disabled={!isOwner}
+              isLocked={isLocked}
+              disabled={!isOwner || isBillExpired}
             />
           </XStack>
         )}
@@ -332,8 +340,9 @@ export const EditBill = () => {
           height={height * 0.45}
           isOwner={isOwner}
           isFreeBill={isFreeBill}
+          isBillExpired={isBillExpired}
         />
-        {isOwner && (
+        {isOwner && !isBillExpired && (
           <XStack justifyContent="space-between" padding="$3">
             <ConfirmDeleteBill
               billId={billInfo[0]?.billid}
