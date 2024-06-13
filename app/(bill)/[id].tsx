@@ -17,6 +17,7 @@ import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
 import moment from "moment";
+import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
 import { YStack, useWindowDimensions } from "tamagui";
 
@@ -318,15 +319,24 @@ const BillScreen = () => {
         alignContent="center"
       >
         {/* <MembersView members={members} height={windowHeight} /> */}
-        <StyledButton
-          disabled={billInfo[0]?.isLocked || isMaxTxnsReached}
-          create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
-          width={windowWidth * 0.38}
-          size={"$3.5"}
-          onPress={onOpenCreateTxn}
-        >
-          Add Transaction
-        </StyledButton>
+        {loadingSummaryInfo ? (
+          <Skeleton
+            show={true}
+            colorMode={"light"}
+            height={windowHeight * 0.05}
+            width={windowWidth * 0.4}
+          />
+        ) : (
+          <StyledButton
+            disabled={billInfo[0]?.isLocked || isMaxTxnsReached}
+            create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
+            width={windowWidth * 0.38}
+            size={"$3.5"}
+            onPress={onOpenCreateTxn}
+          >
+            Add Transaction
+          </StyledButton>
+        )}
       </FooterContainer>
 
       {(txnName || errorCreateMsg) && (
