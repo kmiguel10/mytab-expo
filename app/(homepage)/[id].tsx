@@ -67,44 +67,6 @@ const Home = () => {
     setIsCreateBillOpen(true);
   };
 
-  const handlePurchaseSuccess = async (purchase: RNIap.Purchase) => {
-    console.log("ENTERING handlePurchaseSuccess: ", purchase);
-    try {
-      const receipt = purchase.transactionReceipt;
-      const purchases = RNIap.getAvailablePurchases();
-
-      console.log("Available Purchases: ", purchases);
-
-      if (receipt) {
-        console.log("Purchase successful: ", receipt);
-
-        // Verify receipt (front-end only)
-        Alert.alert("Purchase Success", "Your purchase was successful!");
-
-        // Grant access for the specified duration
-        // This is where you'd implement your access logic
-
-        // Finish the transaction
-        await RNIap.finishTransaction({ purchase, isConsumable: true });
-        console.log("Transaction finished");
-      } else {
-        console.error("No transaction receipt found");
-        Alert.alert("Purchase Error", "No transaction receipt found.");
-      }
-    } catch (error) {
-      console.error("Error finishing transaction:", error);
-      Alert.alert(
-        "Purchase Error",
-        "An error occurred while finishing the transaction."
-      );
-    }
-  };
-
-  const handlePurchaseError = (error: RNIap.PurchaseError) => {
-    console.log("Purchase error:", error);
-    Alert.alert("Purchase Error", error.message);
-  };
-
   const handleToastClose = () => {
     setOpen(false);
   };
@@ -119,6 +81,8 @@ const Home = () => {
     setErrorCreateMessage("");
     setSuccessDeletedBillMsg("");
   };
+
+  /************  UseEffects  **********/
 
   //Fetches bills
   useEffect(() => {
@@ -281,6 +245,7 @@ const Home = () => {
     initialSuccessDeletedBillMsg,
   ]);
 
+  //Fetches profile info for the header
   useEffect(() => {
     const fetchprofileInfo = async () => {
       try {
@@ -298,7 +263,47 @@ const Home = () => {
     fetchprofileInfo();
   }, [id]);
 
-  //useEffect for iap
+  /********** In App Purchases **********/
+  const handlePurchaseError = (error: RNIap.PurchaseError) => {
+    console.log("Purchase error:", error);
+    Alert.alert("Purchase Error", error.message);
+  };
+
+  const handlePurchaseSuccess = async (purchase: RNIap.Purchase) => {
+    console.log("*** Entering handlePurchaseSuccess: ", purchase);
+    try {
+      const receipt = purchase.transactionReceipt;
+      const purchases = RNIap.getAvailablePurchases();
+
+      console.log("receipts: ", receipt);
+      console.log("Available Purchases: ", purchases);
+
+      if (receipt) {
+        console.log("Purchase successful: ", receipt);
+
+        // Verify receipt (front-end only)
+        Alert.alert("Purchase Success", "Your purchase was successful!");
+
+        // Grant access for the specified duration
+        // This is where you'd implement your access logic
+
+        // Finish the transaction
+        await RNIap.finishTransaction({ purchase, isConsumable: true });
+        console.log("Transaction finished");
+      } else {
+        console.error("No transaction receipt found");
+        Alert.alert("Purchase Error", "No transaction receipt found.");
+      }
+    } catch (error) {
+      console.error("Error finishing transaction:", error);
+      Alert.alert(
+        "Purchase Error",
+        "An error occurred while finishing the transaction."
+      );
+    }
+  };
+
+  //This init for IAP is with backend for receipt verification
   // useEffect(() => {
   //   const initIAP = async () => {
   //     try {
@@ -308,6 +313,7 @@ const Home = () => {
   //     }
   //   };
 
+  //   //Initialize IAP
   //   initIAP();
 
   //   // const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
@@ -352,10 +358,10 @@ const Home = () => {
   //   //   }
   //   // );
 
-  //   // const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
-  //   //   console.warn("purchaseErrorListener", error);
-  //   //   Alert.alert("Purchase Error", error.message);
-  //   // });
+  //   const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
+  //     console.warn("purchaseErrorListener", error);
+  //     Alert.alert("Purchase Error", error.message);
+  //   });
 
   //   return () => {
   //     // purchaseUpdateSubscription.remove();
@@ -367,9 +373,9 @@ const Home = () => {
   useEffect(() => {
     const initIAP = async () => {
       try {
-        //console.log("* * * Initializing IAP connection * * * ");
+        console.log("* * * Initializing IAP connection * * * ");
         await RNIap.initConnection();
-        //console.log("* * * Initialization Completed IAP connection * * * ");
+        console.log("* * * Initialization Completed IAP connection * * * ");
         //await fetchProducts();
       } catch (err) {
         console.warn(err);
@@ -398,29 +404,23 @@ const Home = () => {
 
     initIAP();
 
-    const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-      (purchase) => {
-        console.log("Purchase updated:", purchase);
-        handlePurchaseSuccess(purchase);
-      }
-    );
+    const purchaseUpdate = RNIap.purchaseUpdatedListener((purchase) => {
+      console.log("Purchase updated:", purchase);
+      handlePurchaseSuccess(purchase);
+    });
 
-    const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
+    const purchaseError = RNIap.purchaseErrorListener((error) => {
       handlePurchaseError(error);
       console.log("Purchase error HAHA: ", error);
     });
 
     return () => {
-      purchaseUpdateSubscription.remove();
-      purchaseErrorSubscription.remove();
-      //console.log("Ending IAP connection");
+      purchaseUpdate.remove();
+      purchaseError.remove();
+      console.log("*** Ending IAP connection");
       RNIap.endConnection();
     };
   }, []);
-
-  // useEffect(() => {
-  //   console.log("JoinedBillCode", joinedBillCode, initialJoinedBillCode);
-  // }, [refreshing]);
 
   return (
     <OuterContainer>

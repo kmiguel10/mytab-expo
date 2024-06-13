@@ -12,6 +12,7 @@ import {
   Separator,
   Sheet,
   SizableText,
+  Spinner,
   Text,
   useWindowDimensions,
   View,
@@ -64,6 +65,7 @@ const CreateBillSheet: React.FC<Props> = ({
   const { id } = useLocalSearchParams();
   const productIds = ["com.mytab.1week", "com.mytab.2weeks"];
   const [products, setProducts] = useState<RNIap.Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const freeProduct = {
     title: "Free Plan",
@@ -112,56 +114,158 @@ const CreateBillSheet: React.FC<Props> = ({
   // };
 
   /**
-   * At this point the DatePicker has converted the dates to UTC so no need for conversion when sending it to the database
+   * 1. Initialize in app purchase payment
+   * 2. If successfull create bill
+   * 3. if error return to homepage [id]
+   */
+  // const onCreateBill = async () => {
+  //   try {
+  //     if (selectedProductId) {
+  //       console.log("Product Id: ", selectedProductId);
+  //       const purchase = await RNIap.requestPurchase({
+  //         sku: selectedProductId,
+  //       });
+
+  //       console.log("Purchase: ", purchase);
+  //     } else {
+  //       console.error("Error: No product selected");
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+
+  //   //Create bill
+
+  //   let isFree = selectedPlan === "free.plan" ? true : false;
+
+  //   const { data, error } = await supabase
+  //     .from("bills")
+  //     .insert([
+  //       {
+  //         ownerid: id,
+  //         name: billName,
+  //         start_date: date.utc(), //UTC
+  //         end_date: endDate.utc(), //UTC
+  //         isActive: true,
+  //         isFree: isFree,
+  //         productId: selectedPlan,
+  //       },
+  //     ])
+  //     .select();
+
+  //   if (data && data.length > 0) {
+  //     setOpen(false);
+  //     const newBillData: BillData = data[0] as BillData;
+  //     router.replace({
+  //       pathname: `/(homepage)/${id}`,
+  //       params: { newBillId: newBillData?.billid ?? null }, // Add userId to params
+  //     });
+  //   } else {
+  //     if (error) {
+  //       router.replace({
+  //         pathname: `/(homepage)/${id}`,
+  //         params: { errorCreateMessage: "Error creating bill" },
+  //       });
+  //     }
+  //   }
+  // };
+
+  /**
+   * 1. Free plan will not prompt payment
+   * 2. Paid plans will promt payment
    */
   const onCreateBill = async () => {
-    // try {
-    //   if (selectedProductId) {
-    //     console.log("Product Id: ", selectedProductId);
-    //     await RNIap.requestPurchase({ sku: selectedProductId });
-    //   } else {
-    //     console.error("Error: No product selected");
-    //   }
-    // } catch (err) {
-    //   console.warn(err);
-    // }
+    try {
+      if (selectedProductId) {
+        console.log("Product Id: ", selectedProductId);
 
-    // if (!billName) {
-    //   console.error("Error: Name cannot be null");
-    //   return;
-    // }
+        let purchase: void | RNIap.ProductPurchase | RNIap.ProductPurchase[] =
+          undefined;
+        setIsLoading(true);
 
-    let isFree = selectedPlan === "free.plan" ? true : false;
+        // Request purchase and wait for the response
+        if (selectedPlan !== "free.plan") {
+          try {
+            purchase = await RNIap.requestPurchase({
+              sku: selectedProductId,
+            });
+          } catch (purchaseError) {
+            console.error("Error during purchase:", purchaseError);
+            setIsLoading(false);
+            // Redirect or handle purchase error
+            //This is triggered when cancelling the purchase...
+            router.replace({
+              pathname: `/(homepage)/${id}`,
+              params: { errorCreateMessage: "Purchase is cancelled" },
+            });
+            return; // Exit the function as the purchase failed
+          }
+        }
 
-    const { data, error } = await supabase
-      .from("bills")
-      .insert([
-        {
-          ownerid: id,
-          name: billName,
-          start_date: date.utc(), //UTC
-          end_date: endDate.utc(), //UTC
-          isActive: true,
-          isFree: isFree,
-          productId: selectedPlan,
-        },
-      ])
-      .select();
+        // Handle the purchase response
+        if (purchase || selectedPlan === "free.plan") {
+          console.log("Purchase successful for this plan:", purchase);
 
-    if (data && data.length > 0) {
-      setOpen(false);
-      const newBillData: BillData = data[0] as BillData;
-      router.replace({
-        pathname: `/(homepage)/${id}`,
-        params: { newBillId: newBillData?.billid ?? null }, // Add userId to params
-      });
-    } else {
-      if (error) {
+          // Create the bill only if the purchase is successful
+          let isFree = selectedPlan === "free.plan";
+
+          const { data, error } = await supabase
+            .from("bills")
+            .insert([
+              {
+                ownerid: id,
+                name: billName,
+                start_date: date.utc(), // UTC
+                end_date: endDate.utc(), // UTC
+                isActive: true,
+                isFree: isFree,
+                productId: selectedPlan,
+              },
+            ])
+            .select();
+
+          if (data && data.length > 0) {
+            setOpen(false);
+            const newBillData: BillData = data[0] as BillData;
+            setIsLoading(false);
+            router.replace({
+              pathname: `/(homepage)/${id}`,
+              params: { newBillId: newBillData?.billid ?? null }, // Add userId to params
+            });
+          } else {
+            console.error("Error creating bill:", error);
+            setIsLoading(false);
+            router.replace({
+              pathname: `/(homepage)/${id}`,
+              params: { errorCreateMessage: "Error creating bill" },
+            });
+          }
+        } else {
+          // Error with purchase
+          console.error(
+            "Error: Purchase was not successful or no purchase made for free plan"
+          );
+          setIsLoading(false);
+          router.replace({
+            pathname: `/(homepage)/${id}`,
+            params: { errorCreateMessage: "Error creating bill" },
+          });
+        }
+      } else {
+        console.error("Error: No product selected");
+        setIsLoading(false);
         router.replace({
           pathname: `/(homepage)/${id}`,
-          params: { errorCreateMessage: "Error creating bill" },
+          params: { errorCreateMessage: "No product selected" },
         });
       }
+    } catch (err) {
+      console.warn("Unexpected error:", err);
+      setIsLoading(false);
+      router.replace({
+        pathname: `/(homepage)/${id}`,
+        params: { errorCreateMessage: "Unexpected error occurred" },
+      });
     }
   };
 
@@ -237,11 +341,12 @@ const CreateBillSheet: React.FC<Props> = ({
 
   /** ---------- UseEffect ---------- */
 
+  //Fetches Products for In App Purchases
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const products = await RNIap.getProducts({ skus: productIds });
-        console.log("Products fetched: ", products);
+        console.log("*** Products fetched: ", JSON.stringify(products));
         setProducts(products);
       } catch (err) {
         console.warn(err);
@@ -249,40 +354,6 @@ const CreateBillSheet: React.FC<Props> = ({
     };
     fetchProducts();
   }, []);
-
-  // useEffect(() => {
-  //   const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-  //     (purchase) => {
-  //       console.log("********** Purchase Updated: ", purchase);
-  //       if (purchase.transactionReceipt) {
-  //         // Handle purchase confirmation here
-  //         console.log(
-  //           "Purchase successful with receipt: ",
-  //           purchase.transactionReceipt
-  //         );
-  //         Alert.alert("Purchase Successful", "Thank you for your purchase!");
-  //         RNIap.finishTransaction({ purchase, isConsumable: true });
-
-  //         // Close the sheet after successful purchase
-  //         setOpen(false);
-  //       }
-  //     }
-  //   );
-
-  //   const purchaseErrorSubscription = RNIap.purchaseErrorListener((error) => {
-  //     console.warn("Purchase Error: ", error);
-  //     Alert.alert("Purchase Error", "An error occurred during the purchase.");
-  //   });
-
-  //   return () => {
-  //     if (purchaseUpdateSubscription) {
-  //       purchaseUpdateSubscription.remove();
-  //     }
-  //     if (purchaseErrorSubscription) {
-  //       purchaseErrorSubscription.remove();
-  //     }
-  //   };
-  // });
 
   return (
     <Sheet
@@ -305,141 +376,152 @@ const CreateBillSheet: React.FC<Props> = ({
       />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" justifyContent="flex-start" gap="$5">
-        <YStack>
-          {isPlanSelected ? (
-            <StyledButton
-              width={windowWidth * 0.2}
-              size={"$3"}
-              onPress={onBackClick}
-            >
-              Back
-            </StyledButton>
-          ) : (
-            <XStack justifyContent="flex-start">
-              <H4>Select a plan:</H4>
-            </XStack>
-          )}
+        {isLoading ? (
+          <YStack
+            padding="$3"
+            alignItems="center"
+            justifyContent="center"
+            height="60%" // Make sure the stack takes the full height of the viewport
+          >
+            <Spinner size="large" color="$green10" />
+          </YStack>
+        ) : (
+          <YStack>
+            {isPlanSelected ? (
+              <StyledButton
+                width={windowWidth * 0.2}
+                size={"$3"}
+                onPress={onBackClick}
+              >
+                Back
+              </StyledButton>
+            ) : (
+              <XStack justifyContent="flex-start">
+                <H4>Select a plan:</H4>
+              </XStack>
+            )}
 
-          <Separator marginVertical={"$3"} />
-          <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
-            <YGroup.Item>
-              <ListItem
-                key={1}
-                hoverTheme
-                title={<H6 fontSize={"$4"}>{freeProduct.title}</H6>}
-                subTitle={freeProduct.description}
-                iconAfter={
-                  <StyledButton
-                    size="$3"
-                    active={true}
-                    onPress={() => onPlanSelected(freeProduct.productId)}
-                    disabled={isPlanSelected}
-                  >
-                    {"  "}
-                    {freeProduct.price}
-                    {"  "}
-                  </StyledButton>
-                }
-                size={"$5"}
-                borderRadius={"$4"}
-                display={
-                  isPlanSelected && selectedPlan !== "free.plan"
-                    ? "none"
-                    : "flex"
-                }
-              />
-              {products.map((product, index) => (
+            <Separator marginVertical={"$3"} />
+            <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
+              <YGroup.Item>
                 <ListItem
-                  key={product.productId + index}
+                  key={1}
                   hoverTheme
-                  title={<H6 fontSize={"$4"}>{product.title}</H6>}
-                  subTitle={product.description}
+                  title={<H6 fontSize={"$4"}>{freeProduct.title}</H6>}
+                  subTitle={freeProduct.description}
                   iconAfter={
                     <StyledButton
                       size="$3"
                       active={true}
-                      onPress={() => onPlanSelected(product.productId)}
+                      onPress={() => onPlanSelected(freeProduct.productId)}
                       disabled={isPlanSelected}
                     >
                       {"  "}
-                      {product.price}
+                      {freeProduct.price}
                       {"  "}
                     </StyledButton>
                   }
                   size={"$5"}
                   borderRadius={"$4"}
                   display={
-                    isPlanSelected && selectedPlan !== product.productId
+                    isPlanSelected && selectedPlan !== "free.plan"
                       ? "none"
                       : "flex"
                   }
                 />
-              ))}
-            </YGroup.Item>
-          </YGroup>
-          {isPlanSelected && (
-            <>
-              <Separator marginVertical={"$3"} />
-              <View gap="$4.5" height={payButtonHeight}>
-                {selectedPlan === "free.plan" && isFreeBillActive ? (
-                  <Card
-                    bordered
-                    backgroundColor="white"
-                    borderRadius={"$5"}
-                    height={windowHeight * 0.2}
-                  >
-                    <SizableText>
-                      Cannot create a free bill while there is an active free
-                      bill
-                    </SizableText>
-                  </Card>
-                ) : (
-                  <Card
-                    bordered
-                    backgroundColor="white"
-                    borderRadius={"$5"}
-                    height={windowHeight * 0.2}
-                  >
-                    <YStack gap="$2" margin="$3.5">
-                      <H6>Bill Name</H6>
-                      <StyledInput
-                        placeholder="Ex: Mexico Trip"
-                        value={billName}
-                        onChangeText={onBillNameInput}
-                        error={billNameError}
-                        maxLength={20}
-                      />
-                    </YStack>
-                    <YStack marginHorizontal="$3.5" gap="$2">
-                      <H6>Duration</H6>
-                      <XStack
-                        justifyContent="space-between"
-                        alignItems="center"
+                {products.map((product, index) => (
+                  <ListItem
+                    key={product.productId + index}
+                    hoverTheme
+                    title={<H6 fontSize={"$4"}>{product.title}</H6>}
+                    subTitle={product.description}
+                    iconAfter={
+                      <StyledButton
+                        size="$3"
+                        active={true}
+                        onPress={() => onPlanSelected(product.productId)}
+                        disabled={isPlanSelected}
                       >
-                        <SizableText>
-                          {date.format("MMM D")} - {endDate.format("MMM D")}
-                        </SizableText>
-                      </XStack>
-                    </YStack>
-                  </Card>
-                )}
-              </View>
-              <View paddingTop="$2">
-                {selectedPlan === "free.plan" && isFreeBillActive ? (
-                  <Text>Expand the current free bill?</Text>
-                ) : (
-                  <StyledButton
-                    create={!!billName && !billNameError}
-                    disabled={!billName || billNameError}
-                    onPress={onCreateBill}
-                  >
-                    Pay
-                  </StyledButton>
-                )}
-              </View>
-            </>
-          )}
-        </YStack>
+                        {"  "}
+                        {product.price}
+                        {"  "}
+                      </StyledButton>
+                    }
+                    size={"$5"}
+                    borderRadius={"$4"}
+                    display={
+                      isPlanSelected && selectedPlan !== product.productId
+                        ? "none"
+                        : "flex"
+                    }
+                  />
+                ))}
+              </YGroup.Item>
+            </YGroup>
+            {isPlanSelected && (
+              <>
+                <Separator marginVertical={"$3"} />
+                <View gap="$4.5" height={payButtonHeight}>
+                  {selectedPlan === "free.plan" && isFreeBillActive ? (
+                    <Card
+                      bordered
+                      backgroundColor="white"
+                      borderRadius={"$5"}
+                      height={windowHeight * 0.2}
+                    >
+                      <SizableText>
+                        Cannot create a free bill while there is an active free
+                        bill
+                      </SizableText>
+                    </Card>
+                  ) : (
+                    <Card
+                      bordered
+                      backgroundColor="white"
+                      borderRadius={"$5"}
+                      height={windowHeight * 0.2}
+                    >
+                      <YStack gap="$2" margin="$3.5">
+                        <H6>Bill Name</H6>
+                        <StyledInput
+                          placeholder="Ex: Mexico Trip"
+                          value={billName}
+                          onChangeText={onBillNameInput}
+                          error={billNameError}
+                          maxLength={20}
+                        />
+                      </YStack>
+                      <YStack marginHorizontal="$3.5" gap="$2">
+                        <H6>Duration</H6>
+                        <XStack
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <SizableText>
+                            {date.format("MMM D")} - {endDate.format("MMM D")}
+                          </SizableText>
+                        </XStack>
+                      </YStack>
+                    </Card>
+                  )}
+                </View>
+                <View paddingTop="$2">
+                  {selectedPlan === "free.plan" && isFreeBillActive ? (
+                    <Text>Expand the current free bill?</Text>
+                  ) : (
+                    <StyledButton
+                      create={!!billName && !billNameError}
+                      disabled={!billName || billNameError}
+                      onPress={onCreateBill}
+                    >
+                      Pay
+                    </StyledButton>
+                  )}
+                </View>
+              </>
+            )}
+          </YStack>
+        )}
       </Sheet.Frame>
     </Sheet>
   );

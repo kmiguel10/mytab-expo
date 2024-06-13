@@ -40,7 +40,7 @@ const JoinBill: React.FC<Props> = ({
     const membersData = await getMembersWithBillcode(code);
 
     if (membersData) {
-      let _isFreePlan = membersData[0].isFree;
+      let _isFreePlan = membersData[0]?.isFree;
 
       if (_isFreePlan) {
         if (membersData.length >= freePlanMembersLimit) {
