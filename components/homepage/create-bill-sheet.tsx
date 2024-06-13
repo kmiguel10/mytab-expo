@@ -277,7 +277,6 @@ const CreateBillSheet: React.FC<Props> = ({
     setBillName("");
 
     const newEndDate = moment();
-    // newEndDate.setDate(newEndDate.getDate() + 7);
     newEndDate.add(7, "days");
     setEndDate(newEndDate);
   };
