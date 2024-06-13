@@ -370,7 +370,6 @@ const EditTransaction: React.FC<Props> = ({
           <Fieldset gap="$4" horizontal justifyContent="center">
             <SizableText size={"$9"}>$</SizableText>
             <StyledInput
-              id={`edit-amount-input - ${localTxn.name}`}
               placeholder="0"
               keyboardType="decimal-pad"
               value={amount}
@@ -392,7 +391,6 @@ const EditTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id={`local-txn-name - ${localTxn.billid}`}
                 placeholder="Enter name"
                 defaultValue=""
                 value={transactionName}

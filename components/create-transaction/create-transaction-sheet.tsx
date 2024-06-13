@@ -361,7 +361,6 @@ const CreateTransaction: React.FC<Props> = ({
           <Fieldset horizontal justifyContent="center">
             <SizableText size={"$9"}>$</SizableText>
             <StyledInput
-              id="create-txn-amount-input"
               placeholder="0"
               defaultValue={""}
               keyboardType="decimal-pad"
@@ -382,7 +381,6 @@ const CreateTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id={`create-transaction-name=${transactionName}`}
                 placeholder="Enter name"
                 defaultValue=""
                 value={transactionName}
