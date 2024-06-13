@@ -1,18 +1,8 @@
+import { formatToDollarCurrency } from "@/lib/helpers";
 import { MemberData } from "@/types/global";
 import React, { forwardRef } from "react";
-import {
-  Card,
-  CardProps,
-  H4,
-  H5,
-  H6,
-  SizableText,
-  Text,
-  View,
-  XStack,
-} from "tamagui";
+import { Card, CardProps, H4, H5, SizableText, View, XStack } from "tamagui";
 import Avatar from "../login/avatar";
-import { formatToDollarCurrency } from "@/lib/helpers";
 
 interface Props extends CardProps {
   bill: MemberData;
@@ -65,7 +55,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
                 <SizableText size={"$1"}>Locked</SizableText>
               </View>
             )}
-            <View
+            {/* <View
               backgroundColor={"$yellow4Light"}
               paddingHorizontal={"$2"}
               paddingVertical={"$1"}
@@ -73,7 +63,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
               borderRadius={"$12"}
             >
               <SizableText size={"$1"}>Expires Today</SizableText>
-            </View>
+            </View> */}
             {bill.isFree && (
               <View
                 backgroundColor={"$blue4Light"}
@@ -106,22 +96,37 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
       </Card.Header>
 
       <Card.Footer padding="$3">
-        {membership !== "Owner" ? (
+        {/* {membership !== "Owner" ? (
           <XStack flex={1} />
         ) : (
           <SizableText paddingTop={"$2"} flex={1}>
             Bill Code:{" "}
             <SizableText fontWeight={"800"}>{bill.billcode}</SizableText>
           </SizableText>
-        )}
-
-        <XStack justifyContent="center">
+        )} */}
+        <SizableText paddingTop={"$2"} flex={1}>
+          Bill Code:{" "}
+          <SizableText fontWeight={"800"}>{bill.billcode}</SizableText>
+        </SizableText>
+        {/* Edit appearance of multiple avatars */}
+        <XStack backgroundColor={"red"} position="relative">
           {bill.memberUrls.map((url, index) => (
-            <View key={`${url}-${index}`}>
+            <View
+              key={`${url}-${index}`}
+              right={index * 25}
+              position="absolute"
+            >
               <Avatar url={url} size="$3" />
             </View>
           ))}
         </XStack>
+        {/* <ZStack justifyContent="flex-end" flex={1}>
+          {bill.memberUrls.map((url, index) => (
+            <View key={`${url}-${index}`} position="absolute" left={index * 20}>
+              <Avatar url={url} size="$3" />
+            </View>
+          ))}
+        </ZStack> */}
       </Card.Footer>
     </Card>
   );
