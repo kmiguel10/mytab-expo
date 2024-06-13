@@ -1,8 +1,18 @@
 import { supabase } from "@/lib/supabase";
-import { Trash } from "@tamagui/lucide-icons";
+import { AlertCircle, Trash } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { AlertDialog, Button, XStack, YStack } from "tamagui";
+import {
+  AlertDialog,
+  Button,
+  Card,
+  H4,
+  Paragraph,
+  SizableText,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
 import { StyledButton } from "../button/button";
 
 interface Props {
@@ -11,12 +21,36 @@ interface Props {
 }
 
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
+  /********** States and Variables ***********/
   const router = useRouter();
+  const message = (
+    <SizableText fontSize="$5">
+      Are you sure you want to delete bill?
+    </SizableText>
+  );
+  const description = (
+    <>
+      {"\n\nThis bill will be marked as "}
+      <View
+        backgroundColor={"$red6Light"}
+        paddingHorizontal={"$2"}
+        borderRadius={"$12"}
+        justifyContent="center"
+      >
+        <SizableText justifyContent="center" size={"$2"} color={"red"}>
+          Expired
+        </SizableText>
+      </View>
+      {". It can only be recovered by purchasing an extension."}
+    </>
+  );
+
+  /********** Functions ***********/
   //Set flags for bills
   const onDelete = async () => {
     const { data, error } = await supabase
       .from("bills")
-      .update({ isdeleted: true, isActive: false })
+      .update({ isdeleted: true, isActive: false, isLocked: true })
       .eq("billid", billId)
       .select();
 
@@ -35,6 +69,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
       });
     }
   };
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -77,7 +112,18 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           <YStack gap="$4">
             <AlertDialog.Title>Delete Bill</AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to delete bill?
+              <Card backgroundColor={"$yellow7Light"} padding="$2">
+                <XStack alignItems="center" gap="$2">
+                  <AlertCircle />
+                  <H4>Warning</H4>
+                </XStack>
+                <Card.Header>
+                  <Paragraph>
+                    {message}
+                    {description}
+                  </Paragraph>
+                </Card.Header>
+              </Card>
             </AlertDialog.Description>
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
