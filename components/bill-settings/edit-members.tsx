@@ -3,7 +3,7 @@ import { Member } from "@/types/global";
 import { Toast } from "@tamagui/toast";
 import React, { useEffect, useState } from "react";
 import { RefreshControl } from "react-native";
-import { ScrollView, Separator, View } from "tamagui";
+import { ScrollView, Separator, Spinner, View } from "tamagui";
 import CurrentMembers from "./current-members";
 import JoinRequests from "./join-requests";
 
@@ -14,6 +14,7 @@ interface Props {
   isOwner: boolean;
   isFreeBill: boolean;
   isBillExpired: boolean;
+  isLoading: boolean;
 }
 
 const EditMembers: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const EditMembers: React.FC<Props> = ({
   isOwner,
   isFreeBill,
   isBillExpired,
+  isLoading,
 }) => {
   /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
@@ -96,35 +98,42 @@ const EditMembers: React.FC<Props> = ({
 
   return (
     <View height={height} padding="$3">
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
-      >
-        {requests.length > 0 && isOwner && (
-          <JoinRequests
-            requests={requests}
-            fetchMembersData={fetchMembersData}
-            isMaxMembersReached={isMaxMembersReached}
-            isBillExpired={isBillExpired}
-          />
-        )}
+      {isLoading ? (
+        <View alignItems="center" justifyContent="center" flex={1}>
+          <Spinner size="large" color="$green10" />
+        </View>
+      ) : (
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+        >
+          {requests.length > 0 && isOwner && (
+            <JoinRequests
+              requests={requests}
+              fetchMembersData={fetchMembersData}
+              isMaxMembersReached={isMaxMembersReached}
+              isBillExpired={isBillExpired}
+            />
+          )}
 
-        {requests.length > 0 && includedMembers.length > 0 && (
-          <Separator paddingTop={"$2"} paddingBottom={"$2"} />
-        )}
+          {requests.length > 0 && includedMembers.length > 0 && (
+            <Separator paddingTop={"$2"} paddingBottom={"$2"} />
+          )}
 
-        {includedMembers.length > 0 && (
-          <CurrentMembers
-            includedMembers={includedMembers}
-            fetchMembersData={fetchMembersData}
-            isOwner={isOwner}
-            ownerId={ownerId}
-            isFreeBill={isFreeBill}
-            isBillExpired={isBillExpired}
-          />
-        )}
-      </ScrollView>
+          {includedMembers.length > 0 && (
+            <CurrentMembers
+              includedMembers={includedMembers}
+              fetchMembersData={fetchMembersData}
+              isOwner={isOwner}
+              ownerId={ownerId}
+              isFreeBill={isFreeBill}
+              isBillExpired={isBillExpired}
+            />
+          )}
+        </ScrollView>
+      )}
+
       <Toast
         onOpenChange={setOpen}
         open={open}

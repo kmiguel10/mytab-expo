@@ -17,6 +17,7 @@ import {
   Fieldset,
   Form,
   H6,
+  Spinner,
   Text,
   useWindowDimensions,
   View,
@@ -73,6 +74,8 @@ export const EditBill = () => {
 
   const [isFreeBill, setIsFreeBill] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -233,97 +236,112 @@ export const EditBill = () => {
               gap="$4.5"
               padding="$2.5"
             >
-              <YStack paddingLeft="$2">
-                <XStack gap="$2" alignItems="center" paddingBottom="$2">
-                  <H6>Bill Name</H6>
-                </XStack>
-                <XStack
-                  justifyContent="space-between"
-                  alignItems="center"
-                  gap="$2"
-                >
-                  <Fieldset horizontal={false} gap={"$2"} width={width * 0.5}>
-                    <StyledInput
-                      defaultValue={billInfo[0]?.name}
-                      onChangeText={handleBillNameChange}
-                      error={isBillNameError}
-                      maxLength={20}
-                      disabled={isBillExpired || isLocked}
-                    />
-                  </Fieldset>
-                  <ConfirmSaveName
-                    billId={billInfo[0]?.billid}
-                    userId={userId.toString()}
-                    setOpen={setOpen}
-                    setSaveNameError={setSaveNameError}
-                    disabled={newBillName === initialName || isBillNameError}
-                    setInitialName={setInitialName}
-                    newBillName={newBillName}
-                  />
-                </XStack>
-              </YStack>
-
-              <YStack paddingLeft="$2">
-                <XStack gap="$2" alignItems="center">
-                  <H6>Duration</H6>
-                  {isExpiringToday && (
+              {isLoading ? (
+                <View alignItems="center" justifyContent="center" flex={1}>
+                  <Spinner size="large" color="$green10" />
+                </View>
+              ) : (
+                <>
+                  <YStack paddingLeft="$2">
+                    <XStack gap="$2" alignItems="center" paddingBottom="$2">
+                      <H6>Bill Name</H6>
+                    </XStack>
                     <XStack
-                      backgroundColor={"$yellow5Light"}
-                      paddingHorizontal={"$2"}
-                      paddingVertical={"$1"}
+                      justifyContent="space-between"
                       alignItems="center"
-                      borderRadius={"$12"}
                       gap="$2"
                     >
-                      <AlertCircle size="$1" />
-                      <Text fontSize={"$1"}>Expires today</Text>
+                      <Fieldset
+                        horizontal={false}
+                        gap={"$2"}
+                        width={width * 0.5}
+                      >
+                        <StyledInput
+                          defaultValue={billInfo[0]?.name}
+                          onChangeText={handleBillNameChange}
+                          error={isBillNameError}
+                          maxLength={20}
+                          disabled={isBillExpired || isLocked}
+                        />
+                      </Fieldset>
+                      <ConfirmSaveName
+                        billId={billInfo[0]?.billid}
+                        userId={userId.toString()}
+                        setOpen={setOpen}
+                        setSaveNameError={setSaveNameError}
+                        disabled={
+                          newBillName === initialName || isBillNameError
+                        }
+                        setInitialName={setInitialName}
+                        newBillName={newBillName}
+                      />
                     </XStack>
-                  )}
-                  {isBillExpired && (
-                    <XStack
-                      backgroundColor={"$red5Light"}
-                      paddingHorizontal={"$2"}
-                      paddingVertical={"$1"}
-                      alignItems="center"
-                      borderRadius={"$12"}
-                      gap="$2"
-                    >
-                      <AlertCircle size="$1" />
-                      <Text fontSize={"$1"}>Expired</Text>
+                  </YStack>
+                  <YStack paddingLeft="$2">
+                    <XStack gap="$2" alignItems="center">
+                      <H6>Duration</H6>
+                      {isExpiringToday && (
+                        <XStack
+                          backgroundColor={"$yellow5Light"}
+                          paddingHorizontal={"$2"}
+                          paddingVertical={"$1"}
+                          alignItems="center"
+                          borderRadius={"$12"}
+                          gap="$2"
+                        >
+                          <AlertCircle size="$1" />
+                          <Text fontSize={"$1"}>Expires today</Text>
+                        </XStack>
+                      )}
+                      {isBillExpired && (
+                        <XStack
+                          backgroundColor={"$red5Light"}
+                          paddingHorizontal={"$2"}
+                          paddingVertical={"$1"}
+                          alignItems="center"
+                          borderRadius={"$12"}
+                          gap="$2"
+                        >
+                          <AlertCircle size="$1" />
+                          <Text fontSize={"$1"}>Expired</Text>
+                        </XStack>
+                      )}
                     </XStack>
-                  )}
-                </XStack>
 
-                <XStack justifyContent="space-between" alignItems="center">
-                  <Text alignItems="center" justifyContent="flex-start">
-                    {dateLocalTime} - {endDateLocalTime}
-                  </Text>
+                    <XStack justifyContent="space-between" alignItems="center">
+                      <Text alignItems="center" justifyContent="flex-start">
+                        {dateLocalTime} - {endDateLocalTime}
+                      </Text>
 
-                  {isOwner && (isExpiringToday || isBillExpired) && (
-                    <ConfirmExtension
-                      currentEndDateUTC={endDate.utc().toDate()}
-                      billId={parseInt(id.toString())}
-                      setBillInfo={setBillInfo}
-                      setOpenExtendDuration={setOpenExtendDuration}
-                      setErrorMessage={setExtendDurationErrorMsg}
-                      isBillExpired={isBillExpired}
-                      isBillExpiringToday={isExpiringToday}
-                    />
-                  )}
-                  {/* For testing */}
-                  {/* <ConfirmExtension
+                      {isOwner && (isExpiringToday || isBillExpired) && (
+                        <ConfirmExtension
+                          currentEndDateUTC={endDate.utc().toDate()}
+                          billId={parseInt(id.toString())}
+                          setBillInfo={setBillInfo}
+                          setOpenExtendDuration={setOpenExtendDuration}
+                          setErrorMessage={setExtendDurationErrorMsg}
+                          isBillExpired={isBillExpired}
+                          isBillExpiringToday={isExpiringToday}
+                          isLoading={isLoading}
+                          setIsLoading={setIsLoading}
+                        />
+                      )}
+                      {/* For testing */}
+                      {/* <ConfirmExtension
                     currentEndDateUTC={endDate.utc().toDate()}
                     billId={parseInt(id.toString())}
                     setBillInfo={setBillInfo}
                     setOpenExtendDuration={setOpenExtendDuration}
                     setErrorMessage={setExtendDurationErrorMsg}
                   /> */}
-                </XStack>
-              </YStack>
+                    </XStack>
+                  </YStack>
+                </>
+              )}
             </Card>
           </View>
         </Form>
-        {isOwner && (
+        {isOwner && !isLoading && (
           <XStack padding="$3" justifyContent="flex-end">
             <LockSwitch
               size="$2"
@@ -341,8 +359,9 @@ export const EditBill = () => {
           isOwner={isOwner}
           isFreeBill={isFreeBill}
           isBillExpired={isBillExpired}
+          isLoading={isLoading}
         />
-        {isOwner && !isBillExpired && (
+        {isOwner && !isBillExpired && !isLoading && (
           <XStack justifyContent="space-between" padding="$3">
             <ConfirmDeleteBill
               billId={billInfo[0]?.billid}

@@ -15,6 +15,7 @@ import {
 import { StyledButton } from "../button/button";
 import { AlertCircle } from "@tamagui/lucide-icons";
 import moment from "moment";
+import * as RNIap from "react-native-iap";
 
 interface Props {
   setOpenExtendDuration: (open: boolean) => void;
@@ -24,6 +25,8 @@ interface Props {
   setErrorMessage: (error: string) => void;
   isBillExpired: boolean;
   isBillExpiringToday: boolean;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const ConfirmExtension: React.FC<Props> = ({
@@ -34,6 +37,8 @@ const ConfirmExtension: React.FC<Props> = ({
   setErrorMessage,
   isBillExpired,
   isBillExpiringToday,
+  isLoading,
+  setIsLoading,
 }) => {
   /************ States and Variables ************/
   const [extendedStartDateUTC, setExtendedStartDateUTC] = useState(moment());
@@ -44,6 +49,8 @@ const ConfirmExtension: React.FC<Props> = ({
     useState("");
 
   const { width, height } = useWindowDimensions();
+
+  const extensionProductId = "com.mytab.1week";
 
   const confirmPurchaseMessage = `Do you want to extend your bill for 1 week for $1.99?\n\nNew Start Date: ${extendedStartDateLocalTime}\nNew Expiration Date: ${extendedEndDateLocalTime}`;
   const title = "Purchase extension";
@@ -79,40 +86,68 @@ const ConfirmExtension: React.FC<Props> = ({
    * also change those values in members table
    */
   const purchaseExtension = async () => {
+    let purchase: void | RNIap.ProductPurchase | RNIap.ProductPurchase[] =
+      undefined;
+
     try {
-      //Update isActive=true and isLocked=falseflags also
-      const { data, error } = await supabase
-        .from("bills")
-        .update({
-          start_date: extendedStartDateUTC,
-          end_date: extendedEndDateUTC,
-          isActive: true,
-          isLocked: false,
-        })
-        .eq("billid", billId)
-        .select();
-
-      //if success - close dialog and come back to edit bill and show success message with updates duration
-
-      if (data) {
-        setBillInfo(data);
+      //Request extension purchase
+      setIsLoading(true);
+      try {
+        purchase = await RNIap.requestPurchase({
+          sku: extensionProductId,
+        });
+      } catch (purchaseError: any) {
+        setIsLoading(false);
         setOpenExtendDuration(true);
-        console.log("New bill", data);
-        console.log(
-          "Extended duration for bill: ",
-          data[0]?.billId,
-          data[0].start_date,
-          data[0].endDate
-        );
+        //if error go back to edit page...
+        setErrorMessage(`Error, ${purchaseError.message}`);
+        return;
       }
 
-      if (error) {
+      //If purchase is successfull, extend bill
+      if (purchase) {
+        //Update isActive=true and isLocked=falseflags also
+        const { data, error } = await supabase
+          .from("bills")
+          .update({
+            start_date: extendedStartDateUTC,
+            end_date: extendedEndDateUTC,
+            isActive: true,
+            isLocked: false,
+          })
+          .eq("billid", billId)
+          .select();
+
+        //if success - close dialog and come back to edit bill and show success message with updates duration
+
+        if (data) {
+          setBillInfo(data);
+          setOpenExtendDuration(true);
+          setIsLoading(false);
+          console.log("New bill", data);
+          console.log(
+            "Extended duration for bill: ",
+            data[0]?.billId,
+            data[0].start_date,
+            data[0].endDate
+          );
+        }
+
+        if (error) {
+          setIsLoading(false);
+          setOpenExtendDuration(true);
+          setErrorMessage(error.message);
+        }
+      } else {
+        //error with purchase
+        setIsLoading(false);
+        console.error("Error: Purchase was not successful");
         setOpenExtendDuration(true);
-        setErrorMessage(error.message);
       }
 
       //if error - show error message and comeback to edit bill
     } catch (error: any) {
+      setIsLoading(false);
       //show error
       setOpenExtendDuration(true);
       setErrorMessage(error.message);
