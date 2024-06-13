@@ -30,6 +30,7 @@ import SaveNameToast from "@/components/bill-settings/save-name-toast";
 import { AlertCircle } from "@tamagui/lucide-icons";
 import moment from "moment";
 import "moment-timezone";
+import BillSettingsSkeleton from "@/components/skeletons/bill-settings-skeleton";
 
 /**
  * This component's features are only visible to the bill owner
@@ -86,6 +87,7 @@ export const EditBill = () => {
 
   //This saves the name and date
   const onSubmit = async () => {
+    setIsLoading(true);
     if (billInfo.length > 0) {
       const { data, error } = await supabase
         .from("bills")
@@ -98,8 +100,10 @@ export const EditBill = () => {
         .select();
 
       if (data) {
+        setIsLoading(false);
         console.log("submitted bill: ", data);
       } else if (error) {
+        setIsLoading(false);
         console.log("ERROR", error);
       }
     }
@@ -134,6 +138,7 @@ export const EditBill = () => {
     //Fetch bill info
     async function fetchBillInfo() {
       if (id) {
+        setIsLoading(true);
         const data: BillInfo[] | null = await getBillInfo(Number(id));
         setBillInfo(data);
 
@@ -141,7 +146,10 @@ export const EditBill = () => {
         if (data) {
           if (data[0].ownerid === userId) {
             setIsOwner(true);
+            setIsLoading(false);
           }
+        } else {
+          setIsLoading(false);
         }
       }
     }
@@ -154,6 +162,7 @@ export const EditBill = () => {
    */
   useEffect(() => {
     if (billInfo && billInfo.length > 0) {
+      setIsLoading(false);
       const _isActive = billInfo[0].isActive;
       //set isLocked
       setIsLocked(billInfo[0].isLocked);
@@ -226,22 +235,25 @@ export const EditBill = () => {
           top={0}
           right={0}
         />
-        <Form onSubmit={onSubmit} rowGap="$3" borderRadius="$4" padding="$3">
-          <View margin="$1" gap="$2">
-            <Card
-              bordered
-              backgroundColor="white"
-              borderRadius={"$5"}
-              height={windowHeight * 0.225}
-              gap="$4.5"
-              padding="$2.5"
+        {isLoading ? (
+          <BillSettingsSkeleton show={true} colorMode={"light"} />
+        ) : (
+          <>
+            <Form
+              onSubmit={onSubmit}
+              rowGap="$3"
+              borderRadius="$4"
+              padding="$3"
             >
-              {isLoading ? (
-                <View alignItems="center" justifyContent="center" flex={1}>
-                  <Spinner size="large" color="$green10" />
-                </View>
-              ) : (
-                <>
+              <View margin="$1" gap="$2">
+                <Card
+                  bordered
+                  backgroundColor="white"
+                  borderRadius={"$5"}
+                  height={windowHeight * 0.225}
+                  gap="$4.5"
+                  padding="$2.5"
+                >
                   <YStack paddingLeft="$2">
                     <XStack gap="$2" alignItems="center" paddingBottom="$2">
                       <H6>Bill Name</H6>
@@ -336,39 +348,40 @@ export const EditBill = () => {
                   /> */}
                     </XStack>
                   </YStack>
-                </>
-              )}
-            </Card>
-          </View>
-        </Form>
-        {isOwner && !isLoading && (
-          <XStack padding="$3" justifyContent="flex-end">
-            <LockSwitch
-              size="$2"
-              userId={userId.toString()}
+                </Card>
+              </View>
+            </Form>
+            {isOwner && (
+              <XStack padding="$3" justifyContent="flex-end">
+                <LockSwitch
+                  size="$2"
+                  userId={userId.toString()}
+                  billId={parseInt(id.toString())}
+                  isLocked={isLocked}
+                  disabled={!isOwner || isBillExpired}
+                />
+              </XStack>
+            )}
+            <EditMembers
               billId={parseInt(id.toString())}
-              isLocked={isLocked}
-              disabled={!isOwner || isBillExpired}
+              ownerId={billInfo[0]?.ownerid}
+              height={height * 0.45}
+              isOwner={isOwner}
+              isFreeBill={isFreeBill}
+              isBillExpired={isBillExpired}
+              isLoading={isLoading}
             />
-          </XStack>
+            {isOwner && !isBillExpired && (
+              <XStack justifyContent="space-between" padding="$3">
+                <ConfirmDeleteBill
+                  billId={billInfo[0]?.billid}
+                  userId={userId.toString()}
+                />
+              </XStack>
+            )}
+          </>
         )}
-        <EditMembers
-          billId={parseInt(id.toString())}
-          ownerId={billInfo[0]?.ownerid}
-          height={height * 0.45}
-          isOwner={isOwner}
-          isFreeBill={isFreeBill}
-          isBillExpired={isBillExpired}
-          isLoading={isLoading}
-        />
-        {isOwner && !isBillExpired && !isLoading && (
-          <XStack justifyContent="space-between" padding="$3">
-            <ConfirmDeleteBill
-              billId={billInfo[0]?.billid}
-              userId={userId.toString()}
-            />
-          </XStack>
-        )}
+
         <SaveNameToast
           setOpen={setOpen}
           open={open}
