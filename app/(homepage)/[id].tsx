@@ -479,20 +479,42 @@ const Home = () => {
       </YStack>
 
       <FooterContainer justifyContent="space-between" height={windowHeight}>
-        <JoinBill
-          avatarUrl={avatarUrl}
-          displayName={profileInfo?.displayName ? profileInfo.displayName : ""}
-          buttonWidth={windowWidth * 0.25}
-          buttonSize={"$3.5"}
-        />
-        <StyledButton
-          create={true}
-          size={"$3.5"}
-          width={windowWidth * 0.25}
-          onPress={onOpenCreateBillSheet}
-        >
-          Create
-        </StyledButton>
+        {loadingBills ? (
+          <>
+            <Skeleton
+              show={true}
+              colorMode={"light"}
+              height={windowHeight * 0.05}
+              width={windowWidth * 0.3}
+            />
+            <Skeleton
+              show={true}
+              colorMode={"light"}
+              height={windowHeight * 0.05}
+              width={windowWidth * 0.3}
+            />
+          </>
+        ) : (
+          <>
+            <JoinBill
+              avatarUrl={avatarUrl}
+              displayName={
+                profileInfo?.displayName ? profileInfo.displayName : ""
+              }
+              buttonWidth={windowWidth * 0.25}
+              buttonSize={"$3.5"}
+            />
+            <StyledButton
+              create={true}
+              size={"$3.5"}
+              width={windowWidth * 0.25}
+              onPress={onOpenCreateBillSheet}
+            >
+              Create
+            </StyledButton>
+          </>
+        )}
+
         <CreateBillSheet
           open={isCreateBillOpen}
           setOpen={setIsCreateBillOpen}
