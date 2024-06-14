@@ -325,19 +325,22 @@ export const EditBill = () => {
                         {dateLocalTime} - {endDateLocalTime}
                       </Text>
 
-                      {isOwner && (isExpiringToday || isBillExpired) && (
-                        <ConfirmExtension
-                          currentEndDateUTC={endDate.utc().toDate()}
-                          billId={parseInt(id.toString())}
-                          setBillInfo={setBillInfo}
-                          setOpenExtendDuration={setOpenExtendDuration}
-                          setErrorMessage={setExtendDurationErrorMsg}
-                          isBillExpired={isBillExpired}
-                          isBillExpiringToday={isExpiringToday}
-                          isLoading={isLoading}
-                          setIsLoading={setIsLoading}
-                        />
-                      )}
+                      {/* Free bills cannot be extended */}
+                      {isOwner &&
+                        !isFreeBill &&
+                        (isExpiringToday || isBillExpired) && (
+                          <ConfirmExtension
+                            currentEndDateUTC={endDate.utc().toDate()}
+                            billId={parseInt(id.toString())}
+                            setBillInfo={setBillInfo}
+                            setOpenExtendDuration={setOpenExtendDuration}
+                            setErrorMessage={setExtendDurationErrorMsg}
+                            isBillExpired={isBillExpired}
+                            isBillExpiringToday={isExpiringToday}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                          />
+                        )}
                       {/* For testing */}
                       {/* <ConfirmExtension
                     currentEndDateUTC={endDate.utc().toDate()}
