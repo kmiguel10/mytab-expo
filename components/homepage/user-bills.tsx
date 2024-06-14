@@ -58,11 +58,6 @@ const UserBills: React.FC<Props> = ({
                     key={`${item.memberid}-${index}`}
                     animation="bouncy"
                     size="$3"
-                    width={360}
-                    height={110}
-                    scale={0.9}
-                    hoverStyle={{ scale: 0.925 }}
-                    pressStyle={{ scale: 0.875 }}
                     bill={item}
                     membership={item.ownerid === userId ? "Owner" : "Member"}
                   />

@@ -1,7 +1,17 @@
 import { formatToDollarCurrency } from "@/lib/helpers";
 import { MemberData } from "@/types/global";
 import React, { forwardRef } from "react";
-import { Card, CardProps, H4, H5, SizableText, View, XStack } from "tamagui";
+
+import {
+  Card,
+  CardProps,
+  H4,
+  H5,
+  SizableText,
+  useWindowDimensions,
+  View,
+  XStack,
+} from "tamagui";
 import Avatar from "../login/avatar";
 
 interface Props extends CardProps {
@@ -19,14 +29,20 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
   { bill, membership, ...props },
   ref
 ) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const cardWidth = windowWidth * 0.9;
+  const cardHeight = windowHeight * 0.13;
+
   return (
     <Card
       bordered
-      ref={ref}
-      {...props}
       backgroundColor="white"
       borderRadius={"$5"}
       elevation={1}
+      width={cardWidth}
+      height={cardHeight}
+      ref={ref}
+      {...props}
     >
       <Card.Header>
         <XStack justifyContent="space-between">

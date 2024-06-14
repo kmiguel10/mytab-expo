@@ -34,7 +34,7 @@ const MyTab: React.FC<Props> = ({
   );
 
   let headerSectionHeight = tabSectionHeight * 0.15;
-  let cardsSectionHeight = tabSectionHeight * 0.759;
+  let cardsSectionHeight = tabSectionHeight * 0.735;
   let settleAmount = Math.abs(owedAmount - debtAmount);
 
   /** - - - - - - - - - - State Variables - - - - - - - - */
@@ -82,6 +82,7 @@ const MyTab: React.FC<Props> = ({
         padding="$2"
         paddingLeft="$3"
         justifyContent="space-between"
+        backgroundColor={"$backgroundTransparent"}
       >
         <XStack gap="$3">
           <YStack gap="$3" width={tabSectionWidth * 0.25}>
@@ -115,7 +116,10 @@ const MyTab: React.FC<Props> = ({
           </YStack>
         </View>
       </XStack>
-      <XStack height={cardsSectionHeight} backgroundColor={"white"}>
+      <XStack
+        height={cardsSectionHeight}
+        backgroundColor={"$backgroundTransparent"}
+      >
         <SettleMemberCard
           members={settleMembersInfo}
           scaledHeight={tabSectionHeight}

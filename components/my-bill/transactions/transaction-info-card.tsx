@@ -22,7 +22,7 @@ import {
   useWindowDimensions,
 } from "tamagui";
 
-interface Props extends CardProps {
+interface Props {
   transactions: Transaction[];
   members: Member[];
   currentUser: string;
@@ -33,10 +33,7 @@ interface Props extends CardProps {
   billId: number;
 }
 
-const TransactionInfoCard: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  Props
-> = ({
+const TransactionInfoCard: React.FC<Props> = ({
   transactions,
   currentUser,
   members,
@@ -45,7 +42,6 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   isLocked,
   billOwnerId,
   billId,
-  ...props
 }) => {
   /** ---------- States and Variables ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
