@@ -47,7 +47,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.28);
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.75);
   const router = useRouter();
 
   /************ Functions ************/
