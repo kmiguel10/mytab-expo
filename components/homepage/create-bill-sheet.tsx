@@ -71,7 +71,7 @@ const CreateBillSheet: React.FC<Props> = ({
     title: "Free Plan",
     description: "1 Week, 2 users, 20 entries",
     productId: "free.plan",
-    price: "Free",
+    price: "  Free  ",
   };
 
   /** ---------- Functions ---------- */
@@ -404,6 +404,8 @@ const CreateBillSheet: React.FC<Props> = ({
             <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  elevation={2}
                   key={1}
                   hoverTheme
                   title={<H6 fontSize={"$4"}>{freeProduct.title}</H6>}
@@ -430,8 +432,9 @@ const CreateBillSheet: React.FC<Props> = ({
                 />
                 {products.map((product, index) => (
                   <ListItem
+                    bordered
+                    elevation={2}
                     key={product.productId + index}
-                    hoverTheme
                     title={<H6 fontSize={"$4"}>{product.title}</H6>}
                     subTitle={product.description}
                     iconAfter={
@@ -441,8 +444,7 @@ const CreateBillSheet: React.FC<Props> = ({
                         onPress={() => onPlanSelected(product.productId)}
                         disabled={isPlanSelected}
                       >
-                        {"  "}
-                        {product.price}
+                        {"  "}${product.price}
                         {"  "}
                       </StyledButton>
                     }
@@ -479,6 +481,7 @@ const CreateBillSheet: React.FC<Props> = ({
                       backgroundColor="white"
                       borderRadius={"$5"}
                       height={windowHeight * 0.2}
+                      elevation={2}
                     >
                       <YStack gap="$2" margin="$3.5">
                         <H6>Bill Name</H6>

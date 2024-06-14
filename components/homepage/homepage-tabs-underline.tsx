@@ -136,7 +136,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           borderBottomLeftRadius={0}
           borderBottomRightRadius={0}
           paddingBottom="$1.5"
-          borderColor="$color3"
+          borderColor="$backgroundTransparent"
           borderBottomWidth="$0.5"
           backgroundColor="transparent"
           paddingLeft="$2"
@@ -161,11 +161,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
           </Tabs.Tab>
         </Tabs.List>
       </YStack>
-      <AnimatePresence
-        exitBeforeEnter
-        enterVariant={enterVariant}
-        exitVariant={exitVariant}
-      >
+      <AnimatePresence exitBeforeEnter>
         <AnimatedYStack
           key={currentTab}
           animation="100ms"

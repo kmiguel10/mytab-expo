@@ -24,7 +24,7 @@ const SummaryChart: React.FC<Props> = ({
     <BarChart
       style={{
         marginVertical: 3,
-        borderRadius: 16,
+        borderRadius: 12,
       }}
       data={{
         labels: labelsMembers,
@@ -41,24 +41,24 @@ const SummaryChart: React.FC<Props> = ({
       withHorizontalLabels={false}
       showValuesOnTopOfBars={true}
       chartConfig={{
-        backgroundColor: "$8ecae6",
-        backgroundGradientFrom: "#219ebc",
-        backgroundGradientTo: "#219ebc",
+        backgroundColor: "$ffffff",
+        backgroundGradientFrom: "#ffffff",
+        backgroundGradientTo: "#ffffff",
         decimalPlaces: 0, // optional, defaults to 2dp
-        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        color: (opacity = 1) => `rgba(0, 0, 280, ${opacity})`, // Text color blue
+        labelColor: (opacity = 1) => `rgba(0, 0, 260, ${opacity})`, // Label color blue
         style: {
           borderRadius: 16,
         },
         propsForDots: {
-          r: "6",
+          r: "2",
           strokeWidth: "2",
           stroke: "#ffa726",
         },
       }}
       verticalLabelRotation={0}
       fromZero
-      withInnerLines={true}
+      withInnerLines={false}
     />
   );
 };

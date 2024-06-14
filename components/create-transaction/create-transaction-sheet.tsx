@@ -371,7 +371,7 @@ const CreateTransaction: React.FC<Props> = ({
               size={"$11"}
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
-              autoFocus={true}
+              autoFocus={false}
               maxLength={5}
             />
           </Fieldset>

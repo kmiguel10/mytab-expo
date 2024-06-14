@@ -26,6 +26,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
       {...props}
       backgroundColor="white"
       borderRadius={"$5"}
+      elevation={1}
     >
       <Card.Header>
         <XStack justifyContent="space-between">

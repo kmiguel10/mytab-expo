@@ -436,7 +436,7 @@ const Home = () => {
           justifyContent="flex-start"
           gap="$3"
           height={windowHeight * 0.15}
-          backgroundColor={"white"}
+          backgroundColor={"$backgroundStrong"}
           paddingVertical="$4"
           paddingHorizontal="$4"
         >
