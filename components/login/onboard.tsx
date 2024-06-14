@@ -1,25 +1,26 @@
-import {
-  useWindowDimensions,
-  Text,
-  Button,
-  Form,
-  XStack,
-  Fieldset,
-  Input,
-  View,
-  YStack,
-} from "tamagui";
-import { OuterContainer } from "../containers/outer-container";
-import { BodyContainer } from "../containers/body-container";
-import { Redirect, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ProfileInfo } from "@/types/global";
 import { getProfileInfo } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import Avatar from "./avatar";
-import { StyledButton } from "../button/button";
+import { ProfileInfo } from "@/types/global";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
+import {
+  Button,
+  Fieldset,
+  Form,
+  Input,
+  Spinner,
+  Text,
+  useWindowDimensions,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
+import { StyledButton } from "../button/button";
+import { BodyContainer } from "../containers/body-container";
+import { OuterContainer } from "../containers/outer-container";
 import { StyledInput } from "../input/input";
+import Avatar from "./avatar";
 
 interface Props {
   userId: string;
@@ -29,7 +30,8 @@ interface Props {
  * Route here after sign up and only after sign up... meaning...
  * after initial sign up the user must provide a display name...
  *
- * redirect to homepage after sign in if display name exists
+ * 1. If there is a displayName then redirect to the homepage
+ * 2. If no displayName then stay on onboard page
  * @param param0
  * @returns
  */
@@ -42,6 +44,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const [lastName, setLastName] = useState("");
   const [isDisplayNameError, setIsDisplayNameError] = useState(false);
   const [initialDisplayName, setInitialDisplayName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.28);
@@ -80,6 +83,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     await supabase.auth.signOut();
     console.log("USER SIGNED OUT");
   };
+
   const handleDisplayNameChange = (_displayName: string) => {
     const trimmedDisplayName = _displayName.trim();
 
@@ -126,36 +130,54 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       if (error instanceof Error) {
         console.log("error", error.message);
       }
-      // } finally {
-      //   setLoading(false);
-      // }
     }
   };
 
-  // Listen for keyboard show/hide events
-  Keyboard.addListener("keyboardDidShow", () => {
-    setButtonAreaHeight(height * 0.39);
-  });
-
-  Keyboard.addListener("keyboardDidHide", () => {
-    setButtonAreaHeight(height * 0.75);
-  });
-
   /************ UseEffects ************/
   useEffect(() => {
-    const fetchprofileInfo = async () => {
+    const fetchProfileInfo = async () => {
       try {
+        setIsLoading(true);
         const profile: ProfileInfo | null = await getProfileInfo(userId);
         setProfileInfo(profile);
         setInitialDisplayName(profile?.displayName || "");
         setDisplayName(profile?.displayName || "");
+        setIsLoading(false);
+
+        // Redirect if displayName is present
+        if (profile?.displayName) {
+          router.replace({
+            pathname: "/(homepage)/[id]",
+            params: { id: userId },
+          });
+        }
       } catch (error) {
         console.error("Error fetching profile info:", error);
         setProfileInfo(null);
+        setIsLoading(false);
       }
     };
-    fetchprofileInfo();
-  }, [userId]);
+    fetchProfileInfo();
+  }, [userId, router]);
+
+  useEffect(() => {
+    const handleKeyboardShow = () => setButtonAreaHeight(height * 0.39);
+    const handleKeyboardHide = () => setButtonAreaHeight(height * 0.75);
+
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      handleKeyboardShow
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      handleKeyboardHide
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [height]);
 
   return (
     <OuterContainer
@@ -164,7 +186,11 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       backgroundColor={"whitesmoke"}
       height={height}
     >
-      {!initialDisplayName ? (
+      {isLoading ? (
+        <YStack justifyContent="center" height={"85%"}>
+          <Spinner size="large" color="$green10Light" />
+        </YStack>
+      ) : (
         <BodyContainer
           height={height * 0.86}
           borderBottomRightRadius={"$11"}
@@ -257,13 +283,6 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
             </XStack>
           </Form>
         </BodyContainer>
-      ) : (
-        <Redirect
-          href={{
-            pathname: "/(homepage)/[id]",
-            params: { id: userId },
-          }}
-        />
       )}
     </OuterContainer>
   );
