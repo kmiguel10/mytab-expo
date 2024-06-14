@@ -66,6 +66,7 @@ const CreateBillSheet: React.FC<Props> = ({
   const productIds = ["com.mytab.1week", "com.mytab.2weeks"];
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [createButtonName, setCreateButtonName] = useState("Create");
 
   const freeProduct = {
     title: "Free Plan",
@@ -87,11 +88,19 @@ const CreateBillSheet: React.FC<Props> = ({
       newEndDate.add(14, "days");
       setEndDate(newEndDate);
       setSelectedProductId("com.mytab.2weeks");
-    } else {
+      setCreateButtonName("Pay");
+    } else if (productId === "com.mytab.1week") {
       const newEndDate = moment();
       newEndDate.add(7, "days");
       setEndDate(newEndDate);
       setSelectedProductId("com.mytab.1week");
+      setCreateButtonName("Pay");
+    } else {
+      const newEndDate = moment();
+      newEndDate.add(7, "days");
+      setEndDate(newEndDate);
+      setSelectedProductId("free.plan");
+      setCreateButtonName("Create");
     }
   };
 
@@ -516,7 +525,7 @@ const CreateBillSheet: React.FC<Props> = ({
                       disabled={!billName || billNameError}
                       onPress={onCreateBill}
                     >
-                      Pay
+                      {createButtonName}
                     </StyledButton>
                   )}
                 </View>

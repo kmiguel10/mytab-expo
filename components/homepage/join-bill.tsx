@@ -149,7 +149,7 @@ const JoinBill: React.FC<Props> = ({
           x={0}
           scale={1}
           opacity={1}
-          y={-230}
+          y={-100}
           width={"90%"}
         >
           <YStack space>
