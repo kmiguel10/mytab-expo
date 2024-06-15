@@ -99,11 +99,12 @@ const UserSettlementsSheet: React.FC<Props> = ({
       onOpenChange={() => setOpen(!open)}
       snapPoints={[80]}
       snapPointsMode={"percent"}
-      dismissOnSnapToBottom
+      dismissOnSnapToBottom={false}
       position={position}
       onPositionChange={setPosition}
       zIndex={100000}
       animation="medium"
+      disableDrag={true}
     >
       <Sheet.Overlay
         animation="lazy"
