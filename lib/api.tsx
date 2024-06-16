@@ -1,6 +1,17 @@
 import { MemberData, ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
+/** Auth page */
+export const signInWithEmail = async (email: string, password: string) => {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  return { error };
+};
+
+export const signUpWithEmail = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  return { session: data?.session, error };
+};
+
 //This only fetches included members
 export const getMembers = async (billId: number) => {
   try {
