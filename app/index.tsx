@@ -8,9 +8,10 @@ import { supabase } from "@/lib/supabase";
 import { ProfileInfo } from "@/types/global";
 import { Session } from "@supabase/supabase-js";
 import { useEffect } from "react";
-// import "react-native-reanimated";
-// import "react-native-gesture-handler";
 
+/**
+ * User will be directed to Onboard if not signed up
+ */
 const Page = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
@@ -27,26 +28,24 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    console.log("session", session);
     setIsLoading(true);
-    if (session) {
-      const fetchprofileInfo = async () => {
-        try {
-          const profile: ProfileInfo | null = await getProfileInfo(
-            session?.user.id
-          );
-          setProfileInfo(profile);
-          setIsLoading(false);
-        } catch (error) {
-          setIsLoading(false);
-          console.error("Error fetching profile info:", error);
+
+    const fetchProfileInfo = async () => {
+      try {
+        if (session) {
+          const profile = await getProfileInfo(session.user.id);
+          setProfileInfo(profile || null); // Ensure profile is set to null if undefined
+        } else {
           setProfileInfo(null);
         }
-      };
-      fetchprofileInfo();
-    } else {
-      setIsLoading(false);
-    }
+      } catch (error) {
+        setProfileInfo(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfileInfo();
   }, [session]);
 
   return (
@@ -57,7 +56,6 @@ const Page = () => {
         </YStack>
       ) : (
         <View>
-          {/* Will be directed to Onboard if signed up then onboard will determine if profile is provided or not... */}
           {session && session.user && profileInfo?.email ? (
             <Onboard userId={session.user.id.toString()} />
           ) : (
