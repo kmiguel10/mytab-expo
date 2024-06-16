@@ -147,6 +147,8 @@ const CreateTransaction: React.FC<Props> = ({
     transaction.amount = parseFloat(amount);
     transaction.name = transactionName;
 
+    console.log("*** Transaction to send: ", JSON.stringify(transaction));
+
     try {
       const { data, error: billError } = await supabase
         .from("bills")
@@ -422,7 +424,12 @@ const CreateTransaction: React.FC<Props> = ({
               }
             />
           </XStack>
-          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+          <XStack
+            alignItems="center"
+            justifyContent="space-around"
+            paddingTop="$3"
+            gap="$3"
+          >
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>
             <Separator />

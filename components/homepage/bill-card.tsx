@@ -5,8 +5,6 @@ import React, { forwardRef } from "react";
 import {
   Card,
   CardProps,
-  H4,
-  H5,
   SizableText,
   useWindowDimensions,
   View,
@@ -49,12 +47,12 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
           {/* <H5 fontFamily={"$heading"} maxWidth={"50%"} overflow="hidden">
             {bill.name}
           </H5> */}
-          <H5 size={"$4"} textOverflow="ellipsis">
+          <SizableText size={"$5"} textOverflow="ellipsis">
             {bill.name}
-          </H5>
-          <H4 maxWidth={"50%"} overflow="hidden">
+          </SizableText>
+          <SizableText size={"$6"} maxWidth={"50%"} overflow="hidden">
             {formatToDollarCurrency(bill.amount ? bill.amount : 0)}
-          </H4>
+          </SizableText>
         </XStack>
         {bill.isMemberIncluded && (
           <XStack gap="$1">
@@ -121,9 +119,11 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
             <SizableText fontWeight={"800"}>{bill.billcode}</SizableText>
           </SizableText>
         )} */}
-        <SizableText paddingTop={"$2"} flex={1}>
+        <SizableText size={"$3"} paddingTop={"$2"} flex={1}>
           Bill Code:{" "}
-          <SizableText fontWeight={"800"}>{bill.billcode}</SizableText>
+          <SizableText size={"$2"} fontWeight={"800"}>
+            {bill.billcode}
+          </SizableText>
         </SizableText>
         {/* Edit appearance of multiple avatars */}
         <XStack backgroundColor={"red"} position="relative">

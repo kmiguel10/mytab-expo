@@ -1,5 +1,9 @@
 import Avatar from "@/components/login/avatar";
-import { findUserDisplayName, truncateToTwoDecimalPlaces } from "@/lib/helpers";
+import {
+  findUserDisplayName,
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import {
   Member,
   SettleCardInfo,
@@ -10,9 +14,9 @@ import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
 import {
   CardProps,
-  H4,
   ListItem,
   ScrollView,
+  SizableText,
   useWindowDimensions,
   View,
   XStack,
@@ -194,7 +198,7 @@ const SettleMemberCard: React.FC<Props> = ({
 
   return (
     <View>
-      <ScrollView>
+      <ScrollView bounces={false}>
         <XStack
           flex={1}
           flexWrap="wrap"
@@ -229,18 +233,19 @@ const SettleMemberCard: React.FC<Props> = ({
                       member.owed - member.debt >= 0 ? "Owes you" : "You owe"
                     }
                     iconAfter={
-                      <H4
+                      <SizableText
                         color={
                           member.owed - member.debt >= 0
                             ? "$green10Light"
                             : "$red10Light"
                         }
                       >
-                        $
-                        {truncateToTwoDecimalPlaces(
-                          Math.abs(member.owed - member.debt)
+                        {formatToDollarCurrency(
+                          truncateToTwoDecimalPlaces(
+                            Math.abs(member.owed - member.debt)
+                          )
                         )}
-                      </H4>
+                      </SizableText>
                     }
                   />
                 </YGroup.Item>

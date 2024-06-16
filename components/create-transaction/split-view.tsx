@@ -1,3 +1,7 @@
+import {
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { MemberSplitAmount } from "@/types/global";
 import React from "react";
 import {
@@ -11,7 +15,6 @@ import {
   useWindowDimensions,
 } from "tamagui";
 import Avatar from "../login/avatar";
-import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
@@ -40,9 +43,10 @@ const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
                   icon={<Avatar url={member.avatarUrl} size="$3.5" />}
                   iconAfter={
                     <Text>
-                      $
-                      {truncateToTwoDecimalPlaces(
-                        !!member.amount ? member.amount : 0
+                      {formatToDollarCurrency(
+                        truncateToTwoDecimalPlaces(
+                          !!member.amount ? member.amount : 0
+                        )
                       )}
                     </Text>
                   }

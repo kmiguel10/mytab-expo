@@ -436,7 +436,12 @@ const EditTransaction: React.FC<Props> = ({
             </XStack>
           )}
 
-          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+          <XStack
+            justifyContent="space-around"
+            paddingTop="$3"
+            gap="$3"
+            alignItems="center"
+          >
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>
             <Separator />

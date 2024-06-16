@@ -1,30 +1,28 @@
-import React, { useState, useEffect } from "react";
 import {
-  Keyboard,
-  useWindowDimensions,
-  Text,
-  ScrollView,
-  View,
-} from "react-native";
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
+import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
+import { Axe, Check, X } from "@tamagui/lucide-icons";
+import React, { useEffect, useState } from "react";
+import { Keyboard, ScrollView, useWindowDimensions } from "react-native";
 import {
-  Dialog,
   Adapt,
-  Sheet,
-  Fieldset,
-  Label,
-  Input,
-  Checkbox,
   Button,
+  Checkbox,
+  Dialog,
+  Fieldset,
+  Input,
+  Label,
+  Separator,
+  Sheet,
+  SizableText,
+  Unspaced,
+  View,
   XStack,
   YStack,
-  Separator,
-  H1,
-  Unspaced,
 } from "tamagui";
-import { Check, X, Axe } from "@tamagui/lucide-icons";
-import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import { StyledButton } from "../button/button";
-import { MemberSplitAmount, SelectedMemberSplitAmount } from "@/types/global";
 
 interface Props {
   memberSplits: MemberSplitAmount[];
@@ -65,8 +63,8 @@ const CustomSplit: React.FC<Props> = ({
         _amount = _amount.replace(/^0+/, "");
       }
 
-      setSelectedMembers((prevSelectedMembers) => {
-        return prevSelectedMembers?.map((member) => {
+      setSelectedMembers((prevSelectedMembers: any) => {
+        return prevSelectedMembers?.map((member: { memberId: string }) => {
           if (member.memberId === memberId) {
             return {
               ...member,
@@ -88,8 +86,8 @@ const CustomSplit: React.FC<Props> = ({
       _amount = amount.slice(0, -1);
     }
 
-    setSelectedMembers((prevSelectedMembers) => {
-      return prevSelectedMembers?.map((member) => {
+    setSelectedMembers((prevSelectedMembers: any) => {
+      return prevSelectedMembers?.map((member: { memberId: string }) => {
         if (member.memberId === memberId) {
           return {
             ...member,
@@ -248,20 +246,25 @@ const CustomSplit: React.FC<Props> = ({
         >
           <XStack gap="$3">
             <YStack>
-              <Text fontSize="$1">Transaction Amount</Text>
-              <H1>{truncateToTwoDecimalPlaces(amount)}</H1>
+              <SizableText size="$4">Transaction Amount</SizableText>
+              <SizableText size={"$9"}>
+                {formatToDollarCurrency(truncateToTwoDecimalPlaces(amount))}
+              </SizableText>
             </YStack>
             <YStack>
-              <Text fontSize="$1">Amount to Distribute</Text>
-              <H1
+              <SizableText size="$4">Amount to Distribute</SizableText>
+              <SizableText
+                size={"$9"}
                 color={
                   splitAmount - sumAmount >= 0 && splitAmount - sumAmount <= 0.1
                     ? "$green8Light"
                     : "$red8Light"
                 }
               >
-                {truncateToTwoDecimalPlaces(splitAmount - sumAmount)}
-              </H1>
+                {formatToDollarCurrency(
+                  truncateToTwoDecimalPlaces(splitAmount - sumAmount)
+                )}
+              </SizableText>
             </YStack>
           </XStack>
           <Separator />

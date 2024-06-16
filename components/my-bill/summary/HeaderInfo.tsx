@@ -1,9 +1,10 @@
-import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
+import {
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import React from "react";
 import {
-  H4,
   SizableText,
-  Text,
   View,
   XStack,
   YStack,
@@ -42,7 +43,7 @@ const HeaderInfo: React.FC<Props> = ({
     0
   );
   return (
-    <YStack justifyContent="space-evenly" gap="$3" padding="$2">
+    <YStack justifyContent="space-evenly" gap="$1" padding="$2">
       <XStack
         width={windowWidth * 0.45}
         gap="$3"
@@ -50,10 +51,15 @@ const HeaderInfo: React.FC<Props> = ({
         alignItems="center"
       >
         <View>
-          <Text>Bill Name</Text>
-          <H4 height={height * 0.25} width={windowWidth * 0.4}>
+          <SizableText>Bill Name</SizableText>
+          <SizableText
+            size={"$7"}
+            height={height * 0.25}
+            width={windowWidth * 0.4}
+            fontWeight="800"
+          >
             {billName}
-          </H4>
+          </SizableText>
         </View>
 
         <View gap="$1" alignSelf="flex-start">
@@ -93,16 +99,26 @@ const HeaderInfo: React.FC<Props> = ({
       </XStack>
       <XStack width={windowWidth * 0.45} gap="$3" paddingHorizontal="$2">
         <View>
-          <Text>Total Amount</Text>
-          <H4 height={height * 0.25} width={windowWidth * 0.35}>
-            ${truncateToTwoDecimalPlaces(totalPaid)}
-          </H4>
+          <SizableText>Total Amount</SizableText>
+          <SizableText
+            size={"$7"}
+            height={height * 0.25}
+            width={windowWidth * 0.35}
+            fontWeight="800"
+          >
+            {formatToDollarCurrency(truncateToTwoDecimalPlaces(totalPaid))}
+          </SizableText>
         </View>
         <View>
-          <Text>Transactions</Text>
-          <H4 height={height * 0.25} width={windowWidth * 0.35}>
+          <SizableText>Transactions</SizableText>
+          <SizableText
+            size={"$7"}
+            height={height * 0.25}
+            width={windowWidth * 0.35}
+            fontWeight="800"
+          >
             {txnCount}
-          </H4>
+          </SizableText>
         </View>
       </XStack>
     </YStack>

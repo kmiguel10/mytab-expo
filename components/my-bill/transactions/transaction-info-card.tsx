@@ -11,10 +11,9 @@ import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
 import {
-  CardProps,
-  H1,
   ListItem,
   ScrollView,
+  SizableText,
   Text,
   View,
   XStack,
@@ -146,28 +145,37 @@ const TransactionInfoCard: React.FC<Props> = ({
                         hoverTheme
                         icon={
                           <XStack gap="$2" alignItems="center">
-                            <Text fontSize="$1" alignItems="center">
+                            <SizableText
+                              fontSize="$1"
+                              alignItems="center"
+                              color={"$gray10Light"}
+                            >
                               {txn.createdat
                                 ? formatDateToMonthDay(new Date(txn.createdat))
                                 : "N/A"}
-                            </Text>
+                            </SizableText>
                             <Avatar
                               url={findUserAvatar(txn.payerid, members)}
                               size="$4.5"
                             />
                           </XStack>
                         }
-                        title={txn.name}
-                        subTitle={`Paid by: ${findUserDisplayName(
-                          txn.payerid,
-                          members
-                        )}`}
+                        title={<SizableText>{txn.name}</SizableText>}
+                        subTitle={
+                          <SizableText
+                            size={"$2"}
+                            color={"$gray10Light"}
+                          >{`Paid by: ${findUserDisplayName(
+                            txn.payerid,
+                            members
+                          )}`}</SizableText>
+                        }
                         iconAfter={
-                          <H1>
+                          <SizableText>
                             {formatToDollarCurrency(
                               txn.amount ? txn.amount : 0
                             )}
-                          </H1>
+                          </SizableText>
                         }
                       />
                     </YGroup.Item>

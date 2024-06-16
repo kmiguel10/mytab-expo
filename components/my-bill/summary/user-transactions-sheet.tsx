@@ -1,11 +1,13 @@
 import Avatar from "@/components/login/avatar";
+import { formatToDollarCurrency } from "@/lib/helpers";
 import { SummaryInfo, Transaction } from "@/types/global";
+import { XCircle } from "@tamagui/lucide-icons";
 import { useState } from "react";
 import {
-  H4,
   ListItem,
   ScrollView,
   Sheet,
+  SizableText,
   Text,
   View,
   XStack,
@@ -53,6 +55,7 @@ const UserTransactions: React.FC<Props> = ({
       onPositionChange={setPosition}
       zIndex={100000}
       animation="medium"
+      disableDrag={true}
     >
       <Sheet.Overlay
         animation="lazy"
@@ -61,6 +64,9 @@ const UserTransactions: React.FC<Props> = ({
       />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" justifyContent="flex-start" gap="$2">
+        <XStack justifyContent="flex-end">
+          <XCircle onPress={() => setOpen(false)} />
+        </XStack>
         <XStack
           paddingBottom="$4"
           justifyContent="space-between"
@@ -69,28 +75,35 @@ const UserTransactions: React.FC<Props> = ({
         >
           <Avatar url={selectedMember?.avatar_url || null} size={"$6"} />
           <View>
-            <Text>Total Amount Spent</Text>
-            <H4>${selectedMember?.amountPaid}</H4>
+            <SizableText>Total Spent</SizableText>
+            <SizableText size="$6">
+              {formatToDollarCurrency(selectedMember?.amountPaid || 0)}
+            </SizableText>
           </View>
         </XStack>
-        <ScrollView backgroundColor={"$backgroundTransparent"}>
-          {userTransactions.map((txn, index) => (
-            <YGroup
-              alignSelf="center"
-              bordered
-              width={windowWidth * 0.9}
-              size="$4"
-              key={index}
-            >
+        <ScrollView backgroundColor={"$backgroundTransparent"} bounces={false}>
+          <YGroup
+            alignSelf="center"
+            width={windowWidth * 0.9}
+            size="$4"
+            gap="$1"
+          >
+            {userTransactions.map((txn, index) => (
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  key={index}
                   hoverTheme
                   title={<Text fontSize={"$4"}>{txn.name}</Text>}
-                  iconAfter={<Text fontSize={"$4"}>${txn.amount}</Text>}
+                  iconAfter={
+                    <Text fontSize={"$4"}>
+                      {formatToDollarCurrency(txn.amount)}
+                    </Text>
+                  }
                 />
               </YGroup.Item>
-            </YGroup>
-          ))}
+            ))}
+          </YGroup>
         </ScrollView>
       </Sheet.Frame>
     </Sheet>

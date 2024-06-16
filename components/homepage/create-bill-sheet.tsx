@@ -409,7 +409,7 @@ const CreateBillSheet: React.FC<Props> = ({
               </XStack>
             )}
 
-            <Separator marginVertical={"$3"} />
+            <Separator marginVertical={"$2.5"} />
             <YGroup alignSelf="center" width={"100%"} size="$5" gap="$2">
               <YGroup.Item>
                 <ListItem
@@ -470,7 +470,7 @@ const CreateBillSheet: React.FC<Props> = ({
             </YGroup>
             {isPlanSelected && (
               <>
-                <Separator marginVertical={"$3"} />
+                <Separator marginVertical={"$2.5"} />
                 <View gap="$4.5" height={payButtonHeight}>
                   {selectedPlan === "free.plan" && isFreeBillActive ? (
                     <Card
@@ -492,8 +492,8 @@ const CreateBillSheet: React.FC<Props> = ({
                       height={windowHeight * 0.2}
                       elevation={2}
                     >
-                      <YStack gap="$2" margin="$3.5">
-                        <H6>Bill Name</H6>
+                      <YStack gap="$1" margin="$3.5">
+                        <SizableText>Bill Name</SizableText>
                         <StyledInput
                           placeholder="Ex: Mexico Trip"
                           value={billName}
@@ -503,7 +503,7 @@ const CreateBillSheet: React.FC<Props> = ({
                         />
                       </YStack>
                       <YStack marginHorizontal="$3.5" gap="$2">
-                        <H6>Duration</H6>
+                        <SizableText>Duration</SizableText>
                         <XStack
                           justifyContent="space-between"
                           alignItems="center"
