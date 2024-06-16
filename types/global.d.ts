@@ -7,6 +7,7 @@ type Member = {
   isMemberIncluded: boolean;
   isRequestSent: boolean;
   avatar_url: string;
+  hasJoined: boolean;
 };
 
 type Bill = {

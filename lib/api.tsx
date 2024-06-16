@@ -1,14 +1,16 @@
 import { MemberData, ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
+//This only fetches included members
 export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
       .select(
-        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName, hasJoined"
       )
-      .eq("isMemberIncluded", true)
+      // .eq("isMemberIncluded", true)
+      .eq("hasJoined", true)
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);

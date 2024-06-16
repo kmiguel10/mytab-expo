@@ -31,7 +31,7 @@ const JoinRequests: React.FC<Props> = ({
   const onAccept = async (memberId: string) => {
     const { data, error } = await supabase
       .from("members")
-      .update({ isMemberIncluded: true, isRequestSent: false })
+      .update({ isMemberIncluded: true, isRequestSent: false, hasJoined: true })
       .eq("memberid", memberId)
       .select();
 

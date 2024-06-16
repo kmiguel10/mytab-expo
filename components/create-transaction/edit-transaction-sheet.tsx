@@ -56,6 +56,8 @@ const EditTransaction: React.FC<Props> = ({
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
   >([]);
+  const [activeMembers, setActiveMembers] = useState<Member[]>([]);
+
   const [isEven, setIsEven] = useState(true);
   const [sheetZIndex, setSheetZIndex] = useState(100000);
   const { width, height } = useWindowDimensions();
@@ -66,8 +68,7 @@ const EditTransaction: React.FC<Props> = ({
 
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
-    const user = members.find((member) => member.userid === userId);
-
+    const user = activeMembers.find((member) => member.userid === userId);
     return user ? user.displayName : "";
   };
 
@@ -216,9 +217,9 @@ const EditTransaction: React.FC<Props> = ({
   const initializeSplits = () => {
     let amountNum = amount ? parseFloat(amount) : localTxn.amount;
     const splitEvenAmount = (_amount: number) => {
-      return _amount / members.length;
+      return _amount / activeMembers.length;
     };
-    const newSplits = members.map((member) => ({
+    const newSplits = activeMembers.map((member) => ({
       memberId: member.userid,
       amount: splitEvenAmount(amountNum),
       displayName: member.displayName,
@@ -232,7 +233,7 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   const initiateIncludedMembers = () => {
-    const newSelectedSplits: SelectedMemberSplitAmount[] = members.map(
+    const newSelectedSplits: SelectedMemberSplitAmount[] = activeMembers.map(
       (member) => ({
         isIncluded: true,
         memberId: member.userid,
@@ -267,12 +268,21 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   /*********** UseEffects ***********/
+  //Only use active members
+  useEffect(() => {
+    const _activeMembers = members.filter(
+      (member) => member.isMemberIncluded === true
+    );
+    setActiveMembers(_activeMembers);
+    console.log("**** Active members", JSON.stringify(_activeMembers));
+  }, [members]);
+
   //Gets members
   useEffect(() => {
-    if (members.length > 0) {
+    if (activeMembers.length > 0) {
       initiateIncludedMembers();
     }
-  }, [members]);
+  }, [activeMembers]);
 
   //only initialize splits whe amount is edited
   useEffect(() => {
@@ -405,7 +415,7 @@ const EditTransaction: React.FC<Props> = ({
                 Paid by:
               </Text>
               <MembersDropdown
-                members={members}
+                members={activeMembers}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
                 isVisibleToUser={
