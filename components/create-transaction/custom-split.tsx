@@ -48,7 +48,7 @@ const CustomSplit: React.FC<Props> = ({
   const [sumAmount, setSumAmount] = useState(0);
   const [isModalToggled, setIsModalToggled] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const [buttonAreaHeight, setButtonAreaHeight] = useState(windowHeight * 0.28);
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(windowHeight * 0.61);
 
   /** ---------- Handlers ---------- */
   const handleAmountChange = (memberId: string, _amount: string) => {
@@ -176,7 +176,7 @@ const CustomSplit: React.FC<Props> = ({
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
-    setButtonAreaHeight(windowHeight * 0.6);
+    setButtonAreaHeight(windowHeight * 0.61);
   });
 
   /** ---------- Use Effects ---------- */

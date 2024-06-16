@@ -46,11 +46,9 @@ const SettleMemberCard: React.FC<Props> = ({
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [openSettlementsSheet, setOpenSettlementsSheet] = useState(false);
 
-  //what is the shape of the settlement info
   const [memberSettlementInfo, setMemberSettlementInfo] = useState<
     SettlementInfo[] | null
   >();
-
   const [currentUserSettlementInfo, setCurrentUserSettlementInfo] = useState<
     SettlementInfo[] | null
   >();
@@ -60,6 +58,8 @@ const SettleMemberCard: React.FC<Props> = ({
 
   const [selectedUserName, setSelectedUserName] = useState("");
   const [currentUserName, setCurrentUserName] = useState("");
+
+  const [doesUserOweMoney, setDoesUserOweMoney] = useState(false);
 
   /** - - - - - - - - - - Functions - - - - - - - - */
   const setSelectedUserSettlements = (selectedMember: string) => {
@@ -213,13 +213,17 @@ const SettleMemberCard: React.FC<Props> = ({
             >
               <YGroup
                 alignSelf="center"
-                bordered
                 width={windowWidth * 0.9}
                 size="$4"
                 key={index}
               >
                 <YGroup.Item>
                   <ListItem
+                    backgroundColor={
+                      member.owed - member.debt >= 0
+                        ? "$green3Light"
+                        : "$red3Light"
+                    }
                     key={index}
                     hoverTheme
                     icon={

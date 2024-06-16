@@ -140,6 +140,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
               <SizableText textAlign="right">
                 <SizableText
                   color={settlementAmount < 0 ? "$red10Light" : "$green10Light"}
+                  size="$6"
                 >
                   {formatToDollarCurrency(
                     truncateToTwoDecimalPlaces(Math.abs(settlementAmount))

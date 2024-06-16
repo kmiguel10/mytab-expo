@@ -28,17 +28,12 @@ const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
     <View height={windowHeight * 0.32}>
       <ScrollView>
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
-          {memberSplits.map((member, index) => (
-            <YGroup
-              key={index}
-              alignSelf="center"
-              bordered
-              width={"100%"}
-              size="$5"
-              padding={"$1"}
-            >
+          <YGroup alignSelf="center" width={"100%"} size="$5" gap="$1.5">
+            {memberSplits.map((member, index) => (
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  key={index}
                   title={member.displayName}
                   icon={<Avatar url={member.avatarUrl} size="$3.5" />}
                   iconAfter={
@@ -52,8 +47,8 @@ const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
                   }
                 />
               </YGroup.Item>
-            </YGroup>
-          ))}
+            ))}
+          </YGroup>
         </XStack>
       </ScrollView>
     </View>
