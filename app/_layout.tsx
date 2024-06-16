@@ -55,8 +55,8 @@ function RootLayoutNav() {
   const router = useRouter();
 
   return (
-    <TamaguiProvider config={config} defaultTheme={colorScheme as any}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <TamaguiProvider config={config} defaultTheme="light">
+      <ThemeProvider value={DefaultTheme}>
         <ToastProvider>
           <Stack>
             <Stack.Screen name="index" options={{ title: "Welcome" }} />
