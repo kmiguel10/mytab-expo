@@ -1,9 +1,7 @@
-import { getProfileInfo } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
-import { ProfileInfo } from "@/types/global";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Keyboard } from "react-native";
+// Onboard.tsx
+
+import React, { useState, useEffect } from "react";
+import { Alert, Keyboard } from "react-native";
 import {
   Button,
   Fieldset,
@@ -16,11 +14,16 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+import { useRouter } from "expo-router";
 import { StyledButton } from "../button/button";
 import { BodyContainer } from "../containers/body-container";
 import { OuterContainer } from "../containers/outer-container";
 import { StyledInput } from "../input/input";
 import Avatar from "./avatar";
+
+import { ProfileInfo } from "@/types/global";
+import { getProfileInfoOnboard, updateProfile } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 interface Props {
   userId: string;
@@ -32,56 +35,85 @@ interface Props {
  *
  * 1. If there is a displayName then redirect to the homepage
  * 2. If no displayName then stay on onboard page
- * @param param0
- * @returns
  */
 export const Onboard: React.FC<Props> = ({ userId }) => {
   /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isDisplayNameError, setIsDisplayNameError] = useState(false);
   const [initialDisplayName, setInitialDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const [avatarUrl, setAvatarUrl] = useState("");
   const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.75);
   const router = useRouter();
 
   /************ Functions ************/
-  const onSave = async () => {
+  const fetchProfileInfo = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({
-          displayName: displayName,
-          firstName: firstName,
-          lastName: lastName,
-        })
-        .eq("id", userId)
-        .select();
+      setIsLoading(true);
+      const profile = await getProfileInfoOnboard(userId);
+      setProfileInfo(profile);
+      setInitialDisplayName(profile?.displayName || "");
+      setDisplayName(profile?.displayName || "");
+      setIsLoading(false);
 
-      console.log("");
-
-      if (data) {
-        console.log("*** User updated: ", data);
+      if (profile?.displayName) {
         router.replace({
           pathname: "/(homepage)/[id]",
           params: { id: userId },
         });
-      } else if (error) {
-        console.log("Error", error.message);
       }
     } catch (error) {
-      console.log("Error onboarding user", error);
+      console.error("Error fetching profile info:", error);
+      setProfileInfo(null);
+      setIsLoading(false);
+    }
+  };
+
+  const onSave = async () => {
+    try {
+      setIsLoading(true);
+      const updates = {
+        displayName,
+        firstName,
+        lastName,
+        avatar_url: avatarUrl,
+      };
+
+      await updateProfile(userId, updates);
+
+      setIsLoading(false);
+
+      router.replace({
+        pathname: "/(homepage)/[id]",
+        params: { id: userId },
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setIsLoading(false);
+      Alert.alert("Failed to save profile changes.");
     }
   };
 
   const signOutUser = async () => {
-    await supabase.auth.signOut();
-    console.log("USER SIGNED OUT");
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const updateProfileAvatar = async (url: string) => {
+    try {
+      await updateProfile(userId, { avatar_url: url });
+      setAvatarUrl(url);
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      Alert.alert("Failed to update avatar.");
+    }
   };
 
   const handleDisplayNameChange = (_displayName: string) => {
@@ -90,14 +122,15 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     if (trimmedDisplayName.length === 0) {
       setIsDisplayNameError(true);
       setDisplayName(_displayName);
-    } else if (trimmedDisplayName.length <= 2) {
+    } else if (
+      trimmedDisplayName.length <= 2 ||
+      trimmedDisplayName.length > 10
+    ) {
       setIsDisplayNameError(true);
-      setDisplayName(_displayName);
-    } else if (trimmedDisplayName.length <= 10) {
-      setIsDisplayNameError(false);
       setDisplayName(_displayName);
     } else {
-      setIsDisplayNameError(true);
+      setIsDisplayNameError(false);
+      setDisplayName(_displayName);
     }
   };
 
@@ -109,54 +142,8 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     setLastName(_lastName);
   };
 
-  const updateProfile = async ({ avatar_url }: { avatar_url: string }) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({
-          avatar_url: avatar_url,
-        })
-        .eq("id", userId)
-        .select();
-
-      if (data) {
-        console.log("Data", data);
-      }
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log("error", error.message);
-      }
-    }
-  };
-
   /************ UseEffects ************/
   useEffect(() => {
-    const fetchProfileInfo = async () => {
-      try {
-        setIsLoading(true);
-        const profile: ProfileInfo | null = await getProfileInfo(userId);
-        setProfileInfo(profile);
-        setInitialDisplayName(profile?.displayName || "");
-        setDisplayName(profile?.displayName || "");
-        setIsLoading(false);
-
-        // Redirect if displayName is present
-        if (profile?.displayName) {
-          router.replace({
-            pathname: "/(homepage)/[id]",
-            params: { id: userId },
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching profile info:", error);
-        setProfileInfo(null);
-        setIsLoading(false);
-      }
-    };
     fetchProfileInfo();
   }, [userId, router]);
 
@@ -201,10 +188,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
               <View paddingVertical={"$5"}>
                 <Avatar
                   url={avatarUrl}
-                  onUpload={(url: string) => {
-                    setAvatarUrl(url);
-                    updateProfile({ avatar_url: url });
-                  }}
+                  onUpload={updateProfileAvatar}
                   size="$6"
                 />
               </View>
@@ -216,7 +200,6 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <StyledInput
                     id="display-name"
                     placeholder="Display Name"
-                    defaultValue=""
                     value={displayName}
                     onChangeText={handleDisplayNameChange}
                     backgroundColor={"$backgroundTransparent"}
@@ -232,7 +215,6 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="first-name"
                     placeholder="First Name"
-                    defaultValue=""
                     value={firstName}
                     onChangeText={handleFirstNameChange}
                     backgroundColor={"$backgroundTransparent"}
@@ -246,7 +228,6 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="last-name"
                     placeholder="Last Name"
-                    defaultValue=""
                     value={lastName}
                     onChangeText={handleLastNameChange}
                     backgroundColor={"$backgroundTransparent"}
@@ -262,8 +243,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="email"
                     placeholder="Email"
-                    defaultValue={profileInfo?.email}
-                    value={profileInfo?.email}
+                    value={profileInfo?.email || ""}
                     backgroundColor={"$gray"}
                     disabled
                   />

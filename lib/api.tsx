@@ -12,6 +12,50 @@ export const signUpWithEmail = async (email: string, password: string) => {
   return { session: data?.session, error };
 };
 
+/** Onboard */
+export const getProfileInfoOnboard = async (
+  userId: string
+): Promise<ProfileInfo | null> => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error("Error fetching profile info:", error.message);
+    return null;
+  }
+};
+
+export const updateProfile = async (
+  userId: string,
+  updates: Partial<ProfileInfo>
+) => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", userId)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error("Error updating profile:", error.message);
+    throw error;
+  }
+};
+
 //This only fetches included members
 export const getMembers = async (billId: number) => {
   try {
