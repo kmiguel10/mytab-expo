@@ -73,21 +73,10 @@ const BillScreen = () => {
 
   const onOpenCreateTxn = () => {
     setOpenCreateTxn(true);
-    console.log("Open create txn sheet", openCreateTxn);
   };
 
   // Resets toast messages
   const resetToastMessageStates = () => {
-    // Log states before resetting
-    console.log("States before reset:", {
-      txnName,
-      errorCreateMsg,
-      editedTxnName,
-      errorEditMsg,
-      errorDeleteMsg,
-      deletedTxnName,
-    });
-
     // Reset states
     setTxnName("");
     setErrorCreateMsg("");
@@ -95,16 +84,6 @@ const BillScreen = () => {
     setErrorEditMsg("");
     setErrorDeleteMsg("");
     setDeletedTxnName("");
-
-    // Log states after reset
-    console.log("States after reset:", {
-      txnName: "",
-      errorCreateMsg: "",
-      editedTxnName: "",
-      errorEditMsg: "",
-      errorDeleteMsg: "",
-      deletedTxnName: "",
-    });
   };
 
   // Type guard to check if a value is a valid ProductType
