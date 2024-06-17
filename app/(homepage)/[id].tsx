@@ -1,26 +1,24 @@
-import { YStack } from "tamagui";
-import CreateBill from "@/components/homepage/create-bill";
-import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
-import JoinBill from "@/components/homepage/join-bill";
-import { getBillsForUserIdWithUrls, getProfileInfo } from "@/lib/api";
-import { MemberData, ProfileInfo } from "@/types/global";
-import { Toast, ToastViewport } from "@tamagui/toast";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { Alert, Platform, useWindowDimensions } from "react-native";
-import { Text } from "tamagui";
+import { StyledButton } from "@/components/button/button";
 import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { HeaderContainer } from "@/components/containers/header-container";
 import { OuterContainer } from "@/components/containers/outer-container";
-import Avatar from "@/components/login/avatar";
-import React from "react";
-import { Skeleton } from "moti/skeleton";
 import CreateBillSheet from "@/components/homepage/create-bill-sheet";
-import { StyledButton } from "@/components/button/button";
+import { TabsAdvancedUnderline } from "@/components/homepage/homepage-tabs-underline";
+import JoinBill from "@/components/homepage/join-bill";
+import Avatar from "@/components/login/avatar";
+import { getBillsForUserIdWithUrls, getProfileInfo } from "@/lib/api";
+import { MemberData, ProfileInfo } from "@/types/global";
+import { Toast, ToastViewport } from "@tamagui/toast";
+import { useLocalSearchParams } from "expo-router";
+import { Skeleton } from "moti/skeleton";
+import React, { useEffect, useState } from "react";
+import { Alert, useWindowDimensions } from "react-native";
 import * as RNIap from "react-native-iap";
+import { Text, YStack } from "tamagui";
 
 const Home = () => {
+  /********** States and Variables ***********/
   const {
     id,
     newBillId: initialNewBillId,
@@ -55,26 +53,16 @@ const Home = () => {
   const [isCreateBillOpen, setIsCreateBillOpen] = useState(false);
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [purchase, setPurchase] = useState<RNIap.Purchase | null>(null);
-
   const [isFreeBillActive, setIsFreeBillActive] = useState(false);
 
-  const productSkus = Platform.select({
-    ios: ["com.mytab.1week", "com.mytab.2weeks"],
-    android: [""],
-  });
-
+  /********** Functions  ***********/
   const onOpenCreateBillSheet = () => {
     setIsCreateBillOpen(true);
-  };
-
-  const handleToastClose = () => {
-    setOpen(false);
   };
 
   //resetToasts on pulldown refresh
   const resetToasts = () => {
     setOpen(false);
-    console.log("RESETTING");
     setNewBillId("");
     setJoinedBillCode("");
     setErrorMessage("");
@@ -83,7 +71,6 @@ const Home = () => {
   };
 
   /************  UseEffects  **********/
-
   //Fetches bills
   useEffect(() => {
     //console.log("*** Homepage: Fetch bills for user", id);
