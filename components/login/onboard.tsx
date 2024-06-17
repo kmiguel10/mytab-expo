@@ -44,6 +44,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isDisplayNameError, setIsDisplayNameError] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [initialDisplayName, setInitialDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -190,6 +191,8 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   url={avatarUrl}
                   onUpload={updateProfileAvatar}
                   size="$6"
+                  setUploading={setUploading}
+                  uploading={uploading}
                 />
               </View>
               <XStack>
@@ -254,8 +257,8 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
               <Button onPress={signOutUser}>Sign out</Button>
               <Form.Trigger asChild>
                 <StyledButton
-                  create={!!displayName && !isDisplayNameError}
-                  disabled={!displayName || isDisplayNameError}
+                  create={!!displayName && !isDisplayNameError && !uploading}
+                  disabled={!displayName || isDisplayNameError || uploading}
                 >
                   Save
                 </StyledButton>

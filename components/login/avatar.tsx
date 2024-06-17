@@ -8,11 +8,19 @@ import { StyledButton } from "../button/button";
 interface Props {
   url: string | null;
   size: string;
+  setUploading?: (uploading: boolean) => void;
+  uploading?: boolean;
   onUpload?: (filePath: string) => void;
 }
 
-export default function Avatar({ url, size = "$3", onUpload }: Props) {
-  const [uploading, setUploading] = useState(false);
+export default function Avatar({
+  url,
+  size = "$3",
+  onUpload,
+  setUploading,
+  uploading,
+}: Props) {
+  //const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,7 +53,7 @@ export default function Avatar({ url, size = "$3", onUpload }: Props) {
 
   async function uploadAvatar() {
     try {
-      setUploading(true);
+      setUploading?.(true);
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images, // Restrict to only images
@@ -93,7 +101,7 @@ export default function Avatar({ url, size = "$3", onUpload }: Props) {
         throw error;
       }
     } finally {
-      setUploading(false);
+      setUploading?.(false);
     }
   }
 

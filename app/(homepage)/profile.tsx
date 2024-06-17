@@ -34,6 +34,7 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const router = useRouter();
 
@@ -189,6 +190,8 @@ export default function Profile() {
                   updateProfile({ avatar_url: url });
                 }}
                 size="$6"
+                setUploading={setUploading}
+                uploading={uploading}
               />
             </View>
             <Separator />
@@ -272,8 +275,8 @@ export default function Profile() {
             <Form.Trigger asChild>
               {!isKeyboardVisible && (
                 <StyledButton
-                  disabled={!displayName || isDisplayNameError}
-                  active={!!displayName && !isDisplayNameError}
+                  disabled={!displayName || isDisplayNameError || uploading}
+                  active={!!displayName && !isDisplayNameError && !uploading}
                   width={width * 0.25}
                   size={"$3.5"}
                 >
