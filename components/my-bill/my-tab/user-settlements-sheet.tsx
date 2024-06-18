@@ -172,7 +172,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             </SizableText>
           ) : (
             <SizableText paddingBottom="$4">
-              {selectedUserName} has not paid anything {currentUserName}
+              {selectedUserName} has not paid anything for {currentUserName}
             </SizableText>
           )}
           <YGroup
