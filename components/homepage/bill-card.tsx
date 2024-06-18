@@ -34,7 +34,12 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
   return (
     <Card
       bordered
-      backgroundColor="white"
+      // backgroundColor="white"
+      backgroundColor={
+        bill.isMemberIncluded == false && bill.isRequestSent == true
+          ? "$gray4Light"
+          : "$backgroundTransparent"
+      }
       borderRadius={"$5"}
       elevation={1}
       width={cardWidth}
@@ -130,7 +135,7 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
           {bill.memberUrls.map((url, index) => (
             <View
               key={`${url}-${index}`}
-              right={index * 25}
+              right={index * 18}
               position="absolute"
             >
               <Avatar url={url} size="$3" />

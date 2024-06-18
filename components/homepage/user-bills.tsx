@@ -41,7 +41,7 @@ const UserBills: React.FC<Props> = ({
             bills.map((item, index) => (
               <XStack
                 key={`${item.memberid}-${index}`}
-                backgroundColor="transparent"
+                backgroundColor="$backgroundTransparent"
                 justifyContent="center"
                 padding="$1.5"
               >
