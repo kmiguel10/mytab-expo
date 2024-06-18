@@ -7091,6 +7091,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.5":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 55a3134601115194ae0f924e54473459ed0d9fc340ae610b676e248cca45aa7c680d86365318ea964e6da4e2ea80c4514c1adab5adb43d6867fb57ff068f95c8
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:~16.0.3":
   version: 16.0.3
   resolution: "dotenv@npm:16.0.3"
@@ -10439,6 +10446,7 @@ __metadata:
     react-native: "npm:0.73.4"
     react-native-chart-kit: "npm:^6.12.0"
     react-native-date-picker: "npm:^5.0.4"
+    react-native-dotenv: "npm:^3.4.11"
     react-native-elements: "npm:^3.4.3"
     react-native-gesture-handler: "npm:^2.16.2"
     react-native-iap: "npm:^12.13.2"
@@ -11490,6 +11498,17 @@ __metadata:
     react: ">= 17.0.1"
     react-native: ">= 0.64.3"
   checksum: 8fd965e614d44ecda1e4cb13f19d69ec37e771fe89a8ac65c0c31b66a652f75eb4307730012e9f801dfe74c1301d86af5496de2b5f9c5b2dfefed27b20d83ee0
+  languageName: node
+  linkType: hard
+
+"react-native-dotenv@npm:^3.4.11":
+  version: 3.4.11
+  resolution: "react-native-dotenv@npm:3.4.11"
+  dependencies:
+    dotenv: "npm:^16.4.5"
+  peerDependencies:
+    "@babel/runtime": ^7.20.6
+  checksum: 09e8a7310fcb01ac021e71db9328e9d342d1e117bf68026b12de0392bfe17292ac6a071f03b88e7fb42c82a8f2fdf03bc520c7dedd2f80a1448cb3de5e03d4fb
   languageName: node
   linkType: hard
 
