@@ -1,23 +1,29 @@
+// Onboard.tsx
+
+import React, { useState, useEffect } from "react";
+import { Alert, Keyboard } from "react-native";
 import {
-  useWindowDimensions,
-  Text,
   Button,
-  Form,
-  XStack,
   Fieldset,
+  Form,
   Input,
+  Spinner,
+  Text,
+  useWindowDimensions,
   View,
+  XStack,
   YStack,
 } from "tamagui";
-import { OuterContainer } from "../containers/outer-container";
-import { BodyContainer } from "../containers/body-container";
-import { Redirect, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ProfileInfo } from "@/types/global";
-import { getProfileInfo } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
-import Avatar from "./avatar";
+import { useRouter } from "expo-router";
 import { StyledButton } from "../button/button";
+import { BodyContainer } from "../containers/body-container";
+import { OuterContainer } from "../containers/outer-container";
+import { StyledInput } from "../input/input";
+import Avatar from "./avatar";
+
+import { ProfileInfo } from "@/types/global";
+import { getProfileInfoOnboard, updateProfile } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 interface Props {
   userId: string;
@@ -27,141 +33,139 @@ interface Props {
  * Route here after sign up and only after sign up... meaning...
  * after initial sign up the user must provide a display name...
  *
- * redirect to homepage after sign in if display name exists
- * @param param0
- * @returns
+ * 1. If there is a displayName then redirect to the homepage
+ * 2. If no displayName then stay on onboard page
  */
 export const Onboard: React.FC<Props> = ({ userId }) => {
+  /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isDisplayNameError, setIsDisplayNameError] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [initialDisplayName, setInitialDisplayName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.75);
   const router = useRouter();
 
-  const onSave = async () => {
+  /************ Functions ************/
+  const fetchProfileInfo = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({
-          displayName: profileInfo?.displayName,
-          firstName: profileInfo?.firstName,
-          lastName: profileInfo?.lastName,
-        })
-        .eq("id", userId)
-        .select();
+      setIsLoading(true);
+      const profile = await getProfileInfoOnboard(userId);
+      setProfileInfo(profile);
+      setInitialDisplayName(profile?.displayName || "");
+      setDisplayName(profile?.displayName || "");
+      setIsLoading(false);
 
-      if (data) {
-        console.log("*** User updated: ", data);
+      if (profile?.displayName) {
         router.replace({
           pathname: "/(homepage)/[id]",
           params: { id: userId },
         });
       }
     } catch (error) {
-      console.log("Error onboarding user", error);
+      console.error("Error fetching profile info:", error);
+      setProfileInfo(null);
+      setIsLoading(false);
+    }
+  };
+
+  const onSave = async () => {
+    try {
+      setIsLoading(true);
+      const updates = {
+        displayName,
+        firstName,
+        lastName,
+        avatar_url: avatarUrl,
+      };
+
+      await updateProfile(userId, updates);
+
+      setIsLoading(false);
+
+      router.replace({
+        pathname: "/(homepage)/[id]",
+        params: { id: userId },
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setIsLoading(false);
+      Alert.alert("Failed to save profile changes.");
     }
   };
 
   const signOutUser = async () => {
-    await supabase.auth.signOut();
-    console.log("USER SIGNED OUT");
-    // <Redirect href="/(homepage)/home" />;
-  };
-
-  //   const handleDisplayNameChange = (_displayName: string) => {
-  //     //setName(txnName);
-  //     // transaction.name = name;
-  //     setProfileInfo((prevProfileInfo) => ({
-  //       ...prevProfileInfo,
-  //       displayName: _displayName,
-  //     }));
-  //   };
-  const handleDisplayNameChange = (_displayName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          displayName: _displayName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
-  };
-
-  const handleFirstNameChange = (_firstName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          firstName: _firstName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
-  };
-
-  const handleLastNameChange = (_lastName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          lastName: _lastName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
-  };
-
-  const updateProfile = async ({ avatar_url }: { avatar_url: string }) => {
     try {
-      //   setLoading(true);
-      //   if (!session?.user) throw new Error("No user on the session!");
-
-      const updates = {
-        avatar_url,
-      };
-
-      //   let { error } = await supabase.from("profiles").upsert(updates);
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({
-          avatar_url: avatar_url,
-        })
-        .eq("id", userId)
-        .select();
-
-      if (data) {
-        console.log("Data", data);
-      }
-
-      if (error) {
-        throw error;
-      }
+      await supabase.auth.signOut();
     } catch (error) {
-      if (error instanceof Error) {
-        console.log("error", error.message);
-      }
-      // } finally {
-      //   setLoading(false);
-      // }
+      console.error("Error signing out:", error);
     }
   };
 
-  useEffect(() => {
-    const fetchprofileInfo = async () => {
-      try {
-        const profile: ProfileInfo | null = await getProfileInfo(userId);
-        setProfileInfo(profile);
+  const updateProfileAvatar = async (url: string) => {
+    try {
+      await updateProfile(userId, { avatar_url: url });
+      setAvatarUrl(url);
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      Alert.alert("Failed to update avatar.");
+    }
+  };
 
-        setDisplayName(profile?.displayName || "");
-      } catch (error) {
-        console.error("Error fetching profile info:", error);
-        setProfileInfo(null);
-      }
+  const handleDisplayNameChange = (_displayName: string) => {
+    const trimmedDisplayName = _displayName.trim();
+
+    if (trimmedDisplayName.length === 0) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else if (
+      trimmedDisplayName.length <= 2 ||
+      trimmedDisplayName.length > 10
+    ) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else {
+      setIsDisplayNameError(false);
+      setDisplayName(_displayName);
+    }
+  };
+
+  const handleFirstNameChange = (_firstName: string) => {
+    setFirstName(_firstName);
+  };
+
+  const handleLastNameChange = (_lastName: string) => {
+    setLastName(_lastName);
+  };
+
+  /************ UseEffects ************/
+  useEffect(() => {
+    fetchProfileInfo();
+  }, [userId, router]);
+
+  useEffect(() => {
+    const handleKeyboardShow = () => setButtonAreaHeight(height * 0.39);
+    const handleKeyboardHide = () => setButtonAreaHeight(height * 0.75);
+
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      handleKeyboardShow
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      handleKeyboardHide
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
     };
-    fetchprofileInfo();
-  }, [userId]);
+  }, [height]);
 
   return (
     <OuterContainer
@@ -170,22 +174,25 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
       backgroundColor={"whitesmoke"}
       height={height}
     >
-      {!displayName ? (
+      {isLoading ? (
+        <YStack justifyContent="center" height={"85%"}>
+          <Spinner size="large" color="$green10Light" />
+        </YStack>
+      ) : (
         <BodyContainer
           height={height * 0.86}
           borderBottomRightRadius={"$11"}
           borderBottomLeftRadius={"$11"}
         >
           <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-            <YStack height={height * 0.75} gap={"$2"}>
+            <YStack height={buttonAreaHeight} gap={"$2"}>
               <View paddingVertical={"$5"}>
                 <Avatar
                   url={avatarUrl}
-                  onUpload={(url: string) => {
-                    setAvatarUrl(url);
-                    updateProfile({ avatar_url: url });
-                  }}
+                  onUpload={updateProfileAvatar}
                   size="$6"
+                  setUploading={setUploading}
+                  uploading={uploading}
                 />
               </View>
               <XStack>
@@ -193,13 +200,13 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Text paddingLeft="$1.5" fontSize={"$1"}>
                     Display name *
                   </Text>
-                  <Input
+                  <StyledInput
                     id="display-name"
                     placeholder="Display Name"
-                    defaultValue=""
-                    value={profileInfo?.displayName}
+                    value={displayName}
                     onChangeText={handleDisplayNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={10}
                   />
                 </Fieldset>
               </XStack>
@@ -211,10 +218,10 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="first-name"
                     placeholder="First Name"
-                    defaultValue=""
-                    value={profileInfo?.firstName}
+                    value={firstName}
                     onChangeText={handleFirstNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={10}
                   />
                 </Fieldset>
                 <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -224,10 +231,10 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="last-name"
                     placeholder="Last Name"
-                    defaultValue=""
-                    value={profileInfo?.lastName}
+                    value={lastName}
                     onChangeText={handleLastNameChange}
                     backgroundColor={"$backgroundTransparent"}
+                    maxLength={10}
                   />
                 </Fieldset>
               </XStack>
@@ -239,8 +246,7 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                   <Input
                     id="email"
                     placeholder="Email"
-                    defaultValue={profileInfo?.email}
-                    value={profileInfo?.email}
+                    value={profileInfo?.email || ""}
                     backgroundColor={"$gray"}
                     disabled
                   />
@@ -250,18 +256,16 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
             <XStack justifyContent="space-between">
               <Button onPress={signOutUser}>Sign out</Button>
               <Form.Trigger asChild>
-                <StyledButton create={true}> Save</StyledButton>
+                <StyledButton
+                  create={!!displayName && !isDisplayNameError && !uploading}
+                  disabled={!displayName || isDisplayNameError || uploading}
+                >
+                  Save
+                </StyledButton>
               </Form.Trigger>
             </XStack>
           </Form>
         </BodyContainer>
-      ) : (
-        <Redirect
-          href={{
-            pathname: "/(homepage)/[id]",
-            params: { id: userId },
-          }}
-        />
       )}
     </OuterContainer>
   );

@@ -16,11 +16,16 @@ import {
 import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
 import { useLocalSearchParams } from "expo-router";
+import moment from "moment";
+import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
 import { YStack, useWindowDimensions } from "tamagui";
 
+// Define the possible product types
+type ProductType = "free.plan" | "com.mytab.1week" | "com.mytab.2weeks";
+
 const BillScreen = () => {
-  /** ---------- States ---------- */
+  /** ---------- States  and variables---------- */
   const {
     id,
     userId,
@@ -42,6 +47,11 @@ const BillScreen = () => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const [openCreateTxn, setOpenCreateTxn] = useState(false);
+  const [isMaxTxnsReached, setIsMaxTxnsReached] = useState(false);
+  const [maxTransactions, setMaxTransactions] = useState(0);
+
+  const [isBillExpired, setIsBillExpired] = useState(false);
+  const [isExpiringToday, setIsExpiringToday] = useState(false);
 
   // Create states for toast messages
   const [txnName, setTxnName] = useState(initialTxnName || "");
@@ -63,21 +73,10 @@ const BillScreen = () => {
 
   const onOpenCreateTxn = () => {
     setOpenCreateTxn(true);
-    console.log("Open create txn sheet", openCreateTxn);
   };
 
   // Resets toast messages
   const resetToastMessageStates = () => {
-    // Log states before resetting
-    console.log("States before reset:", {
-      txnName,
-      errorCreateMsg,
-      editedTxnName,
-      errorEditMsg,
-      errorDeleteMsg,
-      deletedTxnName,
-    });
-
     // Reset states
     setTxnName("");
     setErrorCreateMsg("");
@@ -85,16 +84,11 @@ const BillScreen = () => {
     setErrorEditMsg("");
     setErrorDeleteMsg("");
     setDeletedTxnName("");
+  };
 
-    // Log states after reset
-    console.log("States after reset:", {
-      txnName: "",
-      errorCreateMsg: "",
-      editedTxnName: "",
-      errorEditMsg: "",
-      errorDeleteMsg: "",
-      deletedTxnName: "",
-    });
+  // Type guard to check if a value is a valid ProductType
+  const isProductType = (value: string): value is ProductType => {
+    return ["free.plan", "com.mytab.1week", "com.mytab.2weeks"].includes(value);
   };
 
   /** ---------- UseEffects ---------- */
@@ -142,11 +136,78 @@ const BillScreen = () => {
     async function fetchBillInfo() {
       if (id) {
         const data: BillInfo[] | null = await getBillInfo(Number(id));
-        setBillInfo(data);
+
+        if (data) {
+          setBillInfo(data);
+        }
       }
     }
     fetchBillInfo();
   }, [id]);
+
+  //Sets if max transactions reached based on productId and if expiredToday or
+  /**
+   * 1. Sets if max transactions reached based on productId and if expiredToday
+   * 2. Sets if expires today
+   * 3. sets if bill is expired
+   */
+  useEffect(() => {
+    if (billInfo.length === 0) {
+      // Handle the case where billInfo is empty
+      setIsMaxTxnsReached(false);
+      return;
+    }
+
+    const _isActive = billInfo[0].isActive;
+
+    /** Expires today */
+    const endDateInUtc = moment(billInfo[0].end_date)
+      .utc()
+      .local()
+      .startOf("day");
+    const todayInUtc = moment().utc().local().startOf("day");
+
+    // const todayInUtc = moment(billInfo[0].end_date)
+    //   .add(1, "day")
+    //   .utc()
+    //   .local()
+    //   .startOf("day");
+
+    if (todayInUtc.isSame(endDateInUtc)) {
+      setIsExpiringToday(true);
+      setIsBillExpired(false);
+    } else if (!_isActive) {
+      //expired
+      //todayInUtc.isAfter(endDateInUtc)
+      /** TODO: use the isExpired prop from the DB after implementing edge function of switching bills to expired */
+      setIsBillExpired(true);
+      setIsExpiringToday(false);
+    }
+    /** Max Transactions reached */
+    const transactionNumber = transactions.length;
+    const productType = billInfo[0]?.productId;
+
+    // Mapping product types to their respective max transactions
+    const planMaxTransactions: Record<ProductType, number> = {
+      "free.plan": 20,
+      "com.mytab.1week": 100,
+      "com.mytab.2weeks": 200,
+    };
+
+    // Determine if the max transaction number is reached based on the plan
+    if (productType && isProductType(productType)) {
+      const _maxTransactions = planMaxTransactions[productType];
+      setIsMaxTxnsReached(transactionNumber >= _maxTransactions);
+      setMaxTransactions(_maxTransactions);
+      console.log("setIsMaxTxnsReached", transactionNumber >= _maxTransactions);
+      console.log("transactionNumber", transactionNumber);
+      console.log("productType", productType);
+    } else {
+      // Handle unexpected product types if necessary
+      //setIsMaxTxnsReached(false);
+      console.error("Error not a valid productType: ", productType);
+    }
+  }, [billInfo, transactions]);
 
   // Update toast message states whenever search params change
   useEffect(() => {
@@ -183,6 +244,7 @@ const BillScreen = () => {
         members={members}
         open={openCreateTxn}
         setOpen={setOpenCreateTxn}
+        maxTransaction={maxTransactions}
       />
       <ToastViewport
         width={"100%"}
@@ -199,6 +261,10 @@ const BillScreen = () => {
               billName={billInfo[0]?.name}
               height={windowHeight * 0.15}
               width={windowWidth}
+              isMaxTransactionsReached={isMaxTxnsReached}
+              maxTransactions={maxTransactions}
+              isExpiringToday={isExpiringToday}
+              isBillExpired={isBillExpired}
             />
           ) : (
             <BillHeaderSkeleton
@@ -226,23 +292,30 @@ const BillScreen = () => {
           />
         </BodyContainer>
       </YStack>
-
       <FooterContainer
         height={windowHeight}
         justifyContent="flex-end"
         alignContent="center"
       >
         {/* <MembersView members={members} height={windowHeight} /> */}
-
-        <StyledButton
-          disabled={billInfo[0]?.isLocked}
-          create={!billInfo[0]?.isLocked}
-          width={windowWidth * 0.38}
-          size={"$3.5"}
-          onPress={onOpenCreateTxn}
-        >
-          Add Transaction
-        </StyledButton>
+        {loadingSummaryInfo ? (
+          <Skeleton
+            show={true}
+            colorMode={"light"}
+            height={windowHeight * 0.05}
+            width={windowWidth * 0.4}
+          />
+        ) : (
+          <StyledButton
+            disabled={billInfo[0]?.isLocked || isMaxTxnsReached}
+            create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
+            width={windowWidth * 0.38}
+            size={"$3.5"}
+            onPress={onOpenCreateTxn}
+          >
+            Add Transaction
+          </StyledButton>
+        )}
       </FooterContainer>
 
       {(txnName || errorCreateMsg) && (

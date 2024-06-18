@@ -1,21 +1,16 @@
 import { supabase } from "@/lib/supabase";
 import { Member, SelectedMemberSplitAmount, Transaction } from "@/types/global";
-import { ChevronDown } from "@tamagui/lucide-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Button,
   Fieldset,
   Form,
-  H2,
-  Paragraph,
   Separator,
   Sheet,
-  SheetProps,
+  SizableText,
   Text,
   useWindowDimensions,
   XStack,
-  YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
@@ -28,13 +23,19 @@ interface Props {
   setOpen: (open: boolean) => void;
   members: Member[];
   billId: string;
+  maxTransaction: number;
 }
 
-const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
+const CreateTransaction: React.FC<Props> = ({
+  open,
+  setOpen,
+  members,
+  maxTransaction,
+}) => {
+  /********** States and variables ***********/
   const [position, setPosition] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // ---- test -----
+  const [amount, setAmount] = useState("");
+  const [isAmountError, setIsAmountError] = useState(false);
   const [transaction, setTransaction] = useState<Transaction>({
     billid: 0,
     submittedbyid: "",
@@ -50,22 +51,38 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
   >([]);
+
+  const [activeMembers, setActiveMembers] = useState<Member[]>([]);
+
   const [isEven, setIsEven] = useState(true);
   const { width, height } = useWindowDimensions();
 
+  const [transactionName, setTransactionName] = useState("");
+  const [isTransactionNameError, setIsTransactionNameError] = useState(false);
+
+  /********** Functions ***********/
   const getDisplayName = (userId: string) => {
-    const user = members.find((member) => member.userid === userId);
+    const user = activeMembers.find((member) => member.userid === userId);
 
     return user ? user.displayName : "";
   };
 
   const handleNameChange = (txnName: string) => {
-    //setName(txnName);
-    // transaction.name = name;
-    setTransaction((prevTransaction) => ({
-      ...prevTransaction,
-      name: txnName,
-    }));
+    const trimmedTxnName = txnName.trim();
+    // setTransaction((prevTransaction) => ({
+    //   ...prevTransaction,
+    //   name: txnName,
+    // }));
+
+    if (trimmedTxnName.length === 0) {
+      setIsTransactionNameError(true);
+      setTransactionName(txnName);
+    } else if (trimmedTxnName.length <= 20) {
+      setTransactionName(txnName);
+      setIsTransactionNameError(false);
+    } else {
+      setIsTransactionNameError(true);
+    }
   };
 
   const handlePayerChange = (selectedPayer: string) => {
@@ -76,22 +93,46 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     }));
   };
 
-  const handleAmountChange = (amount: string) => {
-    // Remove any non-numeric characters except for periods
-    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
-
-    // Check if the numeric value is a valid number
-    if (!isNaN(numericValue)) {
-      // Update transaction state with the parsed numeric value
-      setTransaction((prevTransaction) => ({
-        ...prevTransaction,
-        amount: numericValue,
-      }));
+  const handleAmountChange = (_amount: string) => {
+    //set error state
+    if (_amount.length === 0) {
+      setIsAmountError(true);
+    } else if (parseFloat(_amount) === 0) {
+      setIsAmountError(true);
+    } else if (_amount.length <= 5 && parseFloat(_amount) > 0) {
+      setIsAmountError(false);
     } else {
-      setTransaction((prevTransaction) => ({
-        ...prevTransaction,
-        amount: 0,
-      }));
+      setIsAmountError(true);
+    }
+    // Allow only digits optionally followed by a dot and then more digits
+    const regex = /^\d*\.?\d*$/;
+
+    if (regex.test(_amount)) {
+      // Remove leading zeros unless the value is "0" or it starts with "0."
+      if (
+        _amount.startsWith("0") &&
+        _amount.length > 1 &&
+        !_amount.startsWith("0.")
+      ) {
+        _amount = _amount.replace(/^0+/, "");
+      }
+
+      if (_amount) {
+        setAmount(_amount);
+      } else {
+        setAmount("0");
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    // Default to 0 if the input is empty or just a dot
+    if (amount === "" || amount === ".") {
+      setAmount("0");
+      setIsAmountError(true);
+    } else if (amount.endsWith(".")) {
+      // Remove trailing dot if present
+      setAmount(amount.slice(0, -1));
     }
   };
 
@@ -106,23 +147,54 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     let _userId = userId.toString();
     transaction.submittedbyid = _userId;
     transaction.billid = Number(id);
+    transaction.amount = parseFloat(amount);
+    transaction.name = transactionName;
+
+    console.log("*** Transaction to send: ", JSON.stringify(transaction));
 
     try {
-      const { data: isBillLocked, error: billError } = await supabase
+      const { data, error: billError } = await supabase
         .from("bills")
-        .select("isLocked")
+        .select("isLocked,activeTxnCount,isActive")
         .eq("billid", transaction.billid);
 
-      if (isBillLocked) {
-        if (isBillLocked[0].isLocked) {
+      if (data) {
+        //Scenario if the bill is expired:
+        if (!data[0].isActive) {
+          router.navigate({
+            pathname: `/(bill)/${id}`,
+            params: {
+              userId: _userId,
+              errorCreateMsg: "Failed to add transaction: Bill is expired",
+            }, //
+          });
+          setOpen(false);
+          return;
+        }
+
+        //Scenario if the maxTransaction is reached
+        if (data[0].activeTxnCount >= maxTransaction) {
+          router.navigate({
+            pathname: `/(bill)/${id}`,
+            params: {
+              userId: _userId,
+              errorCreateMsg: `Reached maximum ${maxTransaction} transactions`,
+            }, //
+          });
+          setOpen(false);
+          return;
+        }
+        if (data[0].isLocked) {
+          //Scenario: if the Bill is locked
           router.replace({
             pathname: `/(bill)/${transaction.billid}`,
             params: {
               userId: _userId,
               errorEditMsg: "Bill is locked. It cannot be edited.",
-            }, //
+            },
           });
         } else {
+          //Scenario: able to add transaction
           const { data, error } = await supabase
             .from("transactions")
             .insert([transaction])
@@ -152,11 +224,11 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   };
 
   const initializeSplits = () => {
-    let amountNum = transaction.amount;
+    let amountNum = parseFloat(amount);
     const splitEvenAmount = (_amount: number) => {
-      return _amount / members.length;
+      return _amount / activeMembers.length;
     };
-    const newSplits = members.map((member) => ({
+    const newSplits = activeMembers.map((member) => ({
       memberId: member.userid,
       amount: splitEvenAmount(amountNum),
       displayName: member.displayName,
@@ -170,9 +242,10 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   };
 
   const initiateIncludedMembers = () => {
-    const newSelectedSplits: SelectedMemberSplitAmount[] = members.map(
+    const newSelectedSplits: SelectedMemberSplitAmount[] = activeMembers.map(
       (member) => ({
         isIncluded: true,
+
         memberId: member.userid,
         amount: 0,
         displayName: member.displayName,
@@ -181,8 +254,6 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
     );
 
     setIncludedMembers(newSelectedSplits);
-
-    console.log("Parent Selected members: ", JSON.stringify(newSelectedSplits));
   };
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
@@ -207,19 +278,29 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
   };
 
   const handleOpenChange = () => {
-    console.log("Toggle create transaction: ", open);
     if (open) {
       setOpen(false);
+      setAmount("");
+      setTransactionName("");
     }
   };
 
+  /********** UseEffects ***********/
   useEffect(() => {
-    if (members.length > 0) {
-      console.log("RESET MEMBERS");
+    if (activeMembers.length > 0) {
       initializeSplits();
       initiateIncludedMembers();
     }
-  }, [members, transaction.amount]);
+  }, [activeMembers, amount]);
+
+  //Only use active members
+  useEffect(() => {
+    const _activeMembers = members.filter(
+      (member) => member.isMemberIncluded === true
+    );
+    setActiveMembers(_activeMembers);
+    console.log("**** Active members", JSON.stringify(_activeMembers));
+  }, [members]);
 
   //reset transaction on open and close of modal
   useEffect(() => {
@@ -232,6 +313,8 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
       }));
       setOpen(true);
     }
+    setTransactionName("");
+    setAmount("");
   }, [open]);
 
   return (
@@ -240,7 +323,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
       modal={true}
       open={open}
       onOpenChange={handleOpenChange}
-      snapPoints={isExpanded ? [80, 50, 25] : [90, 50, 25]}
+      snapPoints={[90]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       position={position}
@@ -261,7 +344,7 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
         gap="$5"
       >
         <Form
-          onSubmit={onCreateTxn}
+          onSubmit={() => console.log("")}
           rowGap="$3"
           borderRadius="$6"
           padding="$3"
@@ -272,27 +355,39 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
               <StyledButton
                 width={width * 0.25}
                 size={"$3.5"}
-                create={!!(transaction.name && transaction.amount)}
-                disabled={!!(transaction.name && transaction.amount)}
+                create={
+                  !!transactionName &&
+                  !isTransactionNameError &&
+                  !!amount &&
+                  !isAmountError
+                }
+                disabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
+                onPress={onCreateTxn}
               >
                 Create
               </StyledButton>
             </XStack>
           </Form.Trigger>
-          <Fieldset gap="$4" horizontal justifyContent="center">
+          <Fieldset horizontal justifyContent="center">
+            <SizableText size={"$9"}>$</SizableText>
             <StyledInput
-              id="create-txn-amount-input"
               placeholder="0"
-              defaultValue={"0"}
-              keyboardType="numeric"
-              value={transaction.amount.toString()}
+              defaultValue={""}
+              keyboardType="decimal-pad"
+              value={amount}
               onChangeText={handleAmountChange}
+              onBlur={handleBlur}
               inputMode="decimal"
-              size={"$12"}
+              size={"$11"}
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
-              autoFocus={true}
-              clearTextOnFocus
+              autoFocus={false}
+              maxLength={5}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -301,12 +396,13 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="create-transaction-name"
                 placeholder="Enter name"
                 defaultValue=""
-                value={transaction.name}
-                error={!transaction.name}
+                value={transactionName}
+                error={isTransactionNameError}
+                backgroundColor={"white"}
                 onChangeText={handleNameChange}
+                maxLength={20}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -314,34 +410,44 @@ const CreateTransaction: React.FC<Props> = ({ open, setOpen, members }) => {
                 Paid by:
               </Text>
               <MembersDropdown
-                members={members}
+                members={activeMembers}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={true}
+                isVisibleToUser={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </Fieldset>
           </XStack>
           <XStack justifyContent="flex-end" paddingTop="$4">
             <CustomSplit
               memberSplits={transaction.split}
-              amount={transaction.amount}
+              amount={parseFloat(amount)}
               onSaveSplits={handleSaveSplits}
               setIsEven={setIsEven}
               includedMembers={includedMembers}
-              isDisabled={!!(transaction.name && transaction.amount)}
+              isDisabled={
+                !transactionName ||
+                isTransactionNameError ||
+                !amount ||
+                isAmountError
+              }
             />
           </XStack>
-          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+          <XStack
+            alignItems="center"
+            justifyContent="space-around"
+            paddingTop="$3"
+            gap="$3"
+          >
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>
             <Separator />
           </XStack>
-
-          <SplitView
-            memberSplits={transaction.split}
-            amount={transaction.amount.toString()}
-            isEven={isEven}
-          />
+          <SplitView memberSplits={transaction.split} isEven={isEven} />
         </Form>
       </Sheet.Frame>
     </Sheet>

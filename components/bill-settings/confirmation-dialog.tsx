@@ -3,18 +3,15 @@ import { Trash } from "@tamagui/lucide-icons";
 import React from "react";
 import { AlertDialog, Button, XStack, YStack } from "tamagui";
 import { StyledButton } from "../button/button";
+import { Member } from "@/types/global";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
   user: Member;
   fetchMembersData: () => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setProcessError: React.Dispatch<React.SetStateAction<boolean>>;
   setDeletedMember: React.Dispatch<React.SetStateAction<string>>;
+  isBillExpired: boolean;
 }
 
 export const ConfirmationDialog: React.FC<Props> = ({
@@ -23,9 +20,9 @@ export const ConfirmationDialog: React.FC<Props> = ({
   setOpen,
   setProcessError,
   setDeletedMember,
+  isBillExpired,
 }) => {
   const onDeleteUser = async () => {
-    console.log("Delete user");
     const { data, error } = await supabase
       .from("members")
       .update({ isMemberIncluded: false })
@@ -34,19 +31,21 @@ export const ConfirmationDialog: React.FC<Props> = ({
 
     /** owner must not be deleted */
     if (data) {
-      console.log("Great user is excluded", data);
       fetchMembersData();
       setOpen(true);
-      setDeletedMember(data[0].memberid);
+      setDeletedMember(data[0].displayName);
     } else if (error) {
-      console.error("Error", error);
       setProcessError(true);
     }
   };
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <StyledButton size={"$2.5"} decline={true}>
+        <StyledButton
+          size={"$2.5"}
+          decline={!isBillExpired}
+          disabled={isBillExpired}
+        >
           Delete
         </StyledButton>
       </AlertDialog.Trigger>
@@ -79,19 +78,20 @@ export const ConfirmationDialog: React.FC<Props> = ({
           y={0}
         >
           <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+            <AlertDialog.Title paddingBottom="$2">
+              Delete user
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to remove {user.userid} from the bill
+              Are you sure you want to remove {user.displayName} from the bill?
             </AlertDialog.Description>
-
-            <XStack gap="$3" justifyContent="flex-end">
+            <XStack gap="$4" justifyContent="flex-end" paddingTop="$4">
               <AlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
+                <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={onDeleteUser}>
+                <StyledButton active={true} onPress={onDeleteUser}>
                   Accept
-                </Button>
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>

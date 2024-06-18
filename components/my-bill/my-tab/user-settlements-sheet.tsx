@@ -1,16 +1,18 @@
 import Avatar from "@/components/login/avatar";
-import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
+import {
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { SettlementInfo } from "@/types/global";
+import { XCircle } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
 import {
-  H1,
-  H3,
   H4,
   ListItem,
   ScrollView,
   Separator,
   Sheet,
-  Text,
+  SizableText,
   useWindowDimensions,
   XStack,
   YGroup,
@@ -47,6 +49,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
     useState(0);
 
   const [settlementAmount, setSettlementAmount] = useState(0);
+  const [userSettlement, setUserSettlement] = useState("");
 
   let _selectedUserSettlementSum: number = 0;
   let _currentUserSettlementSum: number = 0;
@@ -61,13 +64,14 @@ const UserSettlementsSheet: React.FC<Props> = ({
    */
   const getTransactionsSum = (settlementInfo: SettlementInfo[]): number => {
     return settlementInfo.reduce(
-      (total, info) => total + info.userSplitAmount,
+      (total, info) => total + parseFloat(info.userSplitAmount.toString()),
       0
     );
   };
 
   /** - - - - - - - - useEffects - - - - - - - - */
   useEffect(() => {
+    console.log(JSON.stringify(currentUserSettlements));
     if (currentUserSettlements) {
       _currentUserSettlementSum = getTransactionsSum(currentUserSettlements);
       setCurrentUserSettlementSum(_currentUserSettlementSum);
@@ -79,9 +83,24 @@ const UserSettlementsSheet: React.FC<Props> = ({
       );
       setSelectedMemberSettlementSum(_selectedUserSettlementSum);
     }
+    console.log("_currentUserSettlementSum: ", _currentUserSettlementSum);
+    console.log("_selectedUserSettlementSum: ", _selectedUserSettlementSum);
+
+    console.log(
+      "SETTLEMENT AMOUNT: ",
+      _currentUserSettlementSum - _selectedUserSettlementSum
+    );
 
     setSettlementAmount(_currentUserSettlementSum - _selectedUserSettlementSum);
   }, [selectedMemberSettlements, currentUserSettlements]);
+
+  useEffect(() => {
+    if (settlementAmount < 0) {
+      setUserSettlement(`${currentUserName} owes ${selectedUserName}`);
+    } else {
+      setUserSettlement(`${selectedUserName} owes ${currentUserName}`);
+    }
+  }, [settlementAmount]);
 
   return (
     <Sheet
@@ -91,11 +110,12 @@ const UserSettlementsSheet: React.FC<Props> = ({
       onOpenChange={() => setOpen(!open)}
       snapPoints={[80]}
       snapPointsMode={"percent"}
-      dismissOnSnapToBottom
+      dismissOnSnapToBottom={false}
       position={position}
       onPositionChange={setPosition}
       zIndex={100000}
       animation="medium"
+      disableDrag={true}
     >
       <Sheet.Overlay
         animation="lazy"
@@ -104,35 +124,29 @@ const UserSettlementsSheet: React.FC<Props> = ({
       />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" justifyContent="flex-start" gap="$2">
-        <ScrollView>
+        <XStack justifyContent="flex-end">
+          <XCircle onPress={() => setOpen(false)} />
+        </XStack>
+        <ScrollView bounces={false}>
           <H4 paddingBottom="$4">Settlement with {selectedUserName}</H4>
           <XStack justifyContent="space-between" paddingBottom="$4">
             <XStack alignItems="center" width={"50%"}>
-              <Text textAlign="left">
-                {settlementAmount < 0 ? (
-                  <Text>
-                    {currentUserName} owes {selectedUserName}
-                  </Text>
-                ) : (
-                  <Text>
-                    {selectedUserName} owes {currentUserName}
-                  </Text>
-                )}
-              </Text>
+              <SizableText textAlign="left">
+                <SizableText size={"$4"}>{userSettlement}</SizableText>
+              </SizableText>
             </XStack>
             <YStack>
-              <Text>Settlement Amount</Text>
-              <H3 textAlign="right">
-                {settlementAmount < 0 ? (
-                  <H3 color={"$red10Light"}>
-                    ${truncateToTwoDecimalPlaces(Math.abs(settlementAmount))}
-                  </H3>
-                ) : (
-                  <H3 color={"$green10Light"}>
-                    {truncateToTwoDecimalPlaces(Math.abs(settlementAmount))}
-                  </H3>
-                )}
-              </H3>
+              <SizableText>Settlement Amount</SizableText>
+              <SizableText textAlign="right">
+                <SizableText
+                  color={settlementAmount < 0 ? "$red10Light" : "$green10Light"}
+                  size="$6"
+                >
+                  {formatToDollarCurrency(
+                    truncateToTwoDecimalPlaces(Math.abs(settlementAmount))
+                  )}
+                </SizableText>
+              </SizableText>
             </YStack>
           </XStack>
           <Separator />
@@ -143,42 +157,48 @@ const UserSettlementsSheet: React.FC<Props> = ({
           >
             <Avatar url={selectedUserUrl || null} size={"$5"} />
             <YStack>
-              <Text>Total Amount</Text>
-              <H3 textAlign="right" color={"$red10Light"}>
-                ${truncateToTwoDecimalPlaces(selectedMemberSettlementSum)}
-              </H3>
+              <SizableText>Total Amount</SizableText>
+              <SizableText textAlign="right" color={"$red10Light"}>
+                {formatToDollarCurrency(
+                  truncateToTwoDecimalPlaces(selectedMemberSettlementSum)
+                )}
+              </SizableText>
             </YStack>
           </XStack>
 
           {(selectedMemberSettlements?.length ?? 0) > 0 ? (
-            <Text paddingBottom="$4">
+            <SizableText paddingBottom="$4">
               {selectedUserName} paid the following for {currentUserName}
-            </Text>
+            </SizableText>
           ) : (
-            <Text paddingBottom="$4">
-              {selectedUserName} has not paid anything {currentUserName}
-            </Text>
+            <SizableText paddingBottom="$4">
+              {selectedUserName} has not paid anything for {currentUserName}
+            </SizableText>
           )}
-          {selectedMemberSettlements?.map((settlements, index) => (
-            <YGroup
-              alignSelf="center"
-              bordered
-              width={windowWidth * 0.9}
-              size="$4"
-            >
+          <YGroup
+            alignSelf="center"
+            width={windowWidth * 0.9}
+            size="$4"
+            gap="$1"
+          >
+            {selectedMemberSettlements?.map((settlements, index) => (
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  key={index}
                   hoverTheme
                   title={settlements.transactionName}
                   iconAfter={
-                    <H1>
-                      ${truncateToTwoDecimalPlaces(settlements.userSplitAmount)}
-                    </H1>
+                    <SizableText>
+                      {formatToDollarCurrency(
+                        truncateToTwoDecimalPlaces(settlements.userSplitAmount)
+                      )}
+                    </SizableText>
                   }
                 />
               </YGroup.Item>
-            </YGroup>
-          ))}
+            ))}
+          </YGroup>
           <Separator paddingTop="$2" paddingBottom="$2" />
           <XStack
             justifyContent="space-between"
@@ -187,43 +207,49 @@ const UserSettlementsSheet: React.FC<Props> = ({
           >
             <Avatar url={currentUserUrl} size={"$5"} />
             <YStack>
-              <Text>Total Amount</Text>
-              <H3 textAlign="right" color={"$green10Light"}>
-                ${truncateToTwoDecimalPlaces(currentUserSettlementSum)}
-              </H3>
+              <SizableText>Total Amount</SizableText>
+              <SizableText textAlign="right" color={"$green10Light"}>
+                {formatToDollarCurrency(
+                  truncateToTwoDecimalPlaces(currentUserSettlementSum)
+                )}
+              </SizableText>
             </YStack>
           </XStack>
 
           {(currentUserSettlements?.length ?? 0) > 0 ? (
-            <Text paddingBottom="$4">
+            <SizableText paddingBottom="$4">
               {currentUserName} paid the following for {selectedUserName}
-            </Text>
+            </SizableText>
           ) : (
-            <Text paddingBottom="$4">
-              {currentUserName} has not paid anything {selectedUserName}
-            </Text>
+            <SizableText paddingBottom="$4">
+              {currentUserName} has not paid anything for {selectedUserName}
+            </SizableText>
           )}
 
-          {currentUserSettlements?.map((settlements, index) => (
-            <YGroup
-              alignSelf="center"
-              bordered
-              width={windowWidth * 0.9}
-              size="$4"
-            >
+          <YGroup
+            alignSelf="center"
+            width={windowWidth * 0.9}
+            size="$4"
+            gap="$1"
+          >
+            {currentUserSettlements?.map((settlements, index) => (
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  key={index}
                   hoverTheme
                   title={settlements.transactionName}
                   iconAfter={
-                    <H1>
-                      ${truncateToTwoDecimalPlaces(settlements.userSplitAmount)}
-                    </H1>
+                    <SizableText>
+                      {formatToDollarCurrency(
+                        truncateToTwoDecimalPlaces(settlements.userSplitAmount)
+                      )}
+                    </SizableText>
                   }
                 />
               </YGroup.Item>
-            </YGroup>
-          ))}
+            ))}
+          </YGroup>
         </ScrollView>
       </Sheet.Frame>
     </Sheet>

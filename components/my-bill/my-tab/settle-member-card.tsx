@@ -1,35 +1,28 @@
-import React, { useEffect, useState } from "react";
+import Avatar from "@/components/login/avatar";
 import {
-  Text,
-  Card,
-  CardProps,
-  H4,
-  H6,
-  ScrollView,
-  XStack,
-  YStack,
-  useWindowDimensions,
-  View,
-  YGroup,
-  ListItem,
-  H1,
-} from "tamagui";
+  findUserDisplayName,
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import {
   Member,
-  MyTabInfo,
   SettleCardInfo,
   SettlementInfo,
   Transaction,
 } from "@/types/global";
-import {
-  findUserAvatar,
-  findUserDisplayName,
-  roundToNearestTenth,
-  truncateToTwoDecimalPlaces,
-} from "@/lib/helpers";
-import UserSettlementsSheet from "./user-settlements-sheet";
+import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import Avatar from "@/components/login/avatar";
+import {
+  CardProps,
+  ListItem,
+  ScrollView,
+  SizableText,
+  useWindowDimensions,
+  View,
+  XStack,
+  YGroup,
+} from "tamagui";
+import UserSettlementsSheet from "./user-settlements-sheet";
 
 interface Props extends CardProps {
   members: SettleCardInfo[];
@@ -53,11 +46,9 @@ const SettleMemberCard: React.FC<Props> = ({
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [openSettlementsSheet, setOpenSettlementsSheet] = useState(false);
 
-  //what is the shape of the settlement info
   const [memberSettlementInfo, setMemberSettlementInfo] = useState<
     SettlementInfo[] | null
   >();
-
   const [currentUserSettlementInfo, setCurrentUserSettlementInfo] = useState<
     SettlementInfo[] | null
   >();
@@ -67,6 +58,8 @@ const SettleMemberCard: React.FC<Props> = ({
 
   const [selectedUserName, setSelectedUserName] = useState("");
   const [currentUserName, setCurrentUserName] = useState("");
+
+  const [doesUserOweMoney, setDoesUserOweMoney] = useState(false);
 
   /** - - - - - - - - - - Functions - - - - - - - - */
   const setSelectedUserSettlements = (selectedMember: string) => {
@@ -205,7 +198,7 @@ const SettleMemberCard: React.FC<Props> = ({
 
   return (
     <View>
-      <ScrollView>
+      <ScrollView bounces={false}>
         <XStack
           flex={1}
           flexWrap="wrap"
@@ -220,13 +213,18 @@ const SettleMemberCard: React.FC<Props> = ({
             >
               <YGroup
                 alignSelf="center"
-                bordered
                 width={windowWidth * 0.9}
                 size="$4"
                 key={index}
               >
                 <YGroup.Item>
                   <ListItem
+                    backgroundColor={
+                      member.owed - member.debt >= 0
+                        ? "$green3Light"
+                        : "$red3Light"
+                    }
+                    key={index}
                     hoverTheme
                     icon={
                       <Avatar
@@ -239,18 +237,19 @@ const SettleMemberCard: React.FC<Props> = ({
                       member.owed - member.debt >= 0 ? "Owes you" : "You owe"
                     }
                     iconAfter={
-                      <H4
+                      <SizableText
                         color={
                           member.owed - member.debt >= 0
                             ? "$green10Light"
                             : "$red10Light"
                         }
                       >
-                        $
-                        {truncateToTwoDecimalPlaces(
-                          Math.abs(member.owed - member.debt)
+                        {formatToDollarCurrency(
+                          truncateToTwoDecimalPlaces(
+                            Math.abs(member.owed - member.debt)
+                          )
                         )}
-                      </H4>
+                      </SizableText>
                     }
                   />
                 </YGroup.Item>

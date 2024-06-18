@@ -1,20 +1,26 @@
-import { View, Text, YStack, YGroup, ListItem, XStack } from "tamagui";
-import ConfirmationDialog from "./confirmation-dialog";
 import { Member } from "@/types/global";
 import { Toast } from "@tamagui/toast";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
+import { ListItem, SizableText, View, XStack, YGroup, YStack } from "tamagui";
 import Avatar from "../login/avatar";
+import ConfirmationDialog from "./confirmation-dialog";
 
 interface Props {
   includedMembers: Member[];
   fetchMembersData: () => void;
   isOwner: boolean;
+  ownerId: string;
+  isFreeBill: boolean;
+  isBillExpired: boolean;
 }
 
 const CurrentMembers: React.FC<Props> = ({
   includedMembers,
   fetchMembersData,
   isOwner,
+  ownerId,
+  isFreeBill,
+  isBillExpired,
 }) => {
   const [open, setOpen] = useState(false);
   const [deletedMember, setDeletedMember] = useState("");
@@ -22,9 +28,22 @@ const CurrentMembers: React.FC<Props> = ({
 
   return (
     <View>
-      <Text paddingBottom="$3" paddingTop={"$3"}>
-        Members
-      </Text>
+      <XStack alignItems="center" gap="$2">
+        <SizableText paddingBottom="$3" paddingTop={"$3"}>
+          Members ({includedMembers.length > 0 ? includedMembers.length : 0})
+        </SizableText>
+        {isFreeBill && (
+          <View
+            backgroundColor={"$blue4Light"}
+            paddingHorizontal={"$2"}
+            paddingVertical={"$1"}
+            alignItems="center"
+            borderRadius={"$12"}
+          >
+            <SizableText fontSize={"$2"}>{"Free Plan Max: 2"}</SizableText>
+          </View>
+        )}
+      </XStack>
       <YStack gap="$1.5">
         {includedMembers.map((member, index) => (
           <YGroup
@@ -33,15 +52,18 @@ const CurrentMembers: React.FC<Props> = ({
             width={"100%"}
             size="$5"
             padding={"$1"}
+            key={index}
           >
             <YGroup.Item>
               <ListItem
                 key={index}
                 icon={<Avatar url={member.avatar_url} size="$4" />}
                 title={member.displayName}
-                subTitle={"Member"}
+                subTitle={member.userid === ownerId ? "Owner" : "Member"}
                 iconAfter={
                   !isOwner ? (
+                    <View />
+                  ) : member.userid === ownerId ? (
                     <View />
                   ) : (
                     <XStack gap="$2">
@@ -51,6 +73,7 @@ const CurrentMembers: React.FC<Props> = ({
                         setOpen={setOpen}
                         setProcessError={setProcessError}
                         setDeletedMember={setDeletedMember}
+                        isBillExpired={isBillExpired}
                       />
                     </XStack>
                   )

@@ -212,12 +212,10 @@ const UnderlinedTabs: React.FC<Props> = ({
                       setTransactions={setTransactions}
                       currentUser={userId}
                       members={members}
-                      animation="bouncy"
-                      hoverStyle={{ scale: 0.925 }}
-                      pressStyle={{ scale: 0.875 }}
                       resetToasts={resetToastMessageStates}
                       isLocked={isLocked}
                       billOwnerId={billOwnerId}
+                      billId={billId}
                     />
                   )}
                 </>

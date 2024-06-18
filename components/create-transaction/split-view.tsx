@@ -1,3 +1,7 @@
+import {
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { MemberSplitAmount } from "@/types/global";
 import React from "react";
 import {
@@ -11,46 +15,40 @@ import {
   useWindowDimensions,
 } from "tamagui";
 import Avatar from "../login/avatar";
-import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 
 interface Props extends CardProps {
   memberSplits: MemberSplitAmount[];
-  amount: string;
   isEven: boolean;
 }
 
-const SplitView: React.FC<Props> = ({
-  memberSplits,
-  amount,
-  isEven,
-  ...props
-}) => {
+const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
     <View height={windowHeight * 0.32}>
       <ScrollView>
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
-          {memberSplits.map((member, index) => (
-            <YGroup
-              key={index}
-              alignSelf="center"
-              bordered
-              width={"100%"}
-              size="$5"
-              padding={"$1"}
-            >
+          <YGroup alignSelf="center" width={"100%"} size="$5" gap="$1.5">
+            {memberSplits.map((member, index) => (
               <YGroup.Item>
                 <ListItem
+                  bordered
+                  key={index}
                   title={member.displayName}
                   icon={<Avatar url={member.avatarUrl} size="$3.5" />}
                   iconAfter={
-                    <Text>${truncateToTwoDecimalPlaces(member.amount)}</Text>
+                    <Text>
+                      {formatToDollarCurrency(
+                        truncateToTwoDecimalPlaces(
+                          !!member.amount ? member.amount : 0
+                        )
+                      )}
+                    </Text>
                   }
                 />
               </YGroup.Item>
-            </YGroup>
-          ))}
+            ))}
+          </YGroup>
         </XStack>
       </ScrollView>
     </View>

@@ -2,36 +2,40 @@ import { supabase } from "@/lib/supabase";
 import { Member } from "@/types/global";
 import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  YStack,
-  YGroup,
   ListItem,
-  Button,
+  SizableText,
+  Text,
+  View,
   XStack,
-  Separator,
-  H6,
+  YGroup,
+  YStack,
 } from "tamagui";
-import Avatar from "../login/avatar";
 import { StyledButton } from "../button/button";
+import Avatar from "../login/avatar";
 
 interface Props {
   requests: Member[];
   fetchMembersData: () => void;
+  isMaxMembersReached: boolean;
+  isBillExpired: boolean;
 }
 
-const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
+const JoinRequests: React.FC<Props> = ({
+  requests,
+  fetchMembersData,
+  isMaxMembersReached,
+  isBillExpired,
+}) => {
   const [localRequests, setLocalRequests] = useState<Member[]>([]);
 
   const onAccept = async (memberId: string) => {
     const { data, error } = await supabase
       .from("members")
-      .update({ isMemberIncluded: true, isRequestSent: false })
+      .update({ isMemberIncluded: true, isRequestSent: false, hasJoined: true })
       .eq("memberid", memberId)
       .select();
 
     if (data) {
-      console.log("data", data);
       // Remove the accepted member from localRequests
       setLocalRequests((prevRequests) =>
         prevRequests.filter((member) => member.memberid !== memberId)
@@ -51,7 +55,6 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
       .select();
 
     if (data) {
-      console.log("data", data);
       // Remove the declined member from localRequests
       setLocalRequests((prevRequests) =>
         prevRequests.filter((member) => member.memberid !== memberId)
@@ -66,12 +69,11 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
   useEffect(() => {
     setLocalRequests(requests);
     fetchMembersData();
-    console.log(" ### UseEffect in join requests");
-  }, [localRequests]);
+  }, [requests.length]);
 
   return (
     <View>
-      <Text paddingBottom="$3">Requests</Text>
+      <SizableText paddingBottom="$3">Requests ({requests.length})</SizableText>
       <YStack gap="$1.5">
         {localRequests.map((member, index) => (
           <YGroup
@@ -90,14 +92,16 @@ const JoinRequests: React.FC<Props> = ({ requests, fetchMembersData }) => {
                 iconAfter={
                   <XStack gap="$2">
                     <StyledButton
-                      create={true}
+                      create={!isMaxMembersReached && !isBillExpired}
                       size="$2.5"
                       onPress={() => onAccept(member.memberid)}
+                      disabled={isMaxMembersReached || isBillExpired}
                     >
                       Accept
                     </StyledButton>
                     <StyledButton
-                      decline={true}
+                      disabled={isBillExpired}
+                      decline={!isBillExpired}
                       size="$2.5"
                       onPress={() => onDecline(member.memberid)}
                     >

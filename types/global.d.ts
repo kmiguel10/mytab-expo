@@ -7,6 +7,7 @@ type Member = {
   isMemberIncluded: boolean;
   isRequestSent: boolean;
   avatar_url: string;
+  hasJoined: boolean;
 };
 
 type Bill = {
@@ -77,6 +78,7 @@ type MemberData = {
   isdeleted: boolean; // Boolean (Not nullable)
   isRequestSent: boolean; // Boolean or NULL
   memberUrls: string[];
+  isFree: boolean;
 };
 
 type Split = {
@@ -116,6 +118,10 @@ type BillInfo = {
   amount: number;
   isActive: boolean;
   isLocked: boolean;
+  start_date: Date;
+  end_date: Date;
+  isFree: boolean;
+  productId: string;
 };
 
 type SummaryInfo = {

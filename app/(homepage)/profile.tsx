@@ -1,4 +1,4 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Keyboard, StyleSheet, useWindowDimensions } from "react-native";
 
 import {
   Button,
@@ -25,20 +25,26 @@ import { StyledInput } from "@/components/input/input";
 import { StyledButton } from "@/components/button/button";
 
 export default function Profile() {
+  /************ States and Variables ************/
   const { id: userId } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
   const [displayName, setDisplayName] = useState("");
+  const [isDisplayNameError, setIsDisplayNameError] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
   const router = useRouter();
 
-  /** Functions */
+  /************ Functions ************/
   const onSave = async () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
         .update({
-          displayName: profileInfo?.displayName,
+          displayName: displayName,
           firstName: profileInfo?.firstName,
           lastName: profileInfo?.lastName,
         })
@@ -88,15 +94,19 @@ export default function Profile() {
   };
 
   const handleDisplayNameChange = (_displayName: string) => {
-    setProfileInfo((prevProfileInfo) => {
-      if (prevProfileInfo) {
-        return {
-          ...prevProfileInfo,
-          displayName: _displayName,
-        };
-      }
-      return null; // or any other default value if needed
-    });
+    const trimmedDisplayName = _displayName.trim();
+    if (trimmedDisplayName.length === 0) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else if (trimmedDisplayName.length <= 2) {
+      setIsDisplayNameError(true);
+      setDisplayName(_displayName);
+    } else if (trimmedDisplayName.length <= 10) {
+      setIsDisplayNameError(false);
+      setDisplayName(_displayName);
+    } else {
+      setIsDisplayNameError(true);
+    }
   };
 
   const handleFirstNameChange = (_firstName: string) => {
@@ -122,10 +132,18 @@ export default function Profile() {
       return null; // or any other default value if needed
     });
   };
+  /** ---------- Listeners ---------- */
+  // Listen for keyboard show/hide events
+  Keyboard.addListener("keyboardDidShow", () => {
+    setIsKeyboardVisible(true);
+  });
 
-  /** useEffects */
+  Keyboard.addListener("keyboardDidHide", () => {
+    setIsKeyboardVisible(false);
+  });
+
+  /************ UseEffects ************/
   useEffect(() => {
-    console.log("Profile userId: ", userId);
     const fetchprofileInfo = async () => {
       try {
         const profile: ProfileInfo | null = await getProfileInfo(
@@ -135,7 +153,6 @@ export default function Profile() {
         if (profile) {
           setProfileInfo(profile);
           setAvatarUrl(profile?.avatar_url);
-          console.log("AvatarUrl", profile?.avatar_url);
         }
       } catch (error) {
         console.error("Error fetching profile info:", error);
@@ -144,6 +161,12 @@ export default function Profile() {
     };
     fetchprofileInfo();
   }, [userId]);
+
+  useEffect(() => {
+    if (profileInfo?.displayName) {
+      setDisplayName(profileInfo?.displayName);
+    }
+  }, [profileInfo]);
 
   return (
     <OuterContainer
@@ -157,10 +180,8 @@ export default function Profile() {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
-        {/* <Text>{userId}</Text>
-          <Text>{JSON.stringify(profileInfo)}</Text> */}
         <Form onSubmit={onSave} rowGap="$3" borderRadius="$4" padding="$3">
-          <YStack height={height * 0.75} gap={"$5"}>
+          <YStack height={height * 0.75} gap={"$3"}>
             <View paddingVertical={"$3"}>
               <Avatar
                 url={avatarUrl}
@@ -169,30 +190,38 @@ export default function Profile() {
                   updateProfile({ avatar_url: url });
                 }}
                 size="$6"
+                setUploading={setUploading}
+                uploading={uploading}
               />
             </View>
             <Separator />
+            {isKeyboardVisible && (
+              <XStack justifyContent="flex-end">
+                <Form.Trigger asChild>
+                  <StyledButton
+                    disabled={!displayName || isDisplayNameError}
+                    active={!!displayName && !isDisplayNameError}
+                    width={width * 0.25}
+                    size={"$3.5"}
+                  >
+                    Save
+                  </StyledButton>
+                </Form.Trigger>
+              </XStack>
+            )}
             <XStack>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
                   Display name (required)
                 </Text>
-                {/* <Input
-                  id="display-name"
-                  placeholder="Display Name"
-                  defaultValue=""
-                  value={profileInfo?.displayName}
-                  onChangeText={handleDisplayNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-               
-                /> */}
                 <StyledInput
                   id="display-name"
                   placeholder="Display Name"
                   defaultValue=""
-                  value={profileInfo?.displayName}
+                  value={displayName}
                   onChangeText={handleDisplayNameChange}
-                  error={profileInfo?.displayName ? false : true}
+                  error={isDisplayNameError}
+                  maxLength={10}
                 />
               </Fieldset>
             </XStack>
@@ -208,6 +237,7 @@ export default function Profile() {
                   value={profileInfo?.firstName}
                   onChangeText={handleFirstNameChange}
                   backgroundColor={"$backgroundTransparent"}
+                  maxLength={10}
                 />
               </Fieldset>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -221,6 +251,7 @@ export default function Profile() {
                   value={profileInfo?.lastName}
                   onChangeText={handleLastNameChange}
                   backgroundColor={"$backgroundTransparent"}
+                  maxLength={10}
                 />
               </Fieldset>
             </XStack>
@@ -240,33 +271,22 @@ export default function Profile() {
               </Fieldset>
             </XStack>
           </YStack>
-
           <XStack justifyContent="flex-end">
             <Form.Trigger asChild>
-              <StyledButton
-                disabled={!profileInfo?.displayName}
-                active={profileInfo?.displayName ? true : false}
-                width={width * 0.25}
-                size={"$3.5"}
-              >
-                Save
-              </StyledButton>
+              {!isKeyboardVisible && (
+                <StyledButton
+                  disabled={!displayName || isDisplayNameError || uploading}
+                  active={!!displayName && !isDisplayNameError && !uploading}
+                  width={width * 0.25}
+                  size={"$3.5"}
+                >
+                  Save
+                </StyledButton>
+              )}
             </Form.Trigger>
           </XStack>
         </Form>
       </BodyContainer>
-      {/* <FooterContainer
-        justifyContent="space-between"
-        height={height}
-      ></FooterContainer> */}
     </OuterContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonsContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    marginBottom: 16, // Add some bottom margin for spacing
-  },
-});

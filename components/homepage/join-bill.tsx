@@ -1,3 +1,4 @@
+import { getMembersWithBillcode } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -22,11 +23,48 @@ const JoinBill: React.FC<Props> = ({
   const [code, setCode] = useState("");
   const router = useRouter();
 
+  const freePlanMembersLimit = 2;
+  const paidPlanMembersLimit = 12;
+
+  /**
+   * Cannot join if there are 12 or more members
+   * @returns
+   */
   const joinAsMember = async () => {
     if (!code) {
       console.error("Error: Billcode cannot be null");
       return;
     }
+
+    //First check if members is >= 12 , if it is then send an error saying that the limit of members has reached... 12
+    const membersData = await getMembersWithBillcode(code);
+
+    if (membersData) {
+      let _isFreePlan = membersData[0]?.isFree;
+
+      if (_isFreePlan) {
+        if (membersData.length >= freePlanMembersLimit) {
+          router.replace({
+            pathname: `/(homepage)/${id}`,
+            params: {
+              errorMessage: "ERROR: Free plans are only allowed 2 members",
+            },
+          });
+          return;
+        }
+      } else {
+        if (membersData.length >= paidPlanMembersLimit) {
+          router.replace({
+            pathname: `/(homepage)/${id}`,
+            params: {
+              errorMessage: "The max amount of 12 members has been reached.",
+            },
+          });
+          return;
+        }
+      }
+    }
+
     let { data, error } = await supabase
       .from("members")
       .insert([
@@ -111,7 +149,7 @@ const JoinBill: React.FC<Props> = ({
           x={0}
           scale={1}
           opacity={1}
-          y={-230}
+          y={-100}
           width={"90%"}
         >
           <YStack space>

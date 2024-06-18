@@ -1,19 +1,96 @@
 import { MemberData, ProfileInfo, Transaction } from "@/types/global";
 import { supabase } from "./supabase";
 
+/** Auth page */
+export const signInWithEmail = async (email: string, password: string) => {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  return { error };
+};
+
+export const signUpWithEmail = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  return { session: data?.session, error };
+};
+
+/** Onboard */
+export const getProfileInfoOnboard = async (
+  userId: string
+): Promise<ProfileInfo | null> => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error("Error fetching profile info:", error.message);
+    return null;
+  }
+};
+
+export const updateProfile = async (
+  userId: string,
+  updates: Partial<ProfileInfo>
+) => {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", userId)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error("Error updating profile:", error.message);
+    throw error;
+  }
+};
+
+//This only fetches included members
 export const getMembers = async (billId: number) => {
   try {
     const { data, error } = await supabase
       .from("members")
       .select(
-        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName"
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName, hasJoined"
       )
-      .eq("isMemberIncluded", true)
+      // .eq("isMemberIncluded", true)
+      .eq("hasJoined", true)
       .eq("billid", billId);
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members: ", JSON.stringify(data));
+    //console.log(">>> Get members: ", JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    return [];
+  }
+};
+
+export const getMembersWithBillcode = async (billCode: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("members")
+      .select(
+        "memberid, userid, isMemberIncluded, isRequestSent, avatar_url, displayName, isFree"
+      )
+      .eq("isMemberIncluded", true)
+      .eq("billcode", billCode);
+    if (error) {
+      throw new Error(error.message);
+    }
+    //console.log(">>> Get members: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -32,7 +109,7 @@ export const getMembersAndRequests = async (billId: number) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(">>> Get members and requests: ", JSON.stringify(data));
+    // console.log(">>> Get members and requests: ", JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -93,8 +170,9 @@ export const getBillsForUserIdWithUrls = async (
     const { data: billsData, error } = await supabase
       .from("members")
       .select("*")
-      .eq("userid", userId)
-      .eq("isdeleted", false);
+      .eq("userid", userId);
+    // .eq("isdeleted", false);
+    // .eq("isActive", true);
 
     if (error) {
       throw new Error(error.message);
@@ -132,7 +210,7 @@ export const getBillsForUserIdWithUrls = async (
       memberUrls: memberUrlsMap[bill.billid] || [],
     }));
 
-    console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
+    // console.log("*** Fetch bills with urls by userid: ", billsWithUrls);
     return billsWithUrls;
   } catch (error) {
     console.error("Error fetching bills:", error);
@@ -260,13 +338,13 @@ export const getProfileInfo = async (
   userId: string
 ): Promise<ProfileInfo | null> => {
   try {
-    console.log("getProfileInfo userId ", userId);
+    //console.log("getProfileInfo userId ", userId);
     let { data: profile, error } = await supabase
       .from("profiles")
       .select("displayName,lastName,firstName,avatar_url,email")
       .eq("id", userId);
 
-    console.log("Profile info data", profile);
+    //console.log("Profile info data", profile);
 
     if (error) {
       throw new Error(error.message);

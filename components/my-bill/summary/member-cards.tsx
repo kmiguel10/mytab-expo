@@ -1,19 +1,23 @@
 import Avatar from "@/components/login/avatar";
+import {
+  filterUserTransactions,
+  formatToDollarCurrency,
+  truncateToTwoDecimalPlaces,
+} from "@/lib/helpers";
 import { SummaryInfo, Transaction } from "@/types/global";
 import React, { useState } from "react";
+import { Pressable } from "react-native";
 import {
   CardProps,
-  H1,
   ListItem,
   ScrollView,
+  SizableText,
   useWindowDimensions,
   View,
   XStack,
   YGroup,
 } from "tamagui";
 import UserTransactions from "./user-transactions-sheet";
-import { filterUserTransactions } from "@/lib/helpers";
-import { Pressable } from "react-native";
 
 interface Props extends CardProps {
   members: SummaryInfo[];
@@ -58,7 +62,7 @@ const MemberCards: React.FC<Props> = ({
    */
   return (
     <View>
-      <ScrollView>
+      <ScrollView bounces={false}>
         <XStack
           flex={1}
           flexWrap="wrap"
@@ -83,11 +87,18 @@ const MemberCards: React.FC<Props> = ({
                 >
                   <YGroup.Item>
                     <ListItem
+                      key={index}
                       hoverTheme
                       icon={<Avatar url={member.avatar_url} size="$4.5" />}
-                      title={member.displayName}
-                      subTitle={`Transaction Count: ${member.txnCount}`}
-                      iconAfter={<H1>${member.amountPaid}</H1>}
+                      title={<SizableText>{member.displayName}</SizableText>}
+                      subTitle={`Count: ${member.txnCount}`}
+                      iconAfter={
+                        <SizableText>
+                          {formatToDollarCurrency(
+                            truncateToTwoDecimalPlaces(member.amountPaid)
+                          )}
+                        </SizableText>
+                      }
                     />
                   </YGroup.Item>
                 </YGroup>

@@ -14,6 +14,7 @@ interface Props {
   userId: string;
   lock: boolean;
   size: string;
+  disabled: boolean;
   setLock: (lock: boolean) => void; // Function to update lock state in parent
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setToggleError: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,6 +25,7 @@ export const ConfirmToggleLock: React.FC<Props> = ({
   userId,
   lock,
   size,
+  disabled,
   setLock, // Receive setLock function from parent
   setOpen,
   setToggleError,
@@ -58,7 +60,7 @@ export const ConfirmToggleLock: React.FC<Props> = ({
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
-        <Switch size={size}>
+        <Switch size={size} disabled={disabled}>
           <Switch.Thumb
             animation={[
               "bouncy",

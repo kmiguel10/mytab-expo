@@ -7,6 +7,7 @@ import {
   Form,
   Separator,
   Sheet,
+  SizableText,
   Text,
   useWindowDimensions,
   XStack,
@@ -35,12 +36,11 @@ const EditTransaction: React.FC<Props> = ({
   setCurrentTxnToEdit,
   billOwnerId,
 }) => {
-  const [position, setPosition] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  /*********** States and Variables ***********/
+
   const [isAmountChanged, setIsAmountChanged] = useState(false);
   const [isVisibleForUser, setIsVisibleForUser] = useState(false);
-
-  // ---- test -----
+  const [amount, setAmount] = useState("");
   const [localTxn, setLocalTxn] = useState<Transaction>({
     billid: 0,
     submittedbyid: "",
@@ -56,22 +56,33 @@ const EditTransaction: React.FC<Props> = ({
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
   >([]);
+  const [activeMembers, setActiveMembers] = useState<Member[]>([]);
+
   const [isEven, setIsEven] = useState(true);
+  const [sheetZIndex, setSheetZIndex] = useState(100000);
   const { width, height } = useWindowDimensions();
 
-  /** ---------- Helpers ---------- */
+  const [transactionName, setTransactionName] = useState("");
+  const [isAmountError, setIsAmountError] = useState(false);
+  const [isTransactionNameError, setIsTransactionNameError] = useState(false);
 
+  /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
-    const user = members.find((member) => member.userid === userId);
-
+    const user = activeMembers.find((member) => member.userid === userId);
     return user ? user.displayName : "";
   };
 
   const handleNameChange = (txnName: string): void => {
-    setLocalTxn((prevTransaction) => ({
-      ...prevTransaction,
-      name: txnName,
-    }));
+    const trimmedTxnName = txnName.trim();
+    if (trimmedTxnName.length === 0) {
+      setIsTransactionNameError(true);
+      setTransactionName(txnName);
+    } else if (trimmedTxnName.length <= 20) {
+      setTransactionName(txnName);
+      setIsTransactionNameError(false);
+    } else {
+      setIsTransactionNameError(true);
+    }
   };
 
   const handlePayerChange = (selectedPayer: string) => {
@@ -82,28 +93,52 @@ const EditTransaction: React.FC<Props> = ({
     }));
   };
 
-  const handleAmountChange = (amount: string) => {
-    // Remove any non-numeric characters except for periods
-    const numericValue = parseFloat(amount.replace(/[^\d.]/g, ""));
-
-    // Check if the numeric value is a valid number
-    if (!isNaN(numericValue)) {
-      // Update localTxn state with the parsed numeric value
-      setLocalTxn((prevTransaction) => ({
-        ...prevTransaction,
-        amount: numericValue,
-      }));
-
-      setIsAmountChanged(true);
+  const handleAmountChange = (_amount: string) => {
+    //set error state
+    if (_amount.length === 0) {
+      setIsAmountError(true);
+    } else if (parseFloat(_amount) === 0) {
+      setIsAmountError(true);
+    } else if (_amount.length <= 5 && parseFloat(_amount) > 0) {
+      setIsAmountError(false);
     } else {
-      setLocalTxn((prevTransaction) => ({
-        ...prevTransaction,
-        amount: 0,
-      }));
+      setIsAmountError(true);
+    }
+
+    // Allow only digits optionally followed by a dot and then more digits
+    const regex = /^\d*\.?\d*$/;
+
+    if (regex.test(_amount)) {
+      // Remove leading zeros unless the value is "0" or it starts with "0."
+      if (
+        _amount.startsWith("0") &&
+        _amount.length > 1 &&
+        !_amount.startsWith("0.")
+      ) {
+        _amount = _amount.replace(/^0+/, "");
+      }
+
+      if (_amount) {
+        setAmount(_amount);
+        setIsAmountChanged(true);
+      } else {
+        setAmount("0");
+      }
     }
   };
 
-  /**  - - - - - FUNCTIONS - - - - -*/
+  const handleBlur = () => {
+    // Default to 0 if the input is empty or just a dot
+    if (amount === "" || amount === ".") {
+      setAmount("0");
+      setIsAmountError(true);
+    } else if (amount.endsWith(".")) {
+      // Remove trailing dot if present
+      setAmount(amount.slice(0, -1));
+    }
+  };
+
+  /*********** Functions ***********/
 
   /**
    * On Success:
@@ -116,6 +151,8 @@ const EditTransaction: React.FC<Props> = ({
     let _userId = userId.toString();
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
+    localTxn.amount = parseFloat(amount);
+    localTxn.name = transactionName;
 
     //first check if bill is locked...
     //yes, then route to homepage
@@ -160,7 +197,6 @@ const EditTransaction: React.FC<Props> = ({
             const editedTxn: Transaction = data[0];
             setCurrentTxnToEdit(editedTxn);
             setLocalTxn(editedTxn);
-            console.log("Edited Transaction: ", editedTxn);
             router.replace({
               pathname: `/(bill)/${editedTxn.billid}`,
               params: { userId: _userId, editedTxnName: editedTxn.name },
@@ -179,11 +215,11 @@ const EditTransaction: React.FC<Props> = ({
   };
 
   const initializeSplits = () => {
-    let amountNum = localTxn.amount;
+    let amountNum = amount ? parseFloat(amount) : localTxn.amount;
     const splitEvenAmount = (_amount: number) => {
-      return _amount / members.length;
+      return _amount / activeMembers.length;
     };
-    const newSplits = members.map((member) => ({
+    const newSplits = activeMembers.map((member) => ({
       memberId: member.userid,
       amount: splitEvenAmount(amountNum),
       displayName: member.displayName,
@@ -194,12 +230,10 @@ const EditTransaction: React.FC<Props> = ({
       ...prevTransaction,
       split: newSplits,
     }));
-
-    console.log("***** Splits initialized");
   };
 
   const initiateIncludedMembers = () => {
-    const newSelectedSplits: SelectedMemberSplitAmount[] = members.map(
+    const newSelectedSplits: SelectedMemberSplitAmount[] = activeMembers.map(
       (member) => ({
         isIncluded: true,
         memberId: member.userid,
@@ -210,8 +244,6 @@ const EditTransaction: React.FC<Props> = ({
     );
 
     setIncludedMembers(newSelectedSplits);
-
-    console.log("Parent Selected members: ", JSON.stringify(newSelectedSplits));
   };
 
   const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
@@ -235,37 +267,44 @@ const EditTransaction: React.FC<Props> = ({
     setIncludedMembers(split);
   };
 
-  /**  - - - - - Use Effect - - - - -*/
+  /*********** UseEffects ***********/
+  //Only use active members
   useEffect(() => {
-    if (members.length > 0) {
-      console.log("RESET MEMBERS");
+    const _activeMembers = members.filter(
+      (member) => member.isMemberIncluded === true
+    );
+    setActiveMembers(_activeMembers);
+    console.log("**** Active members", JSON.stringify(_activeMembers));
+  }, [members]);
 
+  //Gets members
+  useEffect(() => {
+    if (activeMembers.length > 0) {
       initiateIncludedMembers();
     }
-  }, [members]);
+  }, [activeMembers]);
 
   //only initialize splits whe amount is edited
   useEffect(() => {
     if (isAmountChanged) {
       initializeSplits();
     }
-  }, [localTxn.amount]);
+  }, [amount]);
 
   //reset localTxn on open and close of modal
   useEffect(() => {
     // Reset localTxn values when modal is opened
     if (open) {
+      setSheetZIndex(100000);
       setLocalTxn(transaction);
-      console.log("Edit page transaction: ", transaction);
-      console.log("Edit page open: ", open);
     }
+    setLocalTxn(transaction);
+    setAmount(transaction.amount.toString());
+    setTransactionName(transaction.name);
   }, [open, transaction]);
 
   //component is visible to user if user is the bill owner or transaction payer
   useEffect(() => {
-    console.log("userId", userId);
-    console.log("billOwnerId", billOwnerId);
-    console.log("localTxn.payerid", localTxn.payerid);
     if (userId === billOwnerId || userId === localTxn.payerid) {
       setIsVisibleForUser(true);
     } else {
@@ -278,13 +317,14 @@ const EditTransaction: React.FC<Props> = ({
       forceRemoveScrollEnabled={open}
       modal={true}
       open={open}
-      onOpenChange={() => setOpen(!open)}
-      snapPoints={isExpanded ? [80, 50] : [90, 50]}
+      onOpenChange={() => {
+        setOpen(!open);
+        setIsAmountChanged(false);
+      }}
+      snapPoints={[90]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
-      position={position}
-      onPositionChange={setPosition}
-      zIndex={100000}
+      zIndex={sheetZIndex}
       animation="medium"
     >
       <Sheet.Overlay
@@ -312,13 +352,24 @@ const EditTransaction: React.FC<Props> = ({
                 userId={userId.toString()}
                 transaction={localTxn}
                 setOpen={setOpen}
+                setSheetZIndex={setSheetZIndex}
               />
               <Form.Trigger asChild>
                 <StyledButton
                   width={width * 0.25}
                   size={"$3.5"}
-                  active={!!(localTxn.name && localTxn.amount)}
-                  disabled={!(localTxn.name && localTxn.amount)}
+                  active={
+                    !!transactionName &&
+                    !isTransactionNameError &&
+                    !!amount &&
+                    !isAmountError
+                  }
+                  disabled={
+                    !transactionName ||
+                    isTransactionNameError ||
+                    !amount ||
+                    isAmountError
+                  }
                 >
                   Submit
                 </StyledButton>
@@ -327,19 +378,21 @@ const EditTransaction: React.FC<Props> = ({
           )}
 
           <Fieldset gap="$4" horizontal justifyContent="center">
+            <SizableText size={"$9"}>$</SizableText>
             <StyledInput
-              id="edit-amount-input"
               placeholder="0"
-              keyboardType="numeric"
-              value={localTxn.amount.toString()}
+              keyboardType="decimal-pad"
+              value={amount}
               onChangeText={handleAmountChange}
+              onBlur={handleBlur}
               inputMode="decimal"
-              size={"$12"}
+              size={"$11"}
               backgroundColor={"$backgroundTransparent"}
               borderWidth="0"
-              autoFocus={true}
+              autoFocus={false}
               clearTextOnFocus={false}
               disabled={!isVisibleForUser}
+              maxLength={5}
             />
           </Fieldset>
           <XStack justifyContent="space-between" gap={"$2"}>
@@ -348,13 +401,13 @@ const EditTransaction: React.FC<Props> = ({
                 Transaction name (*)
               </Text>
               <StyledInput
-                id="local-txn-name"
                 placeholder="Enter name"
                 defaultValue=""
-                value={localTxn.name}
-                error={!localTxn.name}
+                value={transactionName}
+                error={isTransactionNameError}
                 onChangeText={handleNameChange}
                 disabled={!isVisibleForUser}
+                maxLength={20}
               />
             </Fieldset>
             <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -362,10 +415,16 @@ const EditTransaction: React.FC<Props> = ({
                 Paid by:
               </Text>
               <MembersDropdown
-                members={members}
+                members={activeMembers}
                 onPayerChange={handlePayerChange}
                 defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={isVisibleForUser}
+                isVisibleToUser={
+                  !isVisibleForUser ||
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </Fieldset>
           </XStack>
@@ -373,25 +432,31 @@ const EditTransaction: React.FC<Props> = ({
             <XStack justifyContent="flex-end" paddingTop="$4">
               <CustomSplit
                 memberSplits={localTxn.split}
-                amount={localTxn.amount}
+                amount={parseFloat(amount)}
                 onSaveSplits={handleSaveSplits}
                 setIsEven={setIsEven}
                 includedMembers={includedMembers}
-                isDisabled={!!(localTxn.name && localTxn.amount)}
+                isDisabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
               />
             </XStack>
           )}
 
-          <XStack justifyContent="space-around" paddingTop="$3" gap="$3">
+          <XStack
+            justifyContent="space-around"
+            paddingTop="$3"
+            gap="$3"
+            alignItems="center"
+          >
             <Separator />
             <Text fontSize={"$2"}>Current Split</Text>
             <Separator />
           </XStack>
-          <SplitView
-            memberSplits={localTxn.split}
-            amount={localTxn.amount.toString()}
-            isEven={isEven}
-          />
+          <SplitView memberSplits={localTxn.split} isEven={isEven} />
         </Form>
       </Sheet.Frame>
     </Sheet>

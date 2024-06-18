@@ -5,15 +5,15 @@ import {
   findUserAvatar,
   findUserDisplayName,
   formatDateToMonthDay,
+  formatToDollarCurrency,
 } from "@/lib/helpers";
 import { Member, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
 import {
-  CardProps,
-  H1,
   ListItem,
   ScrollView,
+  SizableText,
   Text,
   View,
   XStack,
@@ -21,7 +21,7 @@ import {
   useWindowDimensions,
 } from "tamagui";
 
-interface Props extends CardProps {
+interface Props {
   transactions: Transaction[];
   members: Member[];
   currentUser: string;
@@ -29,12 +29,10 @@ interface Props extends CardProps {
   setTransactions: (transactions: Transaction[]) => void;
   isLocked: boolean;
   billOwnerId: string;
+  billId: number;
 }
 
-const TransactionInfoCard: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  Props
-> = ({
+const TransactionInfoCard: React.FC<Props> = ({
   transactions,
   currentUser,
   members,
@@ -42,9 +40,9 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   setTransactions,
   isLocked,
   billOwnerId,
-  ...props
+  billId,
 }) => {
-  /** ---------- States ---------- */
+  /** ---------- States and Variables ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
   const [currentTxnToEdit, setCurrentTxnToEdit] = useState<Transaction>({
     billid: 0,
@@ -69,11 +67,8 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
   const fetchTransactions = async () => {
     if (currentUser) {
       const transactionData: Transaction[] = await getActiveTransactions(
-        transactions ? transactions[0].billid.toString() : "0"
+        billId ? billId?.toString() : "0"
       );
-      console.log("currentUser", currentUser);
-      console.log("Bill id", currentTxnToEdit.billid.toString());
-      console.log("*** Fetched transactions on refresh: ", transactionData);
       if (transactionData) setRefreshing(false);
       setTransactions(transactionData);
     }
@@ -94,13 +89,10 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
       }
     );
     setOpenEditTxn(true);
-
-    //set the current transaction to edit
-    console.log("--- islocked: ", isLocked);
   };
 
+  /** ---------- UseEffects  ---------- */
   useEffect(() => {
-    console.log("Info card open state: ", openEditTxn);
     if (!openEditTxn) {
       setCurrentTxnToEdit({
         billid: 0,
@@ -112,7 +104,6 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
         split: [],
         isdeleted: false,
       });
-      console.log("cleared transaction to edit");
     }
   }, [openEditTxn]);
 
@@ -123,69 +114,86 @@ const TransactionInfoCard: React.ForwardRefRenderFunction<
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <XStack
-          flex={1}
-          flexWrap="wrap"
-          gap="$1"
-          backgroundColor={"transparent"}
-          justifyContent="center"
-          paddingBottom="$2"
-        >
-          {transactions.map((txn, index) => (
-            <XStack
-              padding="$1"
-              backgroundColor={"transparent"}
-              justifyContent="center"
-              key={index}
-            >
-              <Pressable
-                onPress={() => onTransactionClick(`${txn.id}`)}
-                disabled={isLocked}
+        {transactions.length > 0 ? (
+          <XStack
+            flex={1}
+            flexWrap="wrap"
+            gap="$1"
+            backgroundColor={"transparent"}
+            justifyContent="center"
+            paddingBottom="$2"
+          >
+            {transactions.map((txn, index) => (
+              <XStack
+                padding="$1"
+                backgroundColor={"transparent"}
+                justifyContent="center"
+                key={index}
               >
-                <YGroup
-                  alignSelf="center"
-                  bordered
-                  width={windowWidth * 0.9}
-                  size="$4"
+                <Pressable
+                  onPress={() => onTransactionClick(`${txn.id}`)}
+                  disabled={isLocked}
                 >
-                  <YGroup.Item>
-                    <ListItem
-                      hoverTheme
-                      icon={
-                        <XStack gap="$2" alignItems="center">
-                          <Text fontSize="$1" alignItems="center">
-                            {txn.createdat
-                              ? formatDateToMonthDay(new Date(txn.createdat))
-                              : "N/A"}
-                          </Text>
-                          <Avatar
-                            url={findUserAvatar(txn.payerid, members)}
-                            size="$4.5"
-                          />
-                        </XStack>
-                      }
-                      title={txn.name}
-                      subTitle={`Paid by: ${findUserDisplayName(
-                        txn.payerid,
-                        members
-                      )}`}
-                      iconAfter={<H1>${txn.amount}</H1>}
-                    />
-                  </YGroup.Item>
-                </YGroup>
-              </Pressable>
-            </XStack>
-          ))}
-          {/** Creates an extra card to even out spacing */}
-          {transactions.length % 2 !== 0 && (
-            <XStack
-              padding="$1"
-              backgroundColor={"transparent"}
-              width={windowWidth * 0.46}
-              justifyContent="center"
-            ></XStack>
-          )}
-        </XStack>
+                  <YGroup
+                    alignSelf="center"
+                    bordered
+                    width={windowWidth * 0.9}
+                    size="$4"
+                  >
+                    <YGroup.Item>
+                      <ListItem
+                        hoverTheme
+                        icon={
+                          <XStack gap="$2" alignItems="center">
+                            <SizableText
+                              fontSize="$1"
+                              alignItems="center"
+                              color={"$gray10Light"}
+                            >
+                              {txn.createdat
+                                ? formatDateToMonthDay(new Date(txn.createdat))
+                                : "N/A"}
+                            </SizableText>
+                            <Avatar
+                              url={findUserAvatar(txn.payerid, members)}
+                              size="$4.5"
+                            />
+                          </XStack>
+                        }
+                        title={<SizableText>{txn.name}</SizableText>}
+                        subTitle={
+                          <SizableText
+                            size={"$2"}
+                            color={"$gray10Light"}
+                          >{`Paid by: ${findUserDisplayName(
+                            txn.payerid,
+                            members
+                          )}`}</SizableText>
+                        }
+                        iconAfter={
+                          <SizableText>
+                            {formatToDollarCurrency(
+                              txn.amount ? txn.amount : 0
+                            )}
+                          </SizableText>
+                        }
+                      />
+                    </YGroup.Item>
+                  </YGroup>
+                </Pressable>
+              </XStack>
+            ))}
+          </XStack>
+        ) : (
+          <XStack
+            gap="$1"
+            backgroundColor={"transparent"}
+            justifyContent="center"
+            padding="$10"
+          >
+            <Text>Empty</Text>
+          </XStack>
+        )}
       </ScrollView>
       <EditTransaction
         members={members}

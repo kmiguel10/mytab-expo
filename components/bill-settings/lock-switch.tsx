@@ -22,6 +22,7 @@ interface Props {
   userId: string;
   billId: number;
   isLocked: boolean;
+  disabled: boolean;
 }
 
 interface LockTextProps {
@@ -33,6 +34,7 @@ export const LockSwitch: React.FC<Props> = ({
   defaultChecked,
   userId,
   billId,
+  disabled,
 }) => {
   const id = `switch-${size.toString().slice(1)}-${defaultChecked ?? ""}}`;
   const [lock, setlock] = useState(false);
@@ -50,7 +52,6 @@ export const LockSwitch: React.FC<Props> = ({
       }
     }
     fetchBillInfo();
-    console.log("LOCK", lock);
   }, [id, userId, lock]);
 
   return (
@@ -67,7 +68,6 @@ export const LockSwitch: React.FC<Props> = ({
         {/* <LockText locked={lock} /> */}
       </Label>
       {lock ? <Lock size={"$1"} /> : <Unlock size={"$1"} />}
-
       <Separator minHeight={20} vertical />
       <ConfirmToggleLock
         billId={billId}
@@ -77,6 +77,7 @@ export const LockSwitch: React.FC<Props> = ({
         size={size.toString()}
         setOpen={setOpen}
         setToggleError={setToggleError}
+        disabled={disabled}
       />
       <LockToast
         setOpen={setOpen}

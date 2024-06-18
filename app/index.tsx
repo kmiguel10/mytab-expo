@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import { Paragraph, Text, View, YStack } from "tamagui";
+import { Spinner, View, YStack } from "tamagui";
 
 import Auth from "@/components/login/auth";
-import { supabase } from "@/lib/supabase";
-import { Session } from "@supabase/supabase-js";
-import { Redirect } from "expo-router";
-import { useEffect } from "react";
 import Onboard from "@/components/login/onboard";
-import { ProfileInfo } from "@/types/global";
 import { getProfileInfo } from "@/lib/api";
-// import "react-native-reanimated";
-// import "react-native-gesture-handler";
+import { supabase } from "@/lib/supabase";
+import { ProfileInfo } from "@/types/global";
+import { Session } from "@supabase/supabase-js";
+import { useEffect } from "react";
 
+/**
+ * User will be directed to Onboard if not signed up
+ */
 const Page = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -27,31 +28,42 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    console.log("session", session);
-    if (session) {
-      const fetchprofileInfo = async () => {
-        try {
-          const profile: ProfileInfo | null = await getProfileInfo(
-            session?.user.id
-          );
-          setProfileInfo(profile);
-        } catch (error) {
-          console.error("Error fetching profile info:", error);
+    setIsLoading(true);
+
+    const fetchProfileInfo = async () => {
+      try {
+        if (session) {
+          const profile = await getProfileInfo(session.user.id);
+          setProfileInfo(profile || null); // Ensure profile is set to null if undefined
+        } else {
           setProfileInfo(null);
         }
-      };
-      fetchprofileInfo();
-    }
+      } catch (error) {
+        setProfileInfo(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfileInfo();
   }, [session]);
 
   return (
-    <View>
-      {session && session.user && profileInfo?.email ? (
-        <Onboard userId={session.user.id.toString()} />
+    <>
+      {isLoading ? (
+        <YStack justifyContent="center" height={"93%"}>
+          <Spinner size="large" color="$green10Light" />
+        </YStack>
       ) : (
-        <Auth />
+        <View>
+          {session && session.user && profileInfo?.email ? (
+            <Onboard userId={session.user.id.toString()} />
+          ) : (
+            <Auth />
+          )}
+        </View>
       )}
-    </View>
+    </>
   );
 };
 

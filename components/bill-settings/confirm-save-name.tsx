@@ -1,44 +1,46 @@
 import { supabase } from "@/lib/supabase";
-import { Trash } from "@tamagui/lucide-icons";
+import { AlertCircle } from "@tamagui/lucide-icons";
 import React from "react";
 import {
   AlertDialog,
-  Button,
+  Card,
+  H4,
+  Paragraph,
   useWindowDimensions,
   XStack,
   YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
-  name: string;
   billId: number;
   userId: string;
   disabled: boolean;
+  newBillName: string;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSaveNameError: React.Dispatch<React.SetStateAction<boolean>>;
+  setInitialName: (newInitialName: string) => void;
 }
 //pass: name, billId, userId
 
 export const ConfirmSaveName: React.FC<Props> = ({
-  name,
   billId,
-  userId,
   disabled,
+  newBillName,
   setOpen,
   setSaveNameError,
+  setInitialName,
 }) => {
+  /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
+  const confirmSaveMessage = `Are you sure you want to change Bill Name to: \n"${newBillName}"`;
+
+  /************ Functions ************/
   const onSubmit = async () => {
-    if (name) {
+    if (newBillName) {
       const { data, error } = await supabase
         .from("bills")
-        .update({ name: name })
+        .update({ name: newBillName })
         .eq("billid", billId)
         .select();
 
@@ -46,16 +48,14 @@ export const ConfirmSaveName: React.FC<Props> = ({
         console.log("submitted bill: ", data);
         setOpen(true);
         setSaveNameError(false);
-        // router.replace({
-        //   pathname: `/(bill)/mybill/${billId}`,
-        //   params: { userId: userId.toString() },
-        // });
+        setInitialName(newBillName);
       } else if (error) {
         console.log("ERROR", error);
         setSaveNameError(true);
       }
     }
   };
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -94,21 +94,28 @@ export const ConfirmSaveName: React.FC<Props> = ({
           x={0}
           scale={1}
           opacity={1}
-          y={0}
+          y={-50}
         >
-          <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+          <YStack gap="$2">
+            <AlertDialog.Title>Save changes</AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to change bill name to: "{name}"
+              <YStack gap="$2">
+                <Card backgroundColor={"$yellow7Light"} padding="$2">
+                  <XStack alignItems="center" gap="$2">
+                    <AlertCircle />
+                    <H4>Warning</H4>
+                  </XStack>
+                  <Paragraph padding="$1">{confirmSaveMessage}</Paragraph>
+                </Card>
+              </YStack>
             </AlertDialog.Description>
-
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
                 <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <StyledButton active={true} onPress={onSubmit}>
-                  Accept
+                  Save
                 </StyledButton>
               </AlertDialog.Action>
             </XStack>

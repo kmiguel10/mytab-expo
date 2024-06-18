@@ -1,11 +1,12 @@
 import { getMyTabInfo } from "@/lib/api";
 import {
+  formatToDollarCurrency,
   getMyTabHeaderAmounts,
   truncateToTwoDecimalPlaces,
 } from "@/lib/helpers";
 import { Member, MyTabInfo, SettleCardInfo, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
-import { H4, Text, View, XStack, YStack } from "tamagui";
+import { Separator, SizableText, View, XStack, YStack } from "tamagui";
 import SettleMemberCard from "./settle-member-card";
 
 interface Props {
@@ -34,7 +35,7 @@ const MyTab: React.FC<Props> = ({
   );
 
   let headerSectionHeight = tabSectionHeight * 0.15;
-  let cardsSectionHeight = tabSectionHeight * 0.759;
+  let cardsSectionHeight = tabSectionHeight * 0.735;
   let settleAmount = Math.abs(owedAmount - debtAmount);
 
   /** - - - - - - - - - - State Variables - - - - - - - - */
@@ -74,7 +75,7 @@ const MyTab: React.FC<Props> = ({
   }, [myTabInfo, userId]);
 
   return (
-    <View gap="$2">
+    <View gap="$1">
       <XStack
         gap="$3"
         height={headerSectionHeight}
@@ -82,40 +83,46 @@ const MyTab: React.FC<Props> = ({
         padding="$2"
         paddingLeft="$3"
         justifyContent="space-between"
+        backgroundColor={"$backgroundTransparent"}
       >
         <XStack gap="$3">
-          <YStack gap="$3" width={tabSectionWidth * 0.25}>
-            <Text>You are owed</Text>
-            <H4 color={"$green10Light"}>
-              ${truncateToTwoDecimalPlaces(owedAmount)}
-            </H4>
+          <YStack gap="$2" width={tabSectionWidth * 0.25}>
+            <SizableText>You are owed</SizableText>
+            <SizableText size="$4" color={"$green10Light"}>
+              {formatToDollarCurrency(truncateToTwoDecimalPlaces(owedAmount))}
+            </SizableText>
           </YStack>
-          <YStack gap="$3" width={tabSectionWidth * 0.25}>
-            <Text>You owe</Text>
-            <H4 color={"$red10Light"}>
-              ${truncateToTwoDecimalPlaces(debtAmount)}
-            </H4>
+          <YStack gap="$2" width={tabSectionWidth * 0.25}>
+            <SizableText>You owe</SizableText>
+            <SizableText size="$4" color={"$red10Light"}>
+              {formatToDollarCurrency(truncateToTwoDecimalPlaces(debtAmount))}
+            </SizableText>
           </YStack>
+          <Separator vertical />
         </XStack>
         <View>
-          <YStack gap="$3" width={tabSectionWidth * 0.25}>
+          <YStack gap="$2" width={tabSectionWidth * 0.25}>
             {owedAmount - debtAmount <= 0 ? (
-              <Text>You pay</Text>
+              <SizableText>You pay</SizableText>
             ) : (
-              <Text>You receive</Text>
+              <SizableText>You receive</SizableText>
             )}
 
-            <H4
+            <SizableText
+              size="$4"
               color={
                 owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
               }
             >
-              ${truncateToTwoDecimalPlaces(settleAmount)}
-            </H4>
+              {formatToDollarCurrency(truncateToTwoDecimalPlaces(settleAmount))}
+            </SizableText>
           </YStack>
         </View>
       </XStack>
-      <XStack height={cardsSectionHeight} backgroundColor={"white"}>
+      <XStack
+        height={cardsSectionHeight}
+        backgroundColor={"$backgroundTransparent"}
+      >
         <SettleMemberCard
           members={settleMembersInfo}
           scaledHeight={tabSectionHeight}

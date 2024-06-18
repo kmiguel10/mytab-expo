@@ -1,36 +1,42 @@
 import { getMembersAndRequests } from "@/lib/api";
-import { useEffect, useState } from "react";
-import { Button, ScrollView, Separator, View } from "tamagui";
+import { Member } from "@/types/global";
+import { Toast } from "@tamagui/toast";
+import React, { useEffect, useState } from "react";
+import { RefreshControl } from "react-native";
+import { ScrollView, Separator, Spinner, View } from "tamagui";
 import CurrentMembers from "./current-members";
 import JoinRequests from "./join-requests";
-import { Toast, ToastViewport } from "@tamagui/toast";
-import React from "react";
-import { Member } from "@/types/global";
-import { RefreshControl } from "react-native";
 
 interface Props {
   billId: number;
   ownerId: string;
   height: number;
   isOwner: boolean;
+  isFreeBill: boolean;
+  isBillExpired: boolean;
+  isLoading: boolean;
 }
 
-const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
+const EditMembers: React.FC<Props> = ({
+  billId,
+  ownerId,
+  height,
+  isOwner,
+  isFreeBill,
+  isBillExpired,
+  isLoading,
+}) => {
   /** ---------- States ---------- */
   const [members, setMembers] = useState<Member[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
+  const [includedMembers, setIncludedMembers] = useState<Member[]>([]);
+  const [requests, setRequests] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isMaxMembersReached, setIsMaxMembersReached] = useState(false);
 
-  /** ---------- Helper Functions ---------- */
-  const filteredMembers = members.filter((member) => member.userid !== ownerId);
-  const includedMembers = filteredMembers.filter(
-    (member) =>
-      member.isMemberIncluded === true && member.isRequestSent === false
-  );
-  const requests = filteredMembers.filter(
-    (member) =>
-      member.isMemberIncluded === false && member.isRequestSent === true
-  );
+  const freeBillMaxMembers = 2;
+  const paidBillMaxMembers = 12;
 
   /** ---------- Functions---------- */
   const fetchMembersData = async () => {
@@ -46,7 +52,6 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
   };
 
   const handleRefresh = async () => {
-    console.log(" - - - Pull Down refresh Members - - - -");
     setRefreshing(true);
     fetchMembersData();
   };
@@ -54,37 +59,81 @@ const EditMembers: React.FC<Props> = ({ billId, ownerId, height, isOwner }) => {
   const timerRef = React.useRef(0);
 
   /** ---------- UseEffects---------- */
-  //Get included members
   useEffect(() => {
     fetchMembersData();
-  }, [billId]);
+  }, [billId, refreshing]);
+
+  useEffect(() => {
+    // Filter out the owner from members
+    let filtered = members.filter((member) => member.userid !== ownerId);
+
+    // Create included members and requests arrays
+    let included = filtered.filter(
+      (member) =>
+        member.isMemberIncluded === true && member.isRequestSent === false
+    );
+    let reqs = filtered.filter(
+      (member) =>
+        member.isMemberIncluded === false && member.isRequestSent === true
+    );
+
+    // Add the owner to the filteredMembers
+    const ownerMember = members.find((member) => member.userid === ownerId);
+    if (ownerMember) {
+      included = [...included, ownerMember];
+    }
+
+    // Set state with the updated arrays
+    setFilteredMembers(filtered);
+    setIncludedMembers(included);
+    setRequests(reqs);
+
+    //determine if max members are reach
+    if (isFreeBill) {
+      setIsMaxMembersReached(freeBillMaxMembers <= included.length);
+    } else {
+      setIsMaxMembersReached(paidBillMaxMembers <= included.length);
+    }
+  }, [members, ownerId, refreshing]);
 
   return (
     <View height={height} padding="$3">
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
-      >
-        {requests.length > 0 && isOwner && (
-          <JoinRequests
-            requests={requests}
-            fetchMembersData={fetchMembersData}
-          />
-        )}
+      {isLoading ? (
+        <View alignItems="center" justifyContent="center" flex={1}>
+          <Spinner size="large" color="$green10" />
+        </View>
+      ) : (
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+        >
+          {requests.length > 0 && isOwner && (
+            <JoinRequests
+              requests={requests}
+              fetchMembersData={fetchMembersData}
+              isMaxMembersReached={isMaxMembersReached}
+              isBillExpired={isBillExpired}
+            />
+          )}
 
-        {requests.length > 0 && includedMembers.length > 0 && (
-          <Separator paddingTop={"$2"} paddingBottom={"$2"} />
-        )}
+          {requests.length > 0 && includedMembers.length > 0 && (
+            <Separator paddingTop={"$2"} paddingBottom={"$2"} />
+          )}
 
-        {includedMembers.length > 0 && (
-          <CurrentMembers
-            includedMembers={includedMembers}
-            fetchMembersData={fetchMembersData}
-            isOwner={isOwner}
-          />
-        )}
-      </ScrollView>
+          {includedMembers.length > 0 && (
+            <CurrentMembers
+              includedMembers={includedMembers}
+              fetchMembersData={fetchMembersData}
+              isOwner={isOwner}
+              ownerId={ownerId}
+              isFreeBill={isFreeBill}
+              isBillExpired={isBillExpired}
+            />
+          )}
+        </ScrollView>
+      )}
+
       <Toast
         onOpenChange={setOpen}
         open={open}

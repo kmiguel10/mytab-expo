@@ -1,7 +1,35 @@
+// import { config as configBase } from "@tamagui/config";
+// import { createTamagui } from "tamagui";
+
+// export const config = createTamagui(configBase);
+
+// export default config;
+
+// export type Conf = typeof config;
+
+// declare module "tamagui" {
+//   interface TamaguiCustomConfig extends Conf {}
+// }
+
 import { config as configBase } from "@tamagui/config";
 import { createTamagui } from "tamagui";
 
-export const config = createTamagui(configBase);
+const customConfig = {
+  ...configBase,
+  fonts: {
+    ...configBase.fonts,
+    body: {
+      ...configBase.fonts.body,
+      family: "System", // Setting iOS system font for body
+    },
+    heading: {
+      ...configBase.fonts.heading,
+      family: "System", // Setting iOS system font for heading
+    },
+  },
+};
+
+export const config = createTamagui(customConfig);
 
 export default config;
 

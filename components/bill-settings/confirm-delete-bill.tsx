@@ -1,41 +1,75 @@
 import { supabase } from "@/lib/supabase";
-import { Trash } from "@tamagui/lucide-icons";
+import { AlertCircle, Trash } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { AlertDialog, Button, XStack, YStack } from "tamagui";
+import {
+  AlertDialog,
+  Button,
+  Card,
+  H4,
+  Paragraph,
+  SizableText,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
 import { StyledButton } from "../button/button";
 
-interface Member {
-  memberid: string;
-  userid: string;
-  isMemberIncluded: boolean;
-}
 interface Props {
   billId: number;
   userId: string;
 }
-//pass: name, billId, userId
 
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
+  /********** States and Variables ***********/
   const router = useRouter();
-  const onDelete = async () => {
-    console.log("delete bill", billId);
+  const message = (
+    <SizableText fontSize="$5">
+      Are you sure you want to delete bill?
+    </SizableText>
+  );
+  const description = (
+    <>
+      {"\n\nThis bill will be marked as "}
+      <View
+        backgroundColor={"$red6Light"}
+        paddingHorizontal={"$2"}
+        borderRadius={"$12"}
+        justifyContent="center"
+      >
+        <SizableText justifyContent="center" size={"$2"} color={"red"}>
+          Expired
+        </SizableText>
+      </View>
+      {". It can only be recovered by purchasing an extension."}
+    </>
+  );
 
+  /********** Functions ***********/
+  //Set flags for bills
+  const onDelete = async () => {
     const { data, error } = await supabase
       .from("bills")
-      .update({ isdeleted: true })
+      .update({ isdeleted: true, isActive: false, isLocked: true })
       .eq("billid", billId)
       .select();
 
     if (data) {
-      console.log("Deleted bill: ", data);
       router.replace({
-        pathname: "/(homepage)/[id]",
-        params: { id: userId.toString() },
+        pathname: `/(homepage)/[id]`,
+        params: {
+          id: userId.toString(),
+          successDeletedBillMsg: "Successfully Deleted Bill",
+        },
       });
     } else if (error) {
+      router.replace({
+        pathname: `/(homepage)/[id]`,
+        params: { id: userId.toString(), errorMessage: "Error Deleting bill" },
+      });
     }
   };
+
   return (
     <AlertDialog native={false}>
       <AlertDialog.Trigger asChild>
@@ -75,20 +109,30 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           opacity={1}
           y={0}
         >
-          <YStack gap>
-            <AlertDialog.Title>Accept</AlertDialog.Title>
+          <YStack gap="$4">
+            <AlertDialog.Title>Delete Bill</AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to delete bill?
+              <Card backgroundColor={"$yellow7Light"} padding="$2">
+                <XStack alignItems="center" gap="$2">
+                  <AlertCircle />
+                  <H4>Warning</H4>
+                </XStack>
+                <Card.Header>
+                  <Paragraph>
+                    {message}
+                    {description}
+                  </Paragraph>
+                </Card.Header>
+              </Card>
             </AlertDialog.Description>
-
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
                 <Button>Cancel</Button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <Button theme="active" onPress={onDelete}>
-                  Accept
-                </Button>
+                <StyledButton decline={true} onPress={onDelete}>
+                  Delete
+                </StyledButton>
               </AlertDialog.Action>
             </XStack>
           </YStack>
