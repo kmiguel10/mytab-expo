@@ -12,6 +12,7 @@ import {
   View,
   XStack,
   YGroup,
+  YStack,
   useWindowDimensions,
 } from "tamagui";
 
@@ -73,7 +74,11 @@ const UserTransactions: React.FC<Props> = ({
           alignItems="center"
           paddingHorizontal="$3"
         >
-          <Avatar url={selectedMember?.avatar_url || null} size={"$6"} />
+          <YStack alignItems="center" gap="$1">
+            <Avatar url={selectedMember?.avatar_url || null} size={"$6"} />
+            <SizableText>{selectedMember?.displayName}</SizableText>
+          </YStack>
+
           <View>
             <SizableText>Total Spent</SizableText>
             <SizableText size="$6">
