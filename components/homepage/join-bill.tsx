@@ -114,7 +114,7 @@ const JoinBill: React.FC<Props> = ({
 
   const onCancel = () => {
     setCode("");
-    router.back;
+    //router.back;
   };
 
   return (
