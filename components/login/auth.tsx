@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import React, { useState } from "react";
 import { Alert, AppState } from "react-native";
 import { Auth as AppleAuth } from "@/components/auth/Auth.native";
-import { Input, Separator, Text, XStack, YStack } from "tamagui";
+import { Input, Separator, SizableText, Text, XStack, YStack } from "tamagui";
 import { StyledButton } from "../button/button";
 import { signInWithEmail, signUpWithEmail } from "@/lib/api";
 
@@ -62,7 +62,7 @@ export default function Auth() {
       paddingHorizontal="$8"
     >
       <XStack justifyContent="center" paddingTop={"$10"} paddingBottom={"$10"}>
-        <Text>My Tab</Text>
+        <SizableText size="$10">Owemee</SizableText>
       </XStack>
       <XStack justifyContent="center">
         <AppleAuth />
