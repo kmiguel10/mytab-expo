@@ -182,7 +182,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             gap="$1"
           >
             {selectedMemberSettlements?.map((settlements, index) => (
-              <YGroup.Item>
+              <YGroup.Item key={index}>
                 <ListItem
                   bordered
                   key={index}
@@ -233,7 +233,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
             gap="$1"
           >
             {currentUserSettlements?.map((settlements, index) => (
-              <YGroup.Item>
+              <YGroup.Item key={index}>
                 <ListItem
                   bordered
                   key={index}

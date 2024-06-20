@@ -209,6 +209,7 @@ const SettleMemberCard: React.FC<Props> = ({
         >
           {members?.map((member, index) => (
             <Pressable
+              key={index}
               onPress={() => setSelectedUserSettlements(member.member)}
             >
               <YGroup
@@ -217,14 +218,14 @@ const SettleMemberCard: React.FC<Props> = ({
                 size="$4"
                 key={index}
               >
-                <YGroup.Item>
+                <YGroup.Item key={index}>
                   <ListItem
+                    key={index}
                     backgroundColor={
                       member.owed - member.debt >= 0
                         ? "$green3Light"
                         : "$red3Light"
                     }
-                    key={index}
                     hoverTheme
                     icon={
                       <Avatar
