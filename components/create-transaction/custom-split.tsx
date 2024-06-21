@@ -220,7 +220,7 @@ const CustomSplit: React.FC<Props> = ({
             <Adapt.Contents />
           </Sheet.Frame>
           <Sheet.Overlay
-            animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
           />

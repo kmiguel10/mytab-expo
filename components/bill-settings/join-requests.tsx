@@ -84,7 +84,7 @@ const JoinRequests: React.FC<Props> = ({
             padding={"$1"}
             key={member.memberid}
           >
-            <YGroup.Item>
+            <YGroup.Item key={index}>
               <ListItem
                 key={index}
                 icon={<Avatar url={member.avatar_url} size="$4" />}

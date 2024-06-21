@@ -80,6 +80,7 @@ const MemberCards: React.FC<Props> = ({
             >
               <Pressable onPress={() => setSelectedUserTransactions(member)}>
                 <YGroup
+                  key={index}
                   alignSelf="center"
                   bordered
                   width={windowWidth * 0.9}

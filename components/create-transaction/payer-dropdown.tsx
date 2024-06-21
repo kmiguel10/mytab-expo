@@ -45,7 +45,7 @@ const PayerDropdown = ({ dropdownValues }: { dropdownValues: any[] }) => {
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay
-            animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 100 }}
             exitStyle={{ opacity: 0 }}
           />

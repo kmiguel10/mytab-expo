@@ -112,6 +112,7 @@ const BillSettingsSkeleton: React.FC<Props> = ({
             />
             {Array.from({ length: 4 }).map((_, index) => (
               <YGroup
+                key={index}
                 alignSelf="center"
                 bordered
                 width={"100%"}

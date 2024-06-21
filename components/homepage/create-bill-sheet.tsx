@@ -9,6 +9,7 @@ import {
   H4,
   H6,
   ListItem,
+  Paragraph,
   Separator,
   Sheet,
   SizableText,
@@ -25,6 +26,7 @@ import { StyledInput } from "../input/input";
 
 import moment from "moment";
 import "moment-timezone";
+import { AlertCircle } from "@tamagui/lucide-icons";
 
 /**
  *
@@ -67,6 +69,9 @@ const CreateBillSheet: React.FC<Props> = ({
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [createButtonName, setCreateButtonName] = useState("Create");
+
+  const createFreebillErrorMsg =
+    "- You cannot create a free bill because an existing free bill is still active.\n\n- Either delete the existing free bill or wait for it to expire.";
 
   const freeProduct = {
     title: "Free Plan",
@@ -378,7 +383,7 @@ const CreateBillSheet: React.FC<Props> = ({
       animation="medium"
     >
       <Sheet.Overlay
-        animation="lazy"
+        animation="100ms"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />
@@ -473,16 +478,14 @@ const CreateBillSheet: React.FC<Props> = ({
                 <Separator marginVertical={"$2.5"} />
                 <View gap="$4.5" height={payButtonHeight}>
                   {selectedPlan === "free.plan" && isFreeBillActive ? (
-                    <Card
-                      bordered
-                      backgroundColor="white"
-                      borderRadius={"$5"}
-                      height={windowHeight * 0.2}
-                    >
-                      <SizableText>
-                        Cannot create a free bill while there is an active free
-                        bill
-                      </SizableText>
+                    <Card backgroundColor={"$red7Light"} padding="$2">
+                      <XStack alignItems="center" gap="$2">
+                        <AlertCircle />
+                        <H4>Unable to create a Free Bill</H4>
+                      </XStack>
+                      <Card.Header>
+                        <Paragraph>{createFreebillErrorMsg}</Paragraph>
+                      </Card.Header>
                     </Card>
                   ) : (
                     <Card
@@ -518,7 +521,7 @@ const CreateBillSheet: React.FC<Props> = ({
                 </View>
                 <View paddingTop="$2">
                   {selectedPlan === "free.plan" && isFreeBillActive ? (
-                    <Text>Expand the current free bill?</Text>
+                    <Text></Text>
                   ) : (
                     <StyledButton
                       create={!!billName && !billNameError}

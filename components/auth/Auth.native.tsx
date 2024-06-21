@@ -17,7 +17,11 @@ import "react-native-url-polyfill/auto";
 //   }
 // );
 
-export function Auth() {
+interface Props {
+  isLoading: (loading: boolean) => void;
+}
+
+export const Auth: React.FC<Props> = ({ isLoading }) => {
   const { width, height } = useWindowDimensions();
 
   const appleButtonWidth = width * 0.76;
@@ -32,6 +36,7 @@ export function Auth() {
         style={{ width: appleButtonWidth, height: appleButtonHeight }}
         onPress={async () => {
           try {
+            isLoading(true);
             const credential = await AppleAuthentication.signInAsync({
               requestedScopes: [
                 AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
@@ -52,15 +57,19 @@ export function Auth() {
               console.log(JSON.stringify({ error, user }, null, 2));
               console.log("ERRORR, ", error);
               if (!error) {
+                isLoading(false);
                 // User is signed in.
               }
             } else {
+              isLoading(false);
               throw new Error("No identityToken.");
             }
           } catch (e: any) {
             if (e.code === "ERR_REQUEST_CANCELED") {
+              isLoading(false);
               // handle that the user canceled the sign-in flow
             } else {
+              isLoading(false);
               // handle other errors
               console.log("Errors", e);
             }
@@ -69,4 +78,6 @@ export function Auth() {
       />
     );
   return <>{/* Implement Android Auth options. */}</>;
-}
+};
+
+export default Auth;

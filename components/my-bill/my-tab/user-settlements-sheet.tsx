@@ -118,7 +118,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
       disableDrag={true}
     >
       <Sheet.Overlay
-        animation="lazy"
+        animation="100ms"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />

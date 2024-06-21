@@ -319,7 +319,7 @@ const CreateTransaction: React.FC<Props> = ({
 
   return (
     <Sheet
-      forceRemoveScrollEnabled={true}
+      forceRemoveScrollEnabled={open}
       modal={true}
       open={open}
       onOpenChange={handleOpenChange}
@@ -332,7 +332,7 @@ const CreateTransaction: React.FC<Props> = ({
       animation="medium"
     >
       <Sheet.Overlay
-        animation="lazy"
+        animation={"100ms"}
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />
