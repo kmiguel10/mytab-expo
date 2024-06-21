@@ -59,9 +59,9 @@ const UserTransactions: React.FC<Props> = ({
       disableDrag={true}
     >
       <Sheet.Overlay
-        animation="lazy"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
+        animation="100ms"
+        enterStyle={{ opacity: 8 }}
+        exitStyle={{ opacity: 8 }}
       />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" justifyContent="flex-start" gap="$2">
