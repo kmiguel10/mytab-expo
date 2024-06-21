@@ -231,7 +231,7 @@ const ConfirmExtension: React.FC<Props> = ({
           <YStack gap="$4">
             <AlertDialog.Title>{title}</AlertDialog.Title>
             <AlertDialog.Description>
-              <Card backgroundColor={"$yellow7Light"} padding="$2">
+              <Card backgroundColor={"$red7Light"} padding="$2">
                 <XStack alignItems="center" gap="$2">
                   <AlertCircle />
                   <H4>Warning</H4>
