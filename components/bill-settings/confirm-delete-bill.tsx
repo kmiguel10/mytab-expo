@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { AlertCircle, Trash } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   AlertDialog,
   Button,
@@ -9,6 +9,8 @@ import {
   H4,
   Paragraph,
   SizableText,
+  Spinner,
+  useWindowDimensions,
   View,
   XStack,
   YStack,
@@ -22,6 +24,8 @@ interface Props {
 
 export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   /********** States and Variables ***********/
+  const { width, height } = useWindowDimensions();
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const message = (
     <SizableText fontSize="$5">
@@ -48,6 +52,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
   /********** Functions ***********/
   //Set flags for bills
   const onDelete = async () => {
+    setIsLoading(true);
     const { data, error } = await supabase
       .from("bills")
       .update({ isdeleted: true, isActive: false, isLocked: true })
@@ -55,6 +60,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
       .select();
 
     if (data) {
+      setIsLoading(false);
       router.replace({
         pathname: `/(homepage)/[id]`,
         params: {
@@ -63,6 +69,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
         },
       });
     } else if (error) {
+      setIsLoading(false);
       router.replace({
         pathname: `/(homepage)/[id]`,
         params: { id: userId.toString(), errorMessage: "Error Deleting bill" },
@@ -81,7 +88,6 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           width={"25%"}
         />
       </AlertDialog.Trigger>
-
       <AlertDialog.Portal>
         <AlertDialog.Overlay
           key="overlay"
@@ -109,33 +115,44 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           opacity={1}
           y={0}
         >
-          <YStack gap="$4">
-            <AlertDialog.Title>Delete Bill</AlertDialog.Title>
-            <AlertDialog.Description>
-              <Card backgroundColor={"$yellow7Light"} padding="$2">
-                <XStack alignItems="center" gap="$2">
-                  <AlertCircle />
-                  <H4>Warning</H4>
-                </XStack>
-                <Card.Header>
-                  <Paragraph>
-                    {message}
-                    {description}
-                  </Paragraph>
-                </Card.Header>
-              </Card>
-            </AlertDialog.Description>
-            <XStack gap="$3" justifyContent="flex-end">
-              <AlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
-              </AlertDialog.Cancel>
-              <AlertDialog.Action asChild>
-                <StyledButton decline={true} onPress={onDelete}>
-                  Delete
-                </StyledButton>
-              </AlertDialog.Action>
-            </XStack>
-          </YStack>
+          {isLoading ? (
+            <YStack
+              gap="$4"
+              width={width * 0.85}
+              height={height * 0.2}
+              justifyContent="center"
+            >
+              <Spinner size="large" color="forestgreen" />
+            </YStack>
+          ) : (
+            <YStack gap="$4">
+              <AlertDialog.Title>Delete Bill</AlertDialog.Title>
+              <AlertDialog.Description>
+                <Card backgroundColor={"$yellow7Light"} padding="$2">
+                  <XStack alignItems="center" gap="$2">
+                    <AlertCircle />
+                    <H4>Warning</H4>
+                  </XStack>
+                  <Card.Header>
+                    <Paragraph>
+                      {message}
+                      {description}
+                    </Paragraph>
+                  </Card.Header>
+                </Card>
+              </AlertDialog.Description>
+              <XStack gap="$3" justifyContent="flex-end">
+                <AlertDialog.Cancel asChild>
+                  <Button>Cancel</Button>
+                </AlertDialog.Cancel>
+                <AlertDialog.Action asChild>
+                  <StyledButton decline={true} onPress={onDelete}>
+                    Delete
+                  </StyledButton>
+                </AlertDialog.Action>
+              </XStack>
+            </YStack>
+          )}
         </AlertDialog.Content>
       </AlertDialog.Portal>
     </AlertDialog>
