@@ -30,6 +30,7 @@ interface Props {
   isLocked: boolean;
   billOwnerId: string;
   billId: number;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const TransactionInfoCard: React.FC<Props> = ({
@@ -41,6 +42,7 @@ const TransactionInfoCard: React.FC<Props> = ({
   isLocked,
   billOwnerId,
   billId,
+  setIsLoading,
 }) => {
   /** ---------- States and Variables ---------- */
   const [openEditTxn, setOpenEditTxn] = useState(false);
@@ -75,6 +77,7 @@ const TransactionInfoCard: React.FC<Props> = ({
   };
 
   const onTransactionClick = (txnId: string) => {
+    console.log("openEditTxn", openEditTxn);
     resetToasts();
     setCurrentTxnToEdit(
       transactions.find((txn) => `${txn.id}` === txnId) ?? {
@@ -109,6 +112,15 @@ const TransactionInfoCard: React.FC<Props> = ({
 
   return (
     <View height={"100%"}>
+      <EditTransaction
+        members={members}
+        open={openEditTxn}
+        setOpen={setOpenEditTxn}
+        transaction={currentTxnToEdit}
+        setCurrentTxnToEdit={setCurrentTxnToEdit}
+        billOwnerId={billOwnerId}
+        setIsLoadingBillPage={setIsLoading}
+      />
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
@@ -195,14 +207,6 @@ const TransactionInfoCard: React.FC<Props> = ({
           </XStack>
         )}
       </ScrollView>
-      <EditTransaction
-        members={members}
-        open={openEditTxn}
-        setOpen={setOpenEditTxn}
-        transaction={currentTxnToEdit}
-        setCurrentTxnToEdit={setCurrentTxnToEdit}
-        billOwnerId={billOwnerId}
-      />
     </View>
   );
 };

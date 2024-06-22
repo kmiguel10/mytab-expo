@@ -30,6 +30,7 @@ interface Props {
   isLocked: boolean;
   billOwnerId: string;
   loadingTransactions: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -45,6 +46,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   isLocked,
   billOwnerId,
   loadingTransactions,
+  setIsLoading,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -216,6 +218,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                       isLocked={isLocked}
                       billOwnerId={billOwnerId}
                       billId={billId}
+                      setIsLoading={setIsLoading}
                     />
                   )}
                 </>
