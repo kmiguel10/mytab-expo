@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-
 import { Session } from "@supabase/supabase-js";
 import { Home, Settings } from "@tamagui/lucide-icons";
 import { Link, Stack, useRouter } from "expo-router";
@@ -16,7 +15,8 @@ export default function TabLayout() {
   const signOutUser = async () => {
     try {
       await supabase.auth.signOut();
-      router.replace("/"); // Route back to homepage on sign-out
+      setSession(null); // Clear the session state
+      router.push("/"); // Route back to homepage on sign-out
     } catch (error) {
       console.error("Error signing out:", error);
     }
