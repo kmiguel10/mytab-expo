@@ -8,9 +8,11 @@ import {
   Separator,
   Sheet,
   SizableText,
+  Spinner,
   Text,
   useWindowDimensions,
   XStack,
+  YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
@@ -26,6 +28,7 @@ interface Props {
   transaction: Transaction;
   setCurrentTxnToEdit: (txn: Transaction) => void;
   billOwnerId: string;
+  setIsLoadingBillPage: (loading: boolean) => void;
 }
 
 const EditTransaction: React.FC<Props> = ({
@@ -35,6 +38,7 @@ const EditTransaction: React.FC<Props> = ({
   transaction,
   setCurrentTxnToEdit,
   billOwnerId,
+  setIsLoadingBillPage,
 }) => {
   /*********** States and Variables ***********/
 
@@ -65,6 +69,7 @@ const EditTransaction: React.FC<Props> = ({
   const [transactionName, setTransactionName] = useState("");
   const [isAmountError, setIsAmountError] = useState(false);
   const [isTransactionNameError, setIsTransactionNameError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
@@ -93,8 +98,8 @@ const EditTransaction: React.FC<Props> = ({
     }));
   };
 
+  //set error state
   const handleAmountChange = (_amount: string) => {
-    //set error state
     if (_amount.length === 0) {
       setIsAmountError(true);
     } else if (parseFloat(_amount) === 0) {
@@ -158,28 +163,26 @@ const EditTransaction: React.FC<Props> = ({
     //yes, then route to homepage
     //no, then continue updating transaction
     try {
+      setIsLoading(true); // Start spinner before the async operations
+      setIsLoadingBillPage(true);
+      // Check if the bill is locked
       const { data: isBillLocked, error: billError } = await supabase
         .from("bills")
         .select("isLocked")
         .eq("billid", localTxn.billid);
 
       if (isBillLocked) {
-        //checks if bill is locked
         if (isBillLocked[0].isLocked) {
-          // router.replace({
-          //   pathname: `/(bill)/${localTxn.billid}`,
-          //   params: {
-          //     userId: _userId,
-          //     errorEditMsg: "Bill is locked. It cannot be edited.",
-          //   }, //
-          // });
+          // If bill is locked, route to homepage
           if (_userId) {
+            setIsLoading(false); // Stop spinner before routing
             router.replace({
               pathname: "/(homepage)/[id]",
               params: { id: _userId },
             });
           }
         } else {
+          // Update transaction
           const { data, error } = await supabase
             .from("transactions")
             .update([localTxn])
@@ -187,16 +190,20 @@ const EditTransaction: React.FC<Props> = ({
             .select();
 
           if (error) {
+            setIsLoading(false); // Stop spinner before routing
             router.replace({
               pathname: `/(bill)/${localTxn.billid}`,
-              params: { userId: _userId, errorEditMsg: error.message }, //
+              params: { userId: _userId, errorEditMsg: error.message },
             });
           }
 
           if (data) {
+            console.log("EDITED TRANSACTION");
             const editedTxn: Transaction = data[0];
             setCurrentTxnToEdit(editedTxn);
             setLocalTxn(editedTxn);
+            //setOpen(true); // Close the sheet
+            setIsLoading(true); // Stop spinner before routing
             router.replace({
               pathname: `/(bill)/${editedTxn.billid}`,
               params: { userId: _userId, editedTxnName: editedTxn.name },
@@ -205,12 +212,11 @@ const EditTransaction: React.FC<Props> = ({
         }
       }
     } catch (error: any) {
-      router.navigate({
+      setIsLoading(false); // Stop spinner before routing
+      router.replace({
         pathname: `/(bill)/${id}`,
-        params: { userId: _userId, errorCreateMsg: error.message }, //
+        params: { userId: _userId, errorCreateMsg: error.message },
       });
-    } finally {
-      setOpen(false);
     }
   };
 
@@ -267,6 +273,13 @@ const EditTransaction: React.FC<Props> = ({
     setIncludedMembers(split);
   };
 
+  const handleOpenChange = () => {
+    if (open) {
+      setOpen(false);
+      setIsAmountChanged(false);
+    }
+  };
+
   /*********** UseEffects ***********/
   //Only use active members
   useEffect(() => {
@@ -291,10 +304,11 @@ const EditTransaction: React.FC<Props> = ({
     }
   }, [amount]);
 
-  //reset localTxn on open and close of modal
   useEffect(() => {
+    console.log("OPEN", open);
     // Reset localTxn values when modal is opened
     if (open) {
+      console.log("RESET Z INDEX");
       setSheetZIndex(100000);
       setLocalTxn(transaction);
     }
@@ -317,10 +331,7 @@ const EditTransaction: React.FC<Props> = ({
       forceRemoveScrollEnabled={open}
       modal={true}
       open={open}
-      onOpenChange={() => {
-        setOpen(!open);
-        setIsAmountChanged(false);
-      }}
+      onOpenChange={handleOpenChange}
       snapPoints={[90]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
@@ -339,125 +350,131 @@ const EditTransaction: React.FC<Props> = ({
         alignItems="center"
         gap="$5"
       >
-        <Form
-          onSubmit={onSubmitTxn}
-          rowGap="$3"
-          borderRadius="$6"
-          padding="$3"
-          justifyContent="center"
-        >
-          {isVisibleForUser && (
-            <XStack justifyContent="space-between">
-              <ConfirmDeleteTransaction
-                userId={userId.toString()}
-                transaction={localTxn}
-                setOpen={setOpen}
-                setSheetZIndex={setSheetZIndex}
+        {isLoading ? (
+          <YStack justifyContent="center" flex={2}>
+            <Spinner color="forestgreen" size="large" />
+          </YStack>
+        ) : (
+          <Form
+            onSubmit={onSubmitTxn}
+            rowGap="$3"
+            borderRadius="$6"
+            padding="$3"
+            justifyContent="center"
+          >
+            {isVisibleForUser && (
+              <XStack justifyContent="space-between">
+                <ConfirmDeleteTransaction
+                  userId={userId.toString()}
+                  transaction={localTxn}
+                  setOpen={setOpen}
+                  setSheetZIndex={setSheetZIndex}
+                />
+                <Form.Trigger asChild>
+                  <StyledButton
+                    width={width * 0.25}
+                    size={"$3.5"}
+                    active={
+                      !!transactionName &&
+                      !isTransactionNameError &&
+                      !!amount &&
+                      !isAmountError
+                    }
+                    disabled={
+                      !transactionName ||
+                      isTransactionNameError ||
+                      !amount ||
+                      isAmountError
+                    }
+                  >
+                    Submit
+                  </StyledButton>
+                </Form.Trigger>
+              </XStack>
+            )}
+
+            <Fieldset gap="$4" horizontal justifyContent="center">
+              <SizableText size={"$9"}>$</SizableText>
+              <StyledInput
+                placeholder="0"
+                keyboardType="decimal-pad"
+                value={amount}
+                onChangeText={handleAmountChange}
+                onBlur={handleBlur}
+                inputMode="decimal"
+                size={"$11"}
+                backgroundColor={"$backgroundTransparent"}
+                borderWidth="0"
+                autoFocus={false}
+                clearTextOnFocus={false}
+                disabled={!isVisibleForUser}
+                maxLength={5}
               />
-              <Form.Trigger asChild>
-                <StyledButton
-                  width={width * 0.25}
-                  size={"$3.5"}
-                  active={
-                    !!transactionName &&
-                    !isTransactionNameError &&
-                    !!amount &&
-                    !isAmountError
-                  }
-                  disabled={
+            </Fieldset>
+            <XStack justifyContent="space-between" gap={"$2"}>
+              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                  Transaction name (*)
+                </Text>
+                <StyledInput
+                  placeholder="Enter name"
+                  defaultValue=""
+                  value={transactionName}
+                  error={isTransactionNameError}
+                  onChangeText={handleNameChange}
+                  disabled={!isVisibleForUser}
+                  maxLength={20}
+                />
+              </Fieldset>
+              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                  Paid by:
+                </Text>
+                <MembersDropdown
+                  members={activeMembers}
+                  onPayerChange={handlePayerChange}
+                  defaultPayer={getDisplayName(userId.toString())}
+                  isVisibleToUser={
+                    !isVisibleForUser ||
                     !transactionName ||
                     isTransactionNameError ||
                     !amount ||
                     isAmountError
                   }
-                >
-                  Submit
-                </StyledButton>
-              </Form.Trigger>
+                />
+              </Fieldset>
             </XStack>
-          )}
+            {isVisibleForUser && (
+              <XStack justifyContent="flex-end" paddingTop="$4">
+                <CustomSplit
+                  memberSplits={localTxn.split}
+                  amount={parseFloat(amount)}
+                  onSaveSplits={handleSaveSplits}
+                  setIsEven={setIsEven}
+                  includedMembers={includedMembers}
+                  isDisabled={
+                    !transactionName ||
+                    isTransactionNameError ||
+                    !amount ||
+                    isAmountError
+                  }
+                />
+              </XStack>
+            )}
 
-          <Fieldset gap="$4" horizontal justifyContent="center">
-            <SizableText size={"$9"}>$</SizableText>
-            <StyledInput
-              placeholder="0"
-              keyboardType="decimal-pad"
-              value={amount}
-              onChangeText={handleAmountChange}
-              onBlur={handleBlur}
-              inputMode="decimal"
-              size={"$11"}
-              backgroundColor={"$backgroundTransparent"}
-              borderWidth="0"
-              autoFocus={false}
-              clearTextOnFocus={false}
-              disabled={!isVisibleForUser}
-              maxLength={5}
-            />
-          </Fieldset>
-          <XStack justifyContent="space-between" gap={"$2"}>
-            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-              <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Transaction name (*)
-              </Text>
-              <StyledInput
-                placeholder="Enter name"
-                defaultValue=""
-                value={transactionName}
-                error={isTransactionNameError}
-                onChangeText={handleNameChange}
-                disabled={!isVisibleForUser}
-                maxLength={20}
-              />
-            </Fieldset>
-            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-              <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Paid by:
-              </Text>
-              <MembersDropdown
-                members={activeMembers}
-                onPayerChange={handlePayerChange}
-                defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={
-                  !isVisibleForUser ||
-                  !transactionName ||
-                  isTransactionNameError ||
-                  !amount ||
-                  isAmountError
-                }
-              />
-            </Fieldset>
-          </XStack>
-          {isVisibleForUser && (
-            <XStack justifyContent="flex-end" paddingTop="$4">
-              <CustomSplit
-                memberSplits={localTxn.split}
-                amount={parseFloat(amount)}
-                onSaveSplits={handleSaveSplits}
-                setIsEven={setIsEven}
-                includedMembers={includedMembers}
-                isDisabled={
-                  !transactionName ||
-                  isTransactionNameError ||
-                  !amount ||
-                  isAmountError
-                }
-              />
+            <XStack
+              justifyContent="space-around"
+              paddingTop="$3"
+              gap="$3"
+              alignItems="center"
+            >
+              <Separator />
+              <Text fontSize={"$2"}>Current Split</Text>
+              <Separator />
             </XStack>
-          )}
-
-          <XStack
-            justifyContent="space-around"
-            paddingTop="$3"
-            gap="$3"
-            alignItems="center"
-          >
-            <Separator />
-            <Text fontSize={"$2"}>Current Split</Text>
-            <Separator />
-          </XStack>
-          <SplitView memberSplits={localTxn.split} isEven={isEven} />
-        </Form>
+            <SplitView memberSplits={localTxn.split} isEven={isEven} />
+          </Form>
+        )}
       </Sheet.Frame>
     </Sheet>
   );

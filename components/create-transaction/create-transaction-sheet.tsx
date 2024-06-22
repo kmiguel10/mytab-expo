@@ -8,9 +8,11 @@ import {
   Separator,
   Sheet,
   SizableText,
+  Spinner,
   Text,
   useWindowDimensions,
   XStack,
+  YStack,
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
@@ -59,6 +61,8 @@ const CreateTransaction: React.FC<Props> = ({
 
   const [transactionName, setTransactionName] = useState("");
   const [isTransactionNameError, setIsTransactionNameError] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   /********** Functions ***********/
   const getDisplayName = (userId: string) => {
@@ -153,6 +157,7 @@ const CreateTransaction: React.FC<Props> = ({
     console.log("*** Transaction to send: ", JSON.stringify(transaction));
 
     try {
+      setIsLoading(true);
       const { data, error: billError } = await supabase
         .from("bills")
         .select("isLocked,activeTxnCount,isActive")
@@ -168,7 +173,9 @@ const CreateTransaction: React.FC<Props> = ({
               errorCreateMsg: "Failed to add transaction: Bill is expired",
             }, //
           });
+
           setOpen(false);
+          setIsLoading(false);
           return;
         }
 
@@ -181,10 +188,13 @@ const CreateTransaction: React.FC<Props> = ({
               errorCreateMsg: `Reached maximum ${maxTransaction} transactions`,
             }, //
           });
+
           setOpen(false);
+          setIsLoading(false);
           return;
         }
         if (data[0].isLocked) {
+          setIsLoading(false);
           //Scenario: if the Bill is locked
           router.replace({
             pathname: `/(bill)/${transaction.billid}`,
@@ -201,6 +211,7 @@ const CreateTransaction: React.FC<Props> = ({
             .select();
 
           if (error) {
+            setIsLoading(false);
             throw new Error(error.message); // Throw the error to be caught in the catch block
           }
 
@@ -210,7 +221,9 @@ const CreateTransaction: React.FC<Props> = ({
               pathname: `/(bill)/${createdTxn.billid}`,
               params: { userId: _userId, txnName: createdTxn.name },
             });
+            setIsLoading(false);
           }
+          setIsLoading(false);
         }
       }
     } catch (error: any) {
@@ -218,7 +231,9 @@ const CreateTransaction: React.FC<Props> = ({
         pathname: `/(bill)/${id}`,
         params: { userId: _userId, errorCreateMsg: error.message }, //
       });
+      setIsLoading(false);
     } finally {
+      setIsLoading(false);
       setOpen(false);
     }
   };
@@ -343,112 +358,118 @@ const CreateTransaction: React.FC<Props> = ({
         alignItems="center"
         gap="$5"
       >
-        <Form
-          onSubmit={() => console.log("")}
-          rowGap="$3"
-          borderRadius="$6"
-          padding="$3"
-          justifyContent="center"
-        >
-          <Form.Trigger asChild>
-            <XStack justifyContent="flex-end">
-              <StyledButton
-                width={width * 0.25}
-                size={"$3.5"}
-                create={
-                  !!transactionName &&
-                  !isTransactionNameError &&
-                  !!amount &&
-                  !isAmountError
-                }
-                disabled={
-                  !transactionName ||
-                  isTransactionNameError ||
-                  !amount ||
-                  isAmountError
-                }
-                onPress={onCreateTxn}
-              >
-                Create
-              </StyledButton>
-            </XStack>
-          </Form.Trigger>
-          <Fieldset horizontal justifyContent="center">
-            <SizableText size={"$9"}>$</SizableText>
-            <StyledInput
-              placeholder="0"
-              defaultValue={""}
-              keyboardType="decimal-pad"
-              value={amount}
-              onChangeText={handleAmountChange}
-              onBlur={handleBlur}
-              inputMode="decimal"
-              size={"$11"}
-              backgroundColor={"$backgroundTransparent"}
-              borderWidth="0"
-              autoFocus={false}
-              maxLength={5}
-            />
-          </Fieldset>
-          <XStack justifyContent="space-between" gap={"$2"}>
-            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-              <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Transaction name (*)
-              </Text>
-              <StyledInput
-                placeholder="Enter name"
-                defaultValue=""
-                value={transactionName}
-                error={isTransactionNameError}
-                backgroundColor={"white"}
-                onChangeText={handleNameChange}
-                maxLength={20}
-              />
-            </Fieldset>
-            <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-              <Text paddingLeft="$1.5" fontSize={"$1"}>
-                Paid by:
-              </Text>
-              <MembersDropdown
-                members={activeMembers}
-                onPayerChange={handlePayerChange}
-                defaultPayer={getDisplayName(userId.toString())}
-                isVisibleToUser={
-                  !transactionName ||
-                  isTransactionNameError ||
-                  !amount ||
-                  isAmountError
-                }
-              />
-            </Fieldset>
-          </XStack>
-          <XStack justifyContent="flex-end" paddingTop="$4">
-            <CustomSplit
-              memberSplits={transaction.split}
-              amount={parseFloat(amount)}
-              onSaveSplits={handleSaveSplits}
-              setIsEven={setIsEven}
-              includedMembers={includedMembers}
-              isDisabled={
-                !transactionName ||
-                isTransactionNameError ||
-                !amount ||
-                isAmountError
-              }
-            />
-          </XStack>
-          <XStack
-            alignItems="center"
-            justifyContent="space-around"
-            paddingTop="$3"
-            gap="$3"
+        {isLoading ? (
+          <YStack justifyContent="center" flex={2}>
+            <Spinner color="forestgreen" size="large" />
+          </YStack>
+        ) : (
+          <Form
+            onSubmit={() => console.log("")}
+            rowGap="$3"
+            borderRadius="$6"
+            padding="$3"
+            justifyContent="center"
           >
-            <Separator />
-            <Text fontSize={"$2"}>Current Split</Text>
-            <Separator />
-          </XStack>
-          <SplitView memberSplits={transaction.split} isEven={isEven} />
-        </Form>
+            <Form.Trigger asChild>
+              <XStack justifyContent="flex-end">
+                <StyledButton
+                  width={width * 0.25}
+                  size={"$3.5"}
+                  create={
+                    !!transactionName &&
+                    !isTransactionNameError &&
+                    !!amount &&
+                    !isAmountError
+                  }
+                  disabled={
+                    !transactionName ||
+                    isTransactionNameError ||
+                    !amount ||
+                    isAmountError
+                  }
+                  onPress={onCreateTxn}
+                >
+                  Create
+                </StyledButton>
+              </XStack>
+            </Form.Trigger>
+            <Fieldset horizontal justifyContent="center">
+              <SizableText size={"$9"}>$</SizableText>
+              <StyledInput
+                placeholder="0"
+                defaultValue={""}
+                keyboardType="decimal-pad"
+                value={amount}
+                onChangeText={handleAmountChange}
+                onBlur={handleBlur}
+                inputMode="decimal"
+                size={"$11"}
+                backgroundColor={"$backgroundTransparent"}
+                borderWidth="0"
+                autoFocus={false}
+                maxLength={5}
+              />
+            </Fieldset>
+            <XStack justifyContent="space-between" gap={"$2"}>
+              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                  Transaction name (*)
+                </Text>
+                <StyledInput
+                  placeholder="Enter name"
+                  defaultValue=""
+                  value={transactionName}
+                  error={isTransactionNameError}
+                  backgroundColor={"white"}
+                  onChangeText={handleNameChange}
+                  maxLength={20}
+                />
+              </Fieldset>
+              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                  Paid by:
+                </Text>
+                <MembersDropdown
+                  members={activeMembers}
+                  onPayerChange={handlePayerChange}
+                  defaultPayer={getDisplayName(userId.toString())}
+                  isVisibleToUser={
+                    !transactionName ||
+                    isTransactionNameError ||
+                    !amount ||
+                    isAmountError
+                  }
+                />
+              </Fieldset>
+            </XStack>
+            <XStack justifyContent="flex-end" paddingTop="$4">
+              <CustomSplit
+                memberSplits={transaction.split}
+                amount={parseFloat(amount)}
+                onSaveSplits={handleSaveSplits}
+                setIsEven={setIsEven}
+                includedMembers={includedMembers}
+                isDisabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
+              />
+            </XStack>
+            <XStack
+              alignItems="center"
+              justifyContent="space-around"
+              paddingTop="$3"
+              gap="$3"
+            >
+              <Separator />
+              <Text fontSize={"$2"}>Current Split</Text>
+              <Separator />
+            </XStack>
+            <SplitView memberSplits={transaction.split} isEven={isEven} />
+          </Form>
+        )}
       </Sheet.Frame>
     </Sheet>
   );

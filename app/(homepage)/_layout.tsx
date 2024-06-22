@@ -14,8 +14,12 @@ export default function TabLayout() {
 
   /** Functions */
   const signOutUser = async () => {
-    await supabase.auth.signOut();
-    console.log("*** User signed out");
+    try {
+      await supabase.auth.signOut();
+      router.replace("/"); // Route back to homepage on sign-out
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   const handleHomeButtonClick = () => {
@@ -73,9 +77,9 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           headerRight: () => (
-            <Link href={"/"} replace asChild>
-              <Text onPress={signOutUser}>Sign out</Text>
-            </Link>
+            <Pressable onPress={signOutUser}>
+              <Text>Sign out</Text>
+            </Pressable>
           ),
           headerLeft: () => (
             <Pressable onPress={handleHomeButtonClick}>

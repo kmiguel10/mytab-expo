@@ -19,7 +19,7 @@ import { useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
-import { YStack, useWindowDimensions } from "tamagui";
+import { Spinner, View, YStack, useWindowDimensions } from "tamagui";
 
 // Define the possible product types
 type ProductType = "free.plan" | "com.mytab.1week" | "com.mytab.2weeks";
@@ -68,6 +68,9 @@ const BillScreen = () => {
   const [deletedTxnName, setDeletedTxnName] = useState(
     initialDeletedTxnName || ""
   );
+
+  //I am using this to set loading for when I am submitting changes for edit
+  const [isLoading, setIsLoading] = useState(false);
 
   /** ---------- Functions ---------- */
 
@@ -276,20 +279,27 @@ const BillScreen = () => {
           )}
         </HeaderContainer>
         <BodyContainer height={windowHeight * 0.62}>
-          <UnderlinedTabs
-            transactions={transactions}
-            summaryInfo={summaryInfo}
-            billId={Number(id)}
-            userId={userId?.toString()}
-            height={windowHeight * 0.62}
-            width={windowWidth * 0.95}
-            members={members}
-            resetToastMessageStates={resetToastMessageStates}
-            setTransactions={setTransactions}
-            isLocked={billInfo[0]?.isLocked}
-            billOwnerId={billInfo[0]?.ownerid}
-            loadingTransactions={loadingTransactions}
-          />
+          {isLoading ? (
+            <YStack flex={1} justifyContent="center">
+              <Spinner color={"forestgreen"} size="large" />
+            </YStack>
+          ) : (
+            <UnderlinedTabs
+              transactions={transactions}
+              summaryInfo={summaryInfo}
+              billId={Number(id)}
+              userId={userId?.toString()}
+              height={windowHeight * 0.62}
+              width={windowWidth * 0.95}
+              members={members}
+              resetToastMessageStates={resetToastMessageStates}
+              setTransactions={setTransactions}
+              isLocked={billInfo[0]?.isLocked}
+              billOwnerId={billInfo[0]?.ownerid}
+              loadingTransactions={loadingTransactions}
+              setIsLoading={setIsLoading}
+            />
+          )}
         </BodyContainer>
       </YStack>
       <FooterContainer
