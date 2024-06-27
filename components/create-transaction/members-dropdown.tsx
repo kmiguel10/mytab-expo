@@ -118,18 +118,12 @@ export default function MembersDropdown({
               () =>
                 members.map((item, i) => {
                   return (
-                    <>
-                      <Select.Item
-                        index={i}
-                        key={item.userid}
-                        value={item.userid}
-                      >
-                        <Select.ItemText>{item.displayName}</Select.ItemText>
-                        <Select.ItemIndicator marginLeft="auto">
-                          {/* <Check size={16} /> */}
-                        </Select.ItemIndicator>
-                      </Select.Item>
-                    </>
+                    <Select.Item key={i} index={i} value={item.userid}>
+                      <Select.ItemText>{item.displayName}</Select.ItemText>
+                      <Select.ItemIndicator marginLeft="auto">
+                        {/* <Check size={16} /> */}
+                      </Select.ItemIndicator>
+                    </Select.Item>
                   );
                 }),
               [members]

@@ -405,7 +405,7 @@ const CreateTransaction: React.FC<Props> = ({
                 inputMode="decimal"
                 size={"$11"}
                 backgroundColor={"$backgroundTransparent"}
-                borderWidth="0"
+                borderWidth={0}
                 autoFocus={false}
                 maxLength={5}
               />
