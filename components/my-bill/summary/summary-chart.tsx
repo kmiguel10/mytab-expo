@@ -2,7 +2,7 @@ import { truncateToTwoDecimalPlaces } from "@/lib/helpers";
 import { SummaryInfo } from "@/types/global";
 import React, { useEffect, useState } from "react";
 import { BarChart } from "react-native-chart-kit";
-import { ScrollView, View } from "tamagui";
+import { ScrollView, SizableText, View } from "tamagui";
 
 interface Props {
   members: SummaryInfo[];
@@ -35,11 +35,12 @@ const SummaryChart: React.FC<Props> = ({
 
   return (
     <View height={scaledHeight}>
-      <ScrollView horizontal>
+      <ScrollView horizontal showsVerticalScrollIndicator={false}>
         <BarChart
           style={{
             marginVertical: 3,
             borderRadius: 12,
+            marginLeft: -60,
           }}
           data={{
             labels: labelsMembers,
@@ -54,9 +55,10 @@ const SummaryChart: React.FC<Props> = ({
           yAxisLabel="$ "
           yAxisSuffix=""
           withHorizontalLabels={false}
+          horizontalLabelRotation={0}
           showValuesOnTopOfBars={true}
           chartConfig={{
-            backgroundColor: "$ffffff",
+            backgroundColor: "#ffffff",
             backgroundGradientFrom: "#ffffff",
             backgroundGradientTo: "#ffffff",
             decimalPlaces: 0, // optional, defaults to 2dp

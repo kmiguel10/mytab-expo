@@ -104,6 +104,7 @@ const EditMembers: React.FC<Props> = ({
         </View>
       ) : (
         <ScrollView
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }

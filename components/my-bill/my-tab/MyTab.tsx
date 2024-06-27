@@ -85,15 +85,15 @@ const MyTab: React.FC<Props> = ({
         justifyContent="space-between"
         backgroundColor={"$backgroundTransparent"}
       >
-        <XStack gap="$3">
+        <XStack gap="$3" justifyContent="space-around">
           <YStack gap="$2" width={tabSectionWidth * 0.25}>
-            <SizableText>You are owed</SizableText>
+            <SizableText>Receive</SizableText>
             <SizableText size="$4" color={"$green10Light"}>
               {formatToDollarCurrency(truncateToTwoDecimalPlaces(owedAmount))}
             </SizableText>
           </YStack>
           <YStack gap="$2" width={tabSectionWidth * 0.25}>
-            <SizableText>You owe</SizableText>
+            <SizableText>Pay</SizableText>
             <SizableText size="$4" color={"$red10Light"}>
               {formatToDollarCurrency(truncateToTwoDecimalPlaces(debtAmount))}
             </SizableText>
@@ -103,13 +103,17 @@ const MyTab: React.FC<Props> = ({
         <View>
           <YStack gap="$2" width={tabSectionWidth * 0.25}>
             {owedAmount - debtAmount <= 0 ? (
-              <SizableText>You pay</SizableText>
+              <SizableText fontWeight={"bold"} size="$4">
+                You pay
+              </SizableText>
             ) : (
-              <SizableText>You receive</SizableText>
+              <SizableText fontWeight={"bold"} size="$4">
+                You receive
+              </SizableText>
             )}
-
             <SizableText
-              size="$4"
+              size="$6"
+              fontWeight={"bold"}
               color={
                 owedAmount - debtAmount <= 0 ? "$red10Light" : "$green10Light"
               }

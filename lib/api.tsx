@@ -103,7 +103,7 @@ export const getMembersAndRequests = async (billId: number) => {
     const { data, error } = await supabase
       .from("members")
       .select(
-        "memberid, userid, isMemberIncluded, isRequestSent,avatar_url, displayName"
+        "memberid, userid, isMemberIncluded, isRequestSent,avatar_url, displayName, hasJoined"
       )
       .eq("billid", billId);
     if (error) {

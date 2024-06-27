@@ -269,7 +269,7 @@ const CustomSplit: React.FC<Props> = ({
           </XStack>
           <Separator />
           <View height={buttonAreaHeight}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               <XStack
                 flexWrap="wrap"
                 backgroundColor="$backgroundTransparent"

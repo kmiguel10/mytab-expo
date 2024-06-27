@@ -13,6 +13,7 @@ import {
 } from "tamagui";
 import { StyledButton } from "../button/button";
 import { isLoaded } from "expo-font";
+import { Link, useRouter } from "expo-router";
 
 interface Props {
   open: boolean;
@@ -25,6 +26,8 @@ const SignIn: React.FC<Props> = ({ open, setOpen }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState(0);
+
+  const router = useRouter();
 
   /** Functions and Handlers */
   const handleSignIn = async () => {
@@ -47,19 +50,11 @@ const SignIn: React.FC<Props> = ({ open, setOpen }) => {
     }
   };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    const { session, error } = await signUpWithEmail(email, password);
-
-    if (error) {
-      Alert.alert(error.message);
-      setEmail("");
-      setPassword("");
-    }
-    if (session) {
-      Alert.alert("Please check your inbox for email verification!");
-    }
-    setLoading(false);
+  const handleResetPassword = () => {
+    setOpen(false);
+    setEmail("");
+    setPassword("");
+    router.push("/screens/reset-password");
   };
 
   return (
@@ -125,7 +120,10 @@ const SignIn: React.FC<Props> = ({ open, setOpen }) => {
               >
                 Sign in
               </StyledButton>
-              <SizableText>Forgot Password?</SizableText>
+
+              <SizableText onPress={handleResetPassword} color={"$blue10"}>
+                Forgot Password?
+              </SizableText>
             </YStack>
             <XStack alignItems="center" gap="$2">
               <Separator />

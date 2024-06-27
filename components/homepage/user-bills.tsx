@@ -31,6 +31,7 @@ const UserBills: React.FC<Props> = ({
 
   return (
     <ScrollView
+      showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
       }

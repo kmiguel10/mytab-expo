@@ -15,7 +15,7 @@ const MembersView: React.FC<Props> = ({ members, height }) => {
 
   return (
     <XStack gap={1} height={height * 0.25} paddingTop="$2">
-      <ScrollView horizontal={true}>
+      <ScrollView horizontal={true} showsVerticalScrollIndicator={false}>
         {members.map((member, index) => (
           <XStack key={index}>
             <Avatar url={member.avatar_url} size={"$3"} />
