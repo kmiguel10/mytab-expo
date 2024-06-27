@@ -127,18 +127,21 @@ const UserSettlementsSheet: React.FC<Props> = ({
         <XStack justifyContent="flex-end">
           <XCircle onPress={() => setOpen(false)} />
         </XStack>
-        <ScrollView bounces={false}>
+        <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
           <H4 paddingBottom="$4">Settlement with {selectedUserName}</H4>
           <XStack justifyContent="space-between" paddingBottom="$4">
             <XStack alignItems="center" width={"50%"}>
               <SizableText textAlign="left">
-                <SizableText size={"$4"}>{userSettlement}</SizableText>
+                <SizableText size={"$5"} fontWeight={"bold"}>
+                  {userSettlement}
+                </SizableText>
               </SizableText>
             </XStack>
             <YStack>
-              <SizableText>Settlement Amount</SizableText>
+              <SizableText fontWeight={"bold"}>Settlement Amount</SizableText>
               <SizableText textAlign="right">
                 <SizableText
+                  fontWeight={"bold"}
                   color={settlementAmount < 0 ? "$red10Light" : "$green10Light"}
                   size="$6"
                 >
@@ -157,7 +160,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
           >
             <Avatar url={selectedUserUrl || null} size={"$5"} />
             <YStack>
-              <SizableText>Total Amount</SizableText>
+              <SizableText>Pay Amount</SizableText>
               <SizableText textAlign="right" color={"$red10Light"}>
                 {formatToDollarCurrency(
                   truncateToTwoDecimalPlaces(selectedMemberSettlementSum)
@@ -166,15 +169,11 @@ const UserSettlementsSheet: React.FC<Props> = ({
             </YStack>
           </XStack>
 
-          {(selectedMemberSettlements?.length ?? 0) > 0 ? (
-            <SizableText paddingBottom="$4">
-              {selectedUserName} paid the following for {currentUserName}
-            </SizableText>
-          ) : (
-            <SizableText paddingBottom="$4">
-              {selectedUserName} has not paid anything for {currentUserName}
-            </SizableText>
-          )}
+          <SizableText paddingBottom="$4">
+            {selectedUserName} paid for {selectedMemberSettlements?.length || 0}{" "}
+            transactions for {currentUserName}
+          </SizableText>
+
           <YGroup
             alignSelf="center"
             width={windowWidth * 0.9}
@@ -207,7 +206,7 @@ const UserSettlementsSheet: React.FC<Props> = ({
           >
             <Avatar url={currentUserUrl} size={"$5"} />
             <YStack>
-              <SizableText>Total Amount</SizableText>
+              <SizableText>Receive Amount</SizableText>
               <SizableText textAlign="right" color={"$green10Light"}>
                 {formatToDollarCurrency(
                   truncateToTwoDecimalPlaces(currentUserSettlementSum)
@@ -216,15 +215,10 @@ const UserSettlementsSheet: React.FC<Props> = ({
             </YStack>
           </XStack>
 
-          {(currentUserSettlements?.length ?? 0) > 0 ? (
-            <SizableText paddingBottom="$4">
-              {currentUserName} paid the following for {selectedUserName}
-            </SizableText>
-          ) : (
-            <SizableText paddingBottom="$4">
-              {currentUserName} has not paid anything for {selectedUserName}
-            </SizableText>
-          )}
+          <SizableText paddingBottom="$4">
+            {currentUserName} paid for {currentUserSettlements?.length || 0}{" "}
+            transactions for {selectedUserName}
+          </SizableText>
 
           <YGroup
             alignSelf="center"

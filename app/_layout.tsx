@@ -59,7 +59,14 @@ function RootLayoutNav() {
       <ThemeProvider value={DefaultTheme}>
         <ToastProvider>
           <Stack>
-            <Stack.Screen name="index" options={{ title: "Welcome" }} />
+            <Stack.Screen
+              name="index"
+              options={{ title: "Welcome", headerBackVisible: false }}
+            />
+            <Stack.Screen
+              name="screens/reset-password"
+              options={{ title: "Reset Password" }}
+            />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
             {/* <Stack.Screen

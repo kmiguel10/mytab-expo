@@ -198,7 +198,7 @@ const SettleMemberCard: React.FC<Props> = ({
 
   return (
     <View>
-      <ScrollView bounces={false}>
+      <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
         <XStack
           flex={1}
           flexWrap="wrap"

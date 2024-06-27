@@ -18,7 +18,8 @@
     "ios": {
       "supportsTablet": true,
       "usesAppleSignIn": true,
-      "bundleIdentifier": "com.anonymous.my-tab"
+      "bundleIdentifier": "com.anonymous.my-tab",
+      "associatedDomains": ["applinks:"]
     },
     "android": {
       "adaptiveIcon": {

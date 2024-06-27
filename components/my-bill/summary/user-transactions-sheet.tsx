@@ -86,7 +86,11 @@ const UserTransactions: React.FC<Props> = ({
             </SizableText>
           </View>
         </XStack>
-        <ScrollView backgroundColor={"$backgroundTransparent"} bounces={false}>
+        <ScrollView
+          backgroundColor={"$backgroundTransparent"}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+        >
           <YGroup
             alignSelf="center"
             width={windowWidth * 0.9}

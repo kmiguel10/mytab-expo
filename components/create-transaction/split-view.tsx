@@ -26,7 +26,7 @@ const SplitView: React.FC<Props> = ({ memberSplits, isEven, ...props }) => {
 
   return (
     <View height={windowHeight * 0.32}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <XStack flexWrap="wrap" gap="$1" alignContent="center">
           <YGroup alignSelf="center" width={"100%"} size="$5" gap="$1.5">
             {memberSplits.map((member, index) => (

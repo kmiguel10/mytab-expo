@@ -421,6 +421,7 @@ const EditTransaction: React.FC<Props> = ({
                   defaultValue=""
                   value={transactionName}
                   error={isTransactionNameError}
+                  backgroundColor={"white"}
                   onChangeText={handleNameChange}
                   disabled={!isVisibleForUser}
                   maxLength={20}
@@ -433,7 +434,9 @@ const EditTransaction: React.FC<Props> = ({
                 <MembersDropdown
                   members={activeMembers}
                   onPayerChange={handlePayerChange}
-                  defaultPayer={getDisplayName(userId.toString())}
+                  defaultPayer={getDisplayName(
+                    localTxn?.payerid?.toString() || ""
+                  )}
                   isVisibleToUser={
                     !isVisibleForUser ||
                     !transactionName ||

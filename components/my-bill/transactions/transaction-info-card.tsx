@@ -122,6 +122,7 @@ const TransactionInfoCard: React.FC<Props> = ({
         setIsLoadingBillPage={setIsLoading}
       />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
