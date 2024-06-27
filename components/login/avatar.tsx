@@ -34,7 +34,6 @@ export default function Avatar({
       const cachedUrl = await AsyncStorage.getItem(`avatarCache:${path}`);
       if (cachedUrl) {
         setAvatarUrl(cachedUrl);
-        console.log(`Retrieved cached avatar for ${path}`);
       } else {
         downloadImage(path);
       }

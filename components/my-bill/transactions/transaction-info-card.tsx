@@ -173,7 +173,7 @@ const TransactionInfoCard: React.FC<Props> = ({
                             />
                           </XStack>
                         }
-                        title={<SizableText>{txn.name}</SizableText>}
+                        title={txn.name}
                         subTitle={
                           <SizableText
                             size={"$2"}
