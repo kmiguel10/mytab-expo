@@ -198,7 +198,6 @@ const EditTransaction: React.FC<Props> = ({
           }
 
           if (data) {
-            console.log("EDITED TRANSACTION");
             const editedTxn: Transaction = data[0];
             setCurrentTxnToEdit(editedTxn);
             setLocalTxn(editedTxn);
@@ -287,7 +286,6 @@ const EditTransaction: React.FC<Props> = ({
       (member) => member.isMemberIncluded === true
     );
     setActiveMembers(_activeMembers);
-    console.log("**** Active members", JSON.stringify(_activeMembers));
   }, [members]);
 
   //Gets members
@@ -305,10 +303,8 @@ const EditTransaction: React.FC<Props> = ({
   }, [amount]);
 
   useEffect(() => {
-    console.log("OPEN", open);
     // Reset localTxn values when modal is opened
     if (open) {
-      console.log("RESET Z INDEX");
       setSheetZIndex(100000);
       setLocalTxn(transaction);
     }

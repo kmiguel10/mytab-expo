@@ -23,12 +23,6 @@ export default function MembersDropdown({
   const [defaultPayerId, setDefaultPayerId] = useState("");
 
   //Handles selection of payer
-  //   const handlePayerSelect = (selectedUser: string) => {
-  //     setPayer(selectedUser);
-  //     onPayerChange(payer);
-  //     console.log("Selected User", selectedUser);
-  //     console.log("Payer: ", payer);
-  //   };
   const handlePayerSelect = (selectedUserId: string) => {
     // Find the member with the selected user id
     const selectedMember = members.find(
@@ -39,8 +33,6 @@ export default function MembersDropdown({
       setPayer(selectedMember.userid);
       onPayerChange(selectedMember.userid);
     }
-    console.log("Payer:", payer);
-    console.log("Selectedmember:", selectedMember?.userid);
   };
 
   const getDefaultId = () => {
@@ -52,14 +44,11 @@ export default function MembersDropdown({
   };
 
   useEffect(() => {
-    // setPayer(defaultPayer);
-    console.log("DROPDOWN");
-
     const defaultId = getDefaultId();
-    console.log("defaultId", defaultId);
     if (defaultId) {
       setDefaultPayerId(defaultId);
       onPayerChange(defaultId);
+      handlePayerSelect(defaultId);
     }
   }, [defaultPayer]);
 
@@ -79,13 +68,14 @@ export default function MembersDropdown({
         <Sheet
           native={!!props.native}
           modal
-          dismissOnSnapToBottom
+          dismissOnSnapToBottom={false}
           animationConfig={{
             type: "spring",
             damping: 20,
             mass: 1.2,
             stiffness: 250,
           }}
+          snapPoints={[40]}
         >
           <Sheet.Frame>
             <Sheet.ScrollView>
@@ -122,22 +112,24 @@ export default function MembersDropdown({
 
         <Select.Viewport minWidth={200}>
           <Select.Group>
-            <Select.Label>Members</Select.Label>
+            <Select.Label>Choose payer:</Select.Label>
             {/* for longer lists memoizing these is useful */}
             {useMemo(
               () =>
                 members.map((item, i) => {
                   return (
-                    <Select.Item
-                      index={i}
-                      key={item.userid}
-                      value={item.userid}
-                    >
-                      <Select.ItemText>{item.displayName}</Select.ItemText>
-                      <Select.ItemIndicator marginLeft="auto">
-                        {/* <Check size={16} /> */}
-                      </Select.ItemIndicator>
-                    </Select.Item>
+                    <>
+                      <Select.Item
+                        index={i}
+                        key={item.userid}
+                        value={item.userid}
+                      >
+                        <Select.ItemText>{item.displayName}</Select.ItemText>
+                        <Select.ItemIndicator marginLeft="auto">
+                          {/* <Check size={16} /> */}
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    </>
                   );
                 }),
               [members]
