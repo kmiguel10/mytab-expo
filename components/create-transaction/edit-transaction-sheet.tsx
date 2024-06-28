@@ -153,7 +153,7 @@ const EditTransaction: React.FC<Props> = ({
    * need to adjust tables on split transactions and the functions...
    */
   const onSubmitTxn = async () => {
-    let _userId = userId.toString();
+    let _userId = userId?.toString() || "";
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
     localTxn.amount = parseFloat(amount);
@@ -361,7 +361,7 @@ const EditTransaction: React.FC<Props> = ({
             {isVisibleForUser && (
               <XStack justifyContent="space-between">
                 <ConfirmDeleteTransaction
-                  userId={userId.toString()}
+                  userId={userId?.toString() || ""}
                   transaction={localTxn}
                   setOpen={setOpen}
                   setSheetZIndex={setSheetZIndex}

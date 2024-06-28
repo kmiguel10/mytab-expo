@@ -55,7 +55,7 @@ export default function Profile() {
         console.log("*** User updated: ", data);
         router.replace({
           pathname: "/(homepage)/[id]",
-          params: { id: userId.toString() },
+          params: { id: userId?.toString() },
         });
       }
     } catch (error) {}
@@ -147,7 +147,7 @@ export default function Profile() {
     const fetchprofileInfo = async () => {
       try {
         const profile: ProfileInfo | null = await getProfileInfo(
-          userId.toString()
+          userId?.toString() || ""
         );
 
         if (profile) {
