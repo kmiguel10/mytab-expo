@@ -148,7 +148,7 @@ const CreateTransaction: React.FC<Props> = ({
    * need to adjust tables on split transactions and the functions...
    */
   const onCreateTxn = async () => {
-    let _userId = userId.toString();
+    let _userId = userId?.toString() || "";
     transaction.submittedbyid = _userId;
     transaction.billid = Number(id);
     transaction.amount = parseFloat(amount);
@@ -217,7 +217,7 @@ const CreateTransaction: React.FC<Props> = ({
 
           if (data) {
             const createdTxn: Transaction = data[0];
-            router.navigate({
+            router.push({
               pathname: `/(bill)/${createdTxn.billid}`,
               params: { userId: _userId, txnName: createdTxn.name },
             });
@@ -432,7 +432,7 @@ const CreateTransaction: React.FC<Props> = ({
                 <MembersDropdown
                   members={activeMembers}
                   onPayerChange={handlePayerChange}
-                  defaultPayer={getDisplayName(userId.toString())}
+                  defaultPayer={getDisplayName(userId?.toString() || "")}
                   isVisibleToUser={
                     !transactionName ||
                     isTransactionNameError ||

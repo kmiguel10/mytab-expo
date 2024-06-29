@@ -153,7 +153,7 @@ const EditTransaction: React.FC<Props> = ({
    * need to adjust tables on split transactions and the functions...
    */
   const onSubmitTxn = async () => {
-    let _userId = userId.toString();
+    let _userId = userId?.toString() || "";
     localTxn.submittedbyid = _userId;
     localTxn.billid = Number(id);
     localTxn.amount = parseFloat(amount);
@@ -191,7 +191,7 @@ const EditTransaction: React.FC<Props> = ({
 
           if (error) {
             setIsLoading(false); // Stop spinner before routing
-            router.replace({
+            router.push({
               pathname: `/(bill)/${localTxn.billid}`,
               params: { userId: _userId, errorEditMsg: error.message },
             });
@@ -201,9 +201,9 @@ const EditTransaction: React.FC<Props> = ({
             const editedTxn: Transaction = data[0];
             setCurrentTxnToEdit(editedTxn);
             setLocalTxn(editedTxn);
-            //setOpen(true); // Close the sheet
+            setOpen(true); // Close the sheet
             setIsLoading(true); // Stop spinner before routing
-            router.replace({
+            router.push({
               pathname: `/(bill)/${editedTxn.billid}`,
               params: { userId: _userId, editedTxnName: editedTxn.name },
             });
@@ -361,7 +361,7 @@ const EditTransaction: React.FC<Props> = ({
             {isVisibleForUser && (
               <XStack justifyContent="space-between">
                 <ConfirmDeleteTransaction
-                  userId={userId.toString()}
+                  userId={userId?.toString() || ""}
                   transaction={localTxn}
                   setOpen={setOpen}
                   setSheetZIndex={setSheetZIndex}

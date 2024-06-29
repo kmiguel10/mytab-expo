@@ -4,7 +4,7 @@ import { BillInfo } from "@/types/global";
 import { useRoute } from "@react-navigation/native";
 import { Session } from "@supabase/supabase-js";
 import { Home, Settings2 } from "@tamagui/lucide-icons";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
 import { Text, View } from "tamagui";
@@ -12,9 +12,7 @@ import { Text, View } from "tamagui";
 const Layout = () => {
   const router = useRouter();
   const route = useRoute();
-  const { id } = route.params as {
-    id: string;
-  };
+  const { id } = useLocalSearchParams();
 
   /** States */
   const [session, setSession] = useState<Session | null>(null);
@@ -27,6 +25,7 @@ const Layout = () => {
   const handleHomeButtonClick = () => {
     setCounter(counter++);
     if (sessionUserId) {
+      //router.back();
       router.replace({
         pathname: "/(homepage)/[id]",
         params: { id: sessionUserId },
@@ -41,7 +40,7 @@ const Layout = () => {
     setCounter(counter++);
     router.replace({
       pathname: `/(bill)/[id]`,
-      params: { id: id, userId: sessionUserId },
+      params: { id: id.toString(), userId: sessionUserId },
     });
     setCounter(counter++);
   };
@@ -124,7 +123,7 @@ const Layout = () => {
           title: "Bill Settings",
           headerLeft: () => (
             <Pressable onPress={handleReturnToMyBill}>
-              <Text>{billName.slice(0, 5)}...</Text>
+              <Text color={"$blue10Light"}>{billName}</Text>
             </Pressable>
           ),
         }}

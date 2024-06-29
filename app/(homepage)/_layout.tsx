@@ -24,7 +24,7 @@ export default function TabLayout() {
 
   const handleHomeButtonClick = () => {
     if (sessionUserId) {
-      router.replace({
+      router.navigate({
         pathname: "/(homepage)/[id]",
         params: { id: sessionUserId },
       });

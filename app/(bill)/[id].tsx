@@ -19,7 +19,7 @@ import { useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
-import { Spinner, View, YStack, useWindowDimensions } from "tamagui";
+import { Spinner, YStack, useWindowDimensions } from "tamagui";
 
 // Define the possible product types
 type ProductType = "free.plan" | "com.mytab.1week" | "com.mytab.2weeks";
@@ -125,7 +125,7 @@ const BillScreen = () => {
     async function fetchTransactions() {
       if (userId) {
         const transactionData: Transaction[] = await getActiveTransactions(
-          id.toString()
+          id?.toString() || ""
         );
         setTransactions(transactionData);
         if (transactionData) setloadingTransactions(false);
@@ -224,12 +224,12 @@ const BillScreen = () => {
     ) {
       console.log(" *** Toasts are initialized");
       setOpen(true);
-      setTxnName(initialTxnName);
-      setErrorCreateMsg(initialErrorCreateMsg);
-      setEditedTxnName(initialEditedTxnName);
-      setErrorEditMsg(initialErrorEditMsg);
-      setDeletedTxnName(initialDeletedTxnName);
-      setErrorDeleteMsg(initialErrorDeleteMsg);
+      setTxnName(initialTxnName || "");
+      setErrorCreateMsg(initialErrorCreateMsg || "");
+      setEditedTxnName(initialEditedTxnName || "");
+      setErrorEditMsg(initialErrorEditMsg || "");
+      setDeletedTxnName(initialDeletedTxnName || "");
+      setErrorDeleteMsg(initialErrorDeleteMsg || "");
     }
   }, [
     initialTxnName,
@@ -243,7 +243,7 @@ const BillScreen = () => {
   return (
     <OuterContainer>
       <CreateTransaction
-        billId={id.toString()}
+        billId={id?.toString() || ""}
         members={members}
         open={openCreateTxn}
         setOpen={setOpenCreateTxn}
@@ -288,7 +288,7 @@ const BillScreen = () => {
               transactions={transactions}
               summaryInfo={summaryInfo}
               billId={Number(id)}
-              userId={userId?.toString()}
+              userId={userId?.toString() || ""}
               height={windowHeight * 0.62}
               width={windowWidth * 0.95}
               members={members}
@@ -338,7 +338,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={txnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >
@@ -360,7 +360,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={editedTxnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >
@@ -386,7 +386,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={deletedTxnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >

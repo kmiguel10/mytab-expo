@@ -1,21 +1,17 @@
-import "../tamagui-web.css";
 import "expo-dev-client";
+import "../tamagui-web.css";
 // import "react-native-reanimated";
 // import "react-native-gesture-handler";
 
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { SplashScreen, Stack, useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
-import { Button, TamaguiProvider } from "tamagui";
+import { TamaguiProvider } from "tamagui";
 
-import { config } from "../tamagui.config";
+import { ToastProvider } from "@tamagui/toast";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
-import { ToastProvider } from "@tamagui/toast";
+import { config } from "../tamagui.config";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -69,50 +65,6 @@ function RootLayoutNav() {
             />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
-            {/* <Stack.Screen
-              name="pages/create-transaction"
-              options={{ title: "Create Transaction" }}
-            />
-            <Stack.Screen
-              name="pages/edit-transaction"
-              options={{ title: "Edit this Transaction" }}
-            /> */}
-            {/* <Stack.Screen
-              name="pages/edit-transaction"
-              options={{ title: "Edit Transaction" }}
-            /> */}
-            {/* <Stack.Screen
-              name="/(bill)/mybill/"
-              options={{ headerShown: false }}
-            /> */}
-            <Stack.Screen
-              name="(modals)/create-bill"
-              options={{
-                presentation: "modal",
-                title: "Create Bill",
-                // headerLeft: () => (
-                //   <Button onPress={() => router.back()}>Home</Button>
-                // ),
-              }}
-            />
-            {/* <Stack.Screen
-              name="(bill)/edit-bill"
-              options={{
-                title: "Bill Settings",
-                // headerLeft: () => (
-                //   <Button onPress={() => router.back()}>Home</Button>
-                // ),
-              }}
-            /> */}
-
-            {/* <Stack.Screen
-            name="(modals)/create-transaction"
-            options={{
-              headerTitle: "Create Transaction",
-              presentation: "modal",
-              title: "Create Transaction",
-            }}
-          /> */}
           </Stack>
         </ToastProvider>
       </ThemeProvider>

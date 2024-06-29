@@ -218,11 +218,11 @@ const Home = () => {
       initialSuccessDeletedBillMsg
     ) {
       setOpen(true);
-      setNewBillId(initialNewBillId);
-      setJoinedBillCode(initialJoinedBillCode);
-      setErrorMessage(initialErrorMessage);
-      setErrorCreateMessage(initialErrorCreateMessage);
-      setSuccessDeletedBillMsg(initialSuccessDeletedBillMsg);
+      setNewBillId(initialNewBillId || "");
+      setJoinedBillCode(initialJoinedBillCode || "");
+      setErrorMessage(initialErrorMessage || "");
+      setErrorCreateMessage(initialErrorCreateMessage || "");
+      setSuccessDeletedBillMsg(initialSuccessDeletedBillMsg || "");
     }
   }, [
     initialNewBillId,
@@ -236,7 +236,9 @@ const Home = () => {
   useEffect(() => {
     const fetchprofileInfo = async () => {
       try {
-        const profile: ProfileInfo | null = await getProfileInfo(id.toString());
+        const profile: ProfileInfo | null = await getProfileInfo(
+          id?.toString() || ""
+        );
 
         if (profile) {
           setProfileInfo(profile);
@@ -454,7 +456,7 @@ const Home = () => {
           <TabsAdvancedUnderline
             bills={bills}
             inactiveBills={inactiveBills}
-            userId={id.toString()}
+            userId={id?.toString() || ""}
             height={windowHeight * 0.62}
             width={windowWidth * 0.95}
             setRefreshing={setRefreshing}
@@ -540,7 +542,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$green8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >
@@ -559,7 +561,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$red8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >
@@ -578,7 +580,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$green8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >

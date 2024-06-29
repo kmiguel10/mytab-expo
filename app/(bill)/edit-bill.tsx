@@ -17,7 +17,6 @@ import {
   Fieldset,
   Form,
   H6,
-  Spinner,
   Text,
   useWindowDimensions,
   View,
@@ -27,10 +26,10 @@ import {
 
 import ExtendDurationToast from "@/components/bill-settings/extend-duration-toast";
 import SaveNameToast from "@/components/bill-settings/save-name-toast";
+import BillSettingsSkeleton from "@/components/skeletons/bill-settings-skeleton";
 import { AlertCircle } from "@tamagui/lucide-icons";
 import moment from "moment";
 import "moment-timezone";
-import BillSettingsSkeleton from "@/components/skeletons/bill-settings-skeleton";
 
 /**
  * This component's features are only visible to the bill owner
@@ -278,7 +277,7 @@ export const EditBill = () => {
                       </Fieldset>
                       <ConfirmSaveName
                         billId={billInfo[0]?.billid}
-                        userId={userId.toString()}
+                        userId={userId?.toString() || ""}
                         setOpen={setOpen}
                         setSaveNameError={setSaveNameError}
                         disabled={
@@ -331,7 +330,7 @@ export const EditBill = () => {
                         (isExpiringToday || isBillExpired) && (
                           <ConfirmExtension
                             currentEndDateUTC={endDate.utc().toDate()}
-                            billId={parseInt(id.toString())}
+                            billId={parseInt(id?.toString() || "")}
                             setBillInfo={setBillInfo}
                             setOpenExtendDuration={setOpenExtendDuration}
                             setErrorMessage={setExtendDurationErrorMsg}
@@ -358,15 +357,15 @@ export const EditBill = () => {
               <XStack padding="$3" justifyContent="flex-end">
                 <LockSwitch
                   size="$2"
-                  userId={userId.toString()}
-                  billId={parseInt(id.toString())}
+                  userId={userId?.toString() || ""}
+                  billId={parseInt(id?.toString() || "")}
                   isLocked={isLocked}
                   disabled={!isOwner || isBillExpired}
                 />
               </XStack>
             )}
             <EditMembers
-              billId={parseInt(id.toString())}
+              billId={parseInt(id?.toString() || "")}
               ownerId={billInfo[0]?.ownerid}
               height={height * 0.45}
               isOwner={isOwner}
@@ -378,7 +377,7 @@ export const EditBill = () => {
               <XStack justifyContent="space-between" padding="$3">
                 <ConfirmDeleteBill
                   billId={billInfo[0]?.billid}
-                  userId={userId.toString()}
+                  userId={userId?.toString() || ""}
                 />
               </XStack>
             )}
