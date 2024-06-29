@@ -31,6 +31,7 @@ const ExtendDurationToast: React.FC<ExtendDurationToastProps> = ({
       opacity={1}
       x={0}
       backgroundColor={extendErrorMessage ? "$red8Light" : "$green8Light"}
+      height={"auto"}
       width={"80%"}
       justifyContent="center"
     >
