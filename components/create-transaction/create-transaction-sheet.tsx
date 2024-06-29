@@ -217,7 +217,7 @@ const CreateTransaction: React.FC<Props> = ({
 
           if (data) {
             const createdTxn: Transaction = data[0];
-            router.navigate({
+            router.push({
               pathname: `/(bill)/${createdTxn.billid}`,
               params: { userId: _userId, txnName: createdTxn.name },
             });

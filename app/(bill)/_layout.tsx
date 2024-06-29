@@ -25,6 +25,7 @@ const Layout = () => {
   const handleHomeButtonClick = () => {
     setCounter(counter++);
     if (sessionUserId) {
+      //router.back();
       router.replace({
         pathname: "/(homepage)/[id]",
         params: { id: sessionUserId },
@@ -122,7 +123,7 @@ const Layout = () => {
           title: "Bill Settings",
           headerLeft: () => (
             <Pressable onPress={handleReturnToMyBill}>
-              <Text>{billName.slice(0, 5)}...</Text>
+              <Text color={"$blue10Light"}>{billName}</Text>
             </Pressable>
           ),
         }}

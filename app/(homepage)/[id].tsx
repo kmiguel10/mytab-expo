@@ -542,7 +542,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$green8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >
@@ -561,7 +561,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$red8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >
@@ -580,7 +580,7 @@ const Home = () => {
           opacity={1}
           x={0}
           backgroundColor={"$green8"}
-          height={"400"}
+          height={400}
           width={"80%"}
           justifyContent="center"
         >

@@ -338,7 +338,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={txnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >
@@ -360,7 +360,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={editedTxnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >
@@ -386,7 +386,7 @@ const BillScreen = () => {
           opacity={1}
           x={0}
           backgroundColor={deletedTxnName ? "$green8Light" : "$red8Light"}
-          height={"400"}
+          height={"auto"}
           width={"80%"}
           justifyContent="center"
         >
