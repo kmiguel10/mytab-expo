@@ -96,6 +96,7 @@ const SignUp: React.FC<Props> = ({ open, setOpen }) => {
                 value={email}
                 placeholder="email@address.com"
                 autoCapitalize={"none"}
+                autoFocus={true}
               />
               <Input
                 onChangeText={(text) => setPassword(text)}

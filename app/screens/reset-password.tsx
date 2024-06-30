@@ -1,29 +1,89 @@
-import { View, Text, YStack, useWindowDimensions, SizableText } from "tamagui";
-import React from "react";
+import { StyledButton } from "@/components/button/button";
 import { StyledInput } from "@/components/input/input";
+import React, { useState } from "react";
+import {
+  Card,
+  SizableText,
+  Text,
+  View,
+  XStack,
+  YStack,
+  useWindowDimensions,
+} from "tamagui";
+import validator from "validator";
 
 /**
- * 1. Provide email to send code
- * 2. receive code in email
- * 3. Provide code
- * 4. Enter new password
- *
- * How many states?
- * 1. Enter email
- * 2. Enter code
- * 3. Enter new password
- *
+Reset email component
  */
 export const ResetPassword = () => {
   /********** States and variables ************/
   const { width, height } = useWindowDimensions();
+  const [isError, setIsError] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isErrorEmailSent, setIsErrorEmailSent] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
+
+  const successMessage = `SUCCESS: Check your inbox for ${email} and click the link to reset your password`;
+
+  const errorMessage = `ERROR: There is an issue sending the link to your email.`;
+
+  /********** Function ************/
+  const handleSendLink = () => {
+    if (validator.isEmail(email)) {
+      setIsError(false);
+      // Handle sending the reset email link - set email success or error here
+      setIsEmailSent(true);
+    } else {
+      setIsError(true);
+    }
+  };
+
+  /********** UseEffect ************/
 
   return (
-    <View backgroundColor={"white"} height={"100%"}>
-      <SizableText>Enter your email address:</SizableText>
-      <YStack width={width * 0.9}>
-        <StyledInput />
+    <View
+      backgroundColor={"white"}
+      height={"100%"}
+      alignContent="center"
+      padding={"$4"}
+      gap={"$4"}
+    >
+      {isEmailSent && (
+        <Card backgroundColor={"$green5Light"}>
+          <Card.Header>
+            <SizableText color={"$green10Light"}>{successMessage}</SizableText>
+          </Card.Header>
+        </Card>
+      )}
+      {isErrorEmailSent && (
+        <Card backgroundColor={"$red5Light"}>
+          <Card.Header>
+            <SizableText color={"$red10Light"}>{errorMessage}</SizableText>
+          </Card.Header>
+        </Card>
+      )}
+      <YStack width={width * 0.9} justifyContent="center" gap={"$2"}>
+        <SizableText size="$4">Enter your email address:</SizableText>
+        <StyledInput
+          autoFocus={true}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          disabled={isEmailSent}
+        />
+        {isError && <Text style={{ color: "red" }}>Invalid email address</Text>}
       </YStack>
+      {!isEmailSent && (
+        <XStack justifyContent="flex-end" width={width * 0.9}>
+          <StyledButton
+            active={email.length > 0}
+            onPress={handleSendLink}
+            disabled={email.length === 0}
+          >
+            Send Link
+          </StyledButton>
+        </XStack>
+      )}
     </View>
   );
 };
