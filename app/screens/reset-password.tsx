@@ -41,7 +41,7 @@ export const ResetPassword = () => {
         const { data, error } = await supabase.auth.resetPasswordForEmail(
           email,
           {
-            redirectTo: "http://owemee.app/screens/new-password",
+            redirectTo: "https://owemee.app/screens/new-password",
           }
         );
         if (data) {
