@@ -54,7 +54,7 @@ const SignIn: React.FC<Props> = ({ open, setOpen }) => {
     setOpen(false);
     setEmail("");
     setPassword("");
-    router.push("/screens/new-password");
+    router.push("/screens/reset-password");
   };
 
   return (

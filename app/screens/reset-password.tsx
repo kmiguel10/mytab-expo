@@ -1,5 +1,6 @@
 import { StyledButton } from "@/components/button/button";
 import { StyledInput } from "@/components/input/input";
+import { supabase } from "@/lib/supabase";
 import React, { useState } from "react";
 import {
   Card,
@@ -28,11 +29,34 @@ export const ResetPassword = () => {
   const errorMessage = `ERROR: There is an issue sending the link to your email.`;
 
   /********** Function ************/
-  const handleSendLink = () => {
+  const handleEmailChange = (email: string) => {
+    setIsError(false);
+    setEmail(email);
+  };
+
+  const handleSendLink = async () => {
     if (validator.isEmail(email)) {
-      setIsError(false);
       // Handle sending the reset email link - set email success or error here
-      setIsEmailSent(true);
+      try {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: "http://owemee.app/screens/new-password",
+          }
+        );
+        if (data) {
+          console.log("success email sent", data);
+          setIsError(false);
+          setIsEmailSent(true);
+        }
+
+        if (error) {
+          console.log("Error email sent", error.message);
+          setIsErrorEmailSent(true);
+        }
+      } catch (error) {
+        setIsErrorEmailSent(true);
+      }
     } else {
       setIsError(true);
     }
@@ -51,7 +75,9 @@ export const ResetPassword = () => {
       {isEmailSent && (
         <Card backgroundColor={"$green5Light"}>
           <Card.Header>
-            <SizableText color={"$green10Light"}>{successMessage}</SizableText>
+            <SizableText color={"$green10Light"} fontWeight={400}>
+              {successMessage}
+            </SizableText>
           </Card.Header>
         </Card>
       )}
@@ -67,7 +93,7 @@ export const ResetPassword = () => {
         <StyledInput
           autoFocus={true}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           placeholder="Email"
           disabled={isEmailSent}
         />

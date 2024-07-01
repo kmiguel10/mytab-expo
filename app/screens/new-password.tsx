@@ -4,6 +4,7 @@ import { Card, SizableText, View, XStack, YStack } from "tamagui";
 import { StyledInput } from "@/components/input/input";
 import { StyledButton } from "@/components/button/button";
 import { Eye, EyeOff } from "@tamagui/lucide-icons";
+import { supabase } from "@/lib/supabase";
 
 const NewPassword = () => {
   const { width } = useWindowDimensions();
@@ -26,6 +27,7 @@ const NewPassword = () => {
     if (url) {
       // Ensure that the URL is properly parsed and processed
       const params = parseUrlParameters(url);
+      console.log("Params from universal link:", params);
       //   if (params && params.token) {
       //     console.log("Received token:", params.token);
       //     handlePasswordUpdate(params.token); // Assuming this function handles token update
@@ -45,6 +47,8 @@ const NewPassword = () => {
 
   const handlePasswordUpdate = async () => {
     try {
+      await supabase.auth.updateUser({ password: password });
+
       // Perform actions with token, update state, etc.
       setIsPasswordSent(true);
       setErrorMessage("");
