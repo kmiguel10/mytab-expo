@@ -15,11 +15,15 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
+     "ios": {
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "bundleIdentifier": "com.anonymous.my-tab",
-      "associatedDomains": ["applinks:"]
+      "associatedDomains": [
+        "applinks:owemee.app",
+        "applinks:owemee.app.ngrok.io",
+        "applinks:yoakoxi-kmiguel10-8081.exp.direct"
+      ]
     },
     "android": {
       "adaptiveIcon": {

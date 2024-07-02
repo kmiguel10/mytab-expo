@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
+    "@expo/ngrok": "^4.1.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
@@ -57,11 +58,13 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.12",
     "tamagui": "^1.101.3",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@types/react": "~18.2.79",
+    "@types/validator": "^13",
     "metro": "^0.80.9",
     "metro-config": "^0.80.9",
     "metro-resolver": "^0.80.9"

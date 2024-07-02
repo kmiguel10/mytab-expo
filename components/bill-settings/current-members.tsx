@@ -120,6 +120,7 @@ const DeletedMemberToast: React.FC<DeleteMembersToastProps> = ({
       opacity={1}
       x={0}
       backgroundColor={processError ? "$red8Light" : "$green8Light"}
+      height={"auto"}
       width={"80%"}
       justifyContent="center"
     >
