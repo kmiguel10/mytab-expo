@@ -1,10 +1,12 @@
-import { Text, useWindowDimensions, Linking } from "react-native";
-import React, { useState, useEffect } from "react";
-import { Card, SizableText, View, XStack, YStack } from "tamagui";
-import { StyledInput } from "@/components/input/input";
 import { StyledButton } from "@/components/button/button";
+import { StyledInput } from "@/components/input/input";
+import { supabase } from "@/lib/supabase"; // Adjust this path as per your setup
 import { Eye, EyeOff } from "@tamagui/lucide-icons";
-import { supabase } from "@/lib/supabase";
+import * as Linking from "expo-linking";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { useWindowDimensions } from "react-native";
+import { Card, SizableText, View, XStack, YStack } from "tamagui";
 
 const NewPassword = () => {
   const { width } = useWindowDimensions();
@@ -16,46 +18,86 @@ const NewPassword = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordsMatch, setIsPasswordsMatch] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [access_token, setAccessToken] = useState("");
+  const [refresh_token, setRefreshToken] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if the component was opened via Universal Link
     handleUniversalLink();
   }, []);
 
   const handleUniversalLink = async () => {
     const url = await Linking.getInitialURL();
+
     if (url) {
-      // Ensure that the URL is properly parsed and processed
       const params = parseUrlParameters(url);
-      console.log("Params from universal link:", params);
-      //   if (params && params.token) {
-      //     console.log("Received token:", params.token);
-      //     handlePasswordUpdate(params.token); // Assuming this function handles token update
-      //   }
+      if (params.access_token) {
+        setAccessToken(params.access_token);
+        setRefreshToken(params.refresh_token);
+        authenticateUser(params.access_token, params.refresh_token);
+      }
     }
   };
 
   const parseUrlParameters = (url: string) => {
-    const queryString = url.split("?")[1];
+    const queryString = url.split("#")[1];
     if (!queryString) {
-      return {}; // Return an empty object if no query parameters found
+      return {};
     }
     const searchParams = new URLSearchParams(queryString);
-    const token = searchParams.get("token");
-    return { token }; // Ensure that token is returned as an object property
+    return Object.fromEntries(searchParams.entries());
+  };
+
+  const authenticateUser = async (_token: string, _refresh_token: string) => {
+    try {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: _token,
+        refresh_token: _refresh_token, // If you have a refresh token, you can include it here
+      });
+
+      if (error) {
+        setErrorMessage(
+          "An error occurred while authenticating user. Please try again and request another link."
+        );
+        throw error;
+      }
+    } catch (error) {
+      setErrorMessage(
+        "An error occurred while authenticating user. Please try again and request another link."
+      );
+      setIsError(true);
+      console.error("Password update error:", error);
+    }
   };
 
   const handlePasswordUpdate = async () => {
     try {
-      await supabase.auth.updateUser({ password: password });
+      if (!access_token) {
+        throw new Error("Access token is missing.");
+      }
 
-      // Perform actions with token, update state, etc.
+      // Proceed with password update
+      const { data, error } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Handle successful password update
       setIsPasswordSent(true);
       setErrorMessage("");
       setIsError(false);
+
+      router.push("/");
     } catch (error) {
-      setErrorMessage("An error occurred. Please try again.");
+      setErrorMessage(
+        "An error occurred while updating password. Please try again and request another link."
+      );
       setIsError(true);
+      console.error("Password update error:", error);
     }
   };
 
@@ -85,11 +127,6 @@ const NewPassword = () => {
     setIsButtonDisabled(!(password === confirmPassword && password.length > 0));
   }, [password, confirmPassword]);
 
-  const navigateToScreen = () => {
-    // Implement navigation logic if needed
-    // Example: Use React Navigation to navigate to another screen
-  };
-
   return (
     <View
       backgroundColor={"white"}
@@ -110,7 +147,7 @@ const NewPassword = () => {
           <SizableText size="$4" paddingBottom={"$2"}>
             Enter new password:
           </SizableText>
-          <XStack width={"100%"} justifyContent="space-between">
+          <XStack justifyContent="space-between">
             <StyledInput
               autoFocus={true}
               value={password}
@@ -131,7 +168,6 @@ const NewPassword = () => {
             Confirm new password:
           </SizableText>
           <StyledInput
-            autoFocus={false}
             value={confirmPassword}
             onChangeText={handleConfirmPasswordChange}
             onBlur={validatePasswords}

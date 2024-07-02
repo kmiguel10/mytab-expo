@@ -24,7 +24,7 @@ export const ResetPassword = () => {
   const [isErrorEmailSent, setIsErrorEmailSent] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
 
-  const successMessage = `SUCCESS: Check your inbox for ${email} and click the link to reset your password`;
+  const successMessage = `SUCCESS: Check your inbox for ${email} and click the link to reset your password.\n close the app before clicking the link to ensure the link works.`;
 
   const errorMessage = `ERROR: There is an issue sending the link to your email.`;
 
@@ -45,13 +45,11 @@ export const ResetPassword = () => {
           }
         );
         if (data) {
-          console.log("success email sent", data);
           setIsError(false);
           setIsEmailSent(true);
         }
 
         if (error) {
-          console.log("Error email sent", error.message);
           setIsErrorEmailSent(true);
         }
       } catch (error) {
