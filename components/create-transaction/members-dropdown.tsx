@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { FontSizeTokens, SelectProps } from "tamagui";
 import { Adapt, Select, Sheet, YStack, getFontSize } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
+import { Keyboard } from "react-native";
+import { StyledButton } from "../button/button";
 
 interface MembersDropdownProps extends SelectProps {
   members: Member[];
@@ -58,9 +60,12 @@ export default function MembersDropdown({
       onValueChange={handlePayerSelect}
       defaultValue={defaultPayerId}
       disablePreventBodyScroll
+      onOpenChange={() => {
+        Keyboard.dismiss();
+      }}
       {...props}
     >
-      <Select.Trigger disabled={isVisibleToUser}>
+      <Select.Trigger disabled={isVisibleToUser} iconAfter={ChevronDown}>
         <Select.Value placeholder={defaultPayer} />
       </Select.Trigger>
 

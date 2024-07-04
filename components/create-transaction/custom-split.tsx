@@ -210,7 +210,7 @@ const CustomSplit: React.FC<Props> = ({
       <Adapt when="sm" platform="touch">
         <Sheet
           animation="medium"
-          zIndex={200000}
+          zIndex={100000}
           modal
           dismissOnSnapToBottom
           snapPoints={[90, 50]}
