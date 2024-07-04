@@ -61,6 +61,14 @@ function RootLayoutNav() {
             />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="screens/create-transaction"
+              options={{
+                headerShown: true,
+                title: "Add Transaction",
+                headerBackTitle: "Back",
+              }}
+            />
           </Stack>
         </ToastProvider>
       </ThemeProvider>

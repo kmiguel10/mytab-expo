@@ -3,7 +3,6 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { FooterContainer } from "@/components/containers/footer-container";
 import { HeaderContainer } from "@/components/containers/header-container";
 import { OuterContainer } from "@/components/containers/outer-container";
-import CreateTransaction from "@/components/create-transaction/create-transaction-sheet";
 import UnderlinedTabs from "@/components/my-bill/my-tab/underlined-tabs";
 import HeaderInfo from "@/components/my-bill/summary/HeaderInfo";
 import BillHeaderSkeleton from "@/components/skeletons/bill-header-skeleton";
@@ -15,7 +14,7 @@ import {
 } from "@/lib/api";
 import { BillInfo, Member, SummaryInfo, Transaction } from "@/types/global";
 import { Toast, ToastViewport } from "@tamagui/toast";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import moment from "moment";
 import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
@@ -72,11 +71,27 @@ const BillScreen = () => {
   //I am using this to set loading for when I am submitting changes for edit
   const [isLoading, setIsLoading] = useState(false);
 
-  /** ---------- Functions ---------- */
+  const router = useRouter();
 
-  const onOpenCreateTxn = () => {
-    setOpenCreateTxn(true);
+  /** ---------- Functions ---------- */
+  const onCreateTransactionClick = () => {
+    const createTxnObject = {
+      billId: id?.toString() || "",
+      members: members,
+      maxTransaction: maxTransactions,
+      userId: userId,
+    };
+    router.push({
+      pathname: "/screens/create-transaction",
+      params: {
+        createTxnObject: encodeURIComponent(JSON.stringify(createTxnObject)),
+      },
+    });
   };
+
+  // const onOpenCreateTxn = () => {
+  //   setOpenCreateTxn(true);
+  // };
 
   // Resets toast messages
   const resetToastMessageStates = () => {
@@ -242,13 +257,6 @@ const BillScreen = () => {
 
   return (
     <OuterContainer>
-      <CreateTransaction
-        billId={id?.toString() || ""}
-        members={members}
-        open={openCreateTxn}
-        setOpen={setOpenCreateTxn}
-        maxTransaction={maxTransactions}
-      />
       <ToastViewport
         width={"100%"}
         justifyContent="center"
@@ -321,7 +329,7 @@ const BillScreen = () => {
             create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
             width={windowWidth * 0.38}
             size={"$3.5"}
-            onPress={onOpenCreateTxn}
+            onPress={onCreateTransactionClick}
           >
             Add Transaction
           </StyledButton>
