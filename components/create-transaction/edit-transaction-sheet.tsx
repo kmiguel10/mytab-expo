@@ -14,11 +14,7 @@ import {
   XStack,
   YStack,
 } from "tamagui";
-import { StyledButton } from "../button/button";
 import { StyledInput } from "../input/input";
-import ConfirmDeleteTransaction from "./confirm-delete-transaction";
-import CustomSplit from "./custom-split";
-import MembersDropdown from "./members-dropdown";
 import SplitView from "./split-view";
 
 interface Props {
@@ -77,72 +73,6 @@ const EditTransaction: React.FC<Props> = ({
     return user ? user.displayName : "";
   };
 
-  const handleNameChange = (txnName: string): void => {
-    const trimmedTxnName = txnName.trim();
-    if (trimmedTxnName.length === 0) {
-      setIsTransactionNameError(true);
-      setTransactionName(txnName);
-    } else if (trimmedTxnName.length <= 20) {
-      setTransactionName(txnName);
-      setIsTransactionNameError(false);
-    } else {
-      setIsTransactionNameError(true);
-    }
-  };
-
-  const handlePayerChange = (selectedPayer: string) => {
-    // setPayer(selectedPayer);
-    setLocalTxn((prevTransaction) => ({
-      ...prevTransaction,
-      payerid: selectedPayer, // Update the payer property of the localTxn object with the new value
-    }));
-  };
-
-  //set error state
-  const handleAmountChange = (_amount: string) => {
-    if (_amount.length === 0) {
-      setIsAmountError(true);
-    } else if (parseFloat(_amount) === 0) {
-      setIsAmountError(true);
-    } else if (_amount.length <= 5 && parseFloat(_amount) > 0) {
-      setIsAmountError(false);
-    } else {
-      setIsAmountError(true);
-    }
-
-    // Allow only digits optionally followed by a dot and then more digits
-    const regex = /^\d*\.?\d*$/;
-
-    if (regex.test(_amount)) {
-      // Remove leading zeros unless the value is "0" or it starts with "0."
-      if (
-        _amount.startsWith("0") &&
-        _amount.length > 1 &&
-        !_amount.startsWith("0.")
-      ) {
-        _amount = _amount.replace(/^0+/, "");
-      }
-
-      if (_amount) {
-        setAmount(_amount);
-        setIsAmountChanged(true);
-      } else {
-        setAmount("0");
-      }
-    }
-  };
-
-  const handleBlur = () => {
-    // Default to 0 if the input is empty or just a dot
-    if (amount === "" || amount === ".") {
-      setAmount("0");
-      setIsAmountError(true);
-    } else if (amount.endsWith(".")) {
-      // Remove trailing dot if present
-      setAmount(amount.slice(0, -1));
-    }
-  };
-
   /*********** Functions ***********/
 
   /**
@@ -152,72 +82,6 @@ const EditTransaction: React.FC<Props> = ({
    *
    * need to adjust tables on split transactions and the functions...
    */
-  const onSubmitTxn = async () => {
-    let _userId = userId?.toString() || "";
-    localTxn.submittedbyid = _userId;
-    localTxn.billid = Number(id);
-    localTxn.amount = parseFloat(amount);
-    localTxn.name = transactionName;
-
-    //first check if bill is locked...
-    //yes, then route to homepage
-    //no, then continue updating transaction
-    try {
-      setIsLoading(true); // Start spinner before the async operations
-      setIsLoadingBillPage(true);
-      // Check if the bill is locked
-      const { data: isBillLocked, error: billError } = await supabase
-        .from("bills")
-        .select("isLocked")
-        .eq("billid", localTxn.billid);
-
-      if (isBillLocked) {
-        if (isBillLocked[0].isLocked) {
-          // If bill is locked, route to homepage
-          if (_userId) {
-            setIsLoading(false); // Stop spinner before routing
-            router.replace({
-              pathname: "/(homepage)/[id]",
-              params: { id: _userId },
-            });
-          }
-        } else {
-          // Update transaction
-          const { data, error } = await supabase
-            .from("transactions")
-            .update([localTxn])
-            .eq("id", localTxn.id)
-            .select();
-
-          if (error) {
-            setIsLoading(false); // Stop spinner before routing
-            router.push({
-              pathname: `/(bill)/${localTxn.billid}`,
-              params: { userId: _userId, errorEditMsg: error.message },
-            });
-          }
-
-          if (data) {
-            const editedTxn: Transaction = data[0];
-            setCurrentTxnToEdit(editedTxn);
-            setLocalTxn(editedTxn);
-            setOpen(true); // Close the sheet
-            setIsLoading(true); // Stop spinner before routing
-            router.push({
-              pathname: `/(bill)/${editedTxn.billid}`,
-              params: { userId: _userId, editedTxnName: editedTxn.name },
-            });
-          }
-        }
-      }
-    } catch (error: any) {
-      setIsLoading(false); // Stop spinner before routing
-      router.replace({
-        pathname: `/(bill)/${id}`,
-        params: { userId: _userId, errorCreateMsg: error.message },
-      });
-    }
-  };
 
   const initializeSplits = () => {
     let amountNum = amount ? parseFloat(amount) : localTxn.amount;
@@ -249,27 +113,6 @@ const EditTransaction: React.FC<Props> = ({
     );
 
     setIncludedMembers(newSelectedSplits);
-  };
-
-  const handleSaveSplits = (selectedMembers: SelectedMemberSplitAmount[]) => {
-    // Filter out selectedMembers with isIncluded as true
-    const includedMembers = selectedMembers.filter(
-      (member) => member.isIncluded
-    );
-    const split = selectedMembers.map((member) => ({
-      isIncluded: member.isIncluded,
-      memberId: member.memberId,
-      amount: member.amount,
-      displayName: member.displayName,
-      avatarUrl: member.avatarUrl,
-    }));
-
-    setLocalTxn((prevTransaction) => ({
-      ...prevTransaction,
-      split: split,
-    }));
-
-    setIncludedMembers(split);
   };
 
   const handleOpenChange = () => {
@@ -352,58 +195,23 @@ const EditTransaction: React.FC<Props> = ({
           </YStack>
         ) : (
           <Form
-            onSubmit={onSubmitTxn}
+            onSubmit={() => console.log()}
             rowGap="$3"
             borderRadius="$6"
             padding="$3"
             justifyContent="center"
           >
-            {isVisibleForUser && (
-              <XStack justifyContent="space-between">
-                <ConfirmDeleteTransaction
-                  userId={userId?.toString() || ""}
-                  transaction={localTxn}
-                  setOpen={setOpen}
-                  setSheetZIndex={setSheetZIndex}
-                />
-                <Form.Trigger asChild>
-                  <StyledButton
-                    width={width * 0.25}
-                    size={"$3.5"}
-                    active={
-                      !!transactionName &&
-                      !isTransactionNameError &&
-                      !!amount &&
-                      !isAmountError
-                    }
-                    disabled={
-                      !transactionName ||
-                      isTransactionNameError ||
-                      !amount ||
-                      isAmountError
-                    }
-                  >
-                    Submit
-                  </StyledButton>
-                </Form.Trigger>
-              </XStack>
-            )}
-
             <Fieldset gap="$4" horizontal justifyContent="center">
               <SizableText size={"$9"}>$</SizableText>
               <StyledInput
                 placeholder="0"
                 keyboardType="decimal-pad"
                 value={amount}
-                onChangeText={handleAmountChange}
-                onBlur={handleBlur}
                 inputMode="decimal"
                 size={"$11"}
                 backgroundColor={"$backgroundTransparent"}
                 borderWidth={0}
-                autoFocus={false}
-                clearTextOnFocus={false}
-                disabled={!isVisibleForUser}
+                disabled={true}
                 maxLength={5}
               />
             </Fieldset>
@@ -418,49 +226,20 @@ const EditTransaction: React.FC<Props> = ({
                   value={transactionName}
                   error={isTransactionNameError}
                   backgroundColor={"white"}
-                  onChangeText={handleNameChange}
-                  disabled={!isVisibleForUser}
-                  maxLength={20}
+                  disabled={true}
                 />
               </Fieldset>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
                   Paid by:
                 </Text>
-                <MembersDropdown
-                  members={activeMembers}
-                  onPayerChange={handlePayerChange}
-                  defaultPayer={getDisplayName(
-                    localTxn?.payerid?.toString() || ""
-                  )}
-                  isVisibleToUser={
-                    !isVisibleForUser ||
-                    !transactionName ||
-                    isTransactionNameError ||
-                    !amount ||
-                    isAmountError
-                  }
-                />
+                <XStack>
+                  <Text justifyContent="center" padding="$3">
+                    {getDisplayName(localTxn?.payerid?.toString() || "")}
+                  </Text>
+                </XStack>
               </Fieldset>
             </XStack>
-            {isVisibleForUser && (
-              <XStack justifyContent="flex-end" paddingTop="$4">
-                <CustomSplit
-                  memberSplits={localTxn.split}
-                  amount={parseFloat(amount)}
-                  onSaveSplits={handleSaveSplits}
-                  setIsEven={setIsEven}
-                  includedMembers={includedMembers}
-                  isDisabled={
-                    !transactionName ||
-                    isTransactionNameError ||
-                    !amount ||
-                    isAmountError
-                  }
-                />
-              </XStack>
-            )}
-
             <XStack
               justifyContent="space-around"
               paddingTop="$3"

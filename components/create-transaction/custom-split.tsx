@@ -183,7 +183,7 @@ const CustomSplit: React.FC<Props> = ({
   useEffect(() => {
     initializeSelectedSplits();
     setSplitAmount(amount);
-  }, [memberSplits]);
+  }, [memberSplits, includedMembers]);
 
   useEffect(() => {
     calculateSumAmount();

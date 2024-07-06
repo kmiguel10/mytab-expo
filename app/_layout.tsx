@@ -69,6 +69,14 @@ function RootLayoutNav() {
                 headerBackTitle: "Back",
               }}
             />
+            <Stack.Screen
+              name="screens/edit-transaction"
+              options={{
+                headerShown: true,
+                title: "Edit Transaction",
+                headerBackTitle: "Back",
+              }}
+            />
           </Stack>
         </ToastProvider>
       </ThemeProvider>
