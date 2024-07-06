@@ -213,7 +213,7 @@ const CustomSplit: React.FC<Props> = ({
           zIndex={100000}
           modal
           dismissOnSnapToBottom
-          snapPoints={[90, 50]}
+          snapPoints={[90]}
           onOpenChange={() => setIsModalToggled(!isModalToggled)}
         >
           <Sheet.Frame padding="$4" gap="$4">
