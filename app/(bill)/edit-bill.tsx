@@ -100,10 +100,8 @@ export const EditBill = () => {
 
       if (data) {
         setIsLoading(false);
-        console.log("submitted bill: ", data);
       } else if (error) {
         setIsLoading(false);
-        console.log("ERROR", error);
       }
     }
   };
@@ -133,7 +131,6 @@ export const EditBill = () => {
    * Fetches Bill Info
    */
   useEffect(() => {
-    console.log("***** Bill Info Fetched");
     //Fetch bill info
     async function fetchBillInfo() {
       if (id) {

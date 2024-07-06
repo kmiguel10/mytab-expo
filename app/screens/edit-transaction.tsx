@@ -171,7 +171,7 @@ const EditTransaction = () => {
       if (billError) {
         console.log("billError", billError.message);
         setIsLoading(false); // Stop spinner before routing
-        router.push({
+        router.navigate({
           pathname: `/(bill)/${localTxn.billid}`,
           params: { userId: _userId, errorEditMsg: billError.message },
         });
@@ -182,7 +182,7 @@ const EditTransaction = () => {
           // If bill is locked, route to homepage
           if (_userId) {
             setIsLoading(false); // Stop spinner before routing
-            router.replace({
+            router.navigate({
               pathname: "/(homepage)/[id]",
               params: { id: _userId },
             });
@@ -197,7 +197,7 @@ const EditTransaction = () => {
 
           if (error) {
             setIsLoading(false); // Stop spinner before routing
-            router.push({
+            router.navigate({
               pathname: `/(bill)/${localTxn.billid}`,
               params: { userId: _userId, errorEditMsg: error.message },
             });
@@ -209,16 +209,20 @@ const EditTransaction = () => {
             setLocalTxn(editedTxn);
             //setOpen(true); // Close the sheet
             setIsLoading(true); // Stop spinner before routing
-            router.push({
-              pathname: `/(bill)/${editedTxn.billid}`,
-              params: { userId: _userId, editedTxnName: editedTxn.name },
+            router.navigate({
+              pathname: `/(bill)/[id]`,
+              params: {
+                userId: _userId,
+                editedTxnName: editedTxn.name,
+                id: editedTxn.billid,
+              },
             });
           }
         }
       }
     } catch (error: any) {
       setIsLoading(false); // Stop spinner before routing
-      router.replace({
+      router.navigate({
         pathname: `/(bill)/${billId}`,
         params: { userId: _userId, errorCreateMsg: error.message },
       });

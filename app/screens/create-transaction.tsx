@@ -161,7 +161,7 @@ const CreateTransaction = () => {
       if (data) {
         //Scenario if the bill is expired:
         if (!data[0].isActive) {
-          router.push({
+          router.navigate({
             pathname: `/(bill)/${billId}`,
             params: {
               userId: _userId,
@@ -188,7 +188,7 @@ const CreateTransaction = () => {
         if (data[0].isLocked) {
           setIsLoading(false);
           //Scenario: if the Bill is locked
-          router.replace({
+          router.navigate({
             pathname: `/(bill)/${transaction.billid}`,
             params: {
               userId: _userId,
@@ -210,9 +210,13 @@ const CreateTransaction = () => {
           if (data) {
             console.log("ADDED");
             const createdTxn: Transaction = data[0];
-            router.push({
-              pathname: `/(bill)/${createdTxn.billid}`,
-              params: { userId: _userId, txnName: createdTxn.name },
+            router.navigate({
+              pathname: `/(bill)/[id]`,
+              params: {
+                userId: _userId,
+                txnName: createdTxn.name,
+                id: createdTxn.billid,
+              },
             });
             setIsLoading(false);
           }
