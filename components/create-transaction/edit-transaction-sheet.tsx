@@ -1,20 +1,17 @@
-import { supabase } from "@/lib/supabase";
 import { Member, SelectedMemberSplitAmount, Transaction } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Fieldset,
-  Form,
   Separator,
   Sheet,
   SizableText,
   Spinner,
   Text,
+  TextArea,
   useWindowDimensions,
   XStack,
   YStack,
 } from "tamagui";
-import { StyledInput } from "../input/input";
 import SplitView from "./split-view";
 
 interface Props {
@@ -22,9 +19,7 @@ interface Props {
   setOpen: (open: boolean) => void;
   members: Member[];
   transaction: Transaction;
-  setCurrentTxnToEdit: (txn: Transaction) => void;
   billOwnerId: string;
-  setIsLoadingBillPage: (loading: boolean) => void;
 }
 
 const EditTransaction: React.FC<Props> = ({
@@ -32,14 +27,11 @@ const EditTransaction: React.FC<Props> = ({
   setOpen,
   members,
   transaction,
-  setCurrentTxnToEdit,
   billOwnerId,
-  setIsLoadingBillPage,
 }) => {
   /*********** States and Variables ***********/
 
   const [isAmountChanged, setIsAmountChanged] = useState(false);
-  const [isVisibleForUser, setIsVisibleForUser] = useState(false);
   const [amount, setAmount] = useState("");
   const [localTxn, setLocalTxn] = useState<Transaction>({
     billid: 0,
@@ -51,11 +43,6 @@ const EditTransaction: React.FC<Props> = ({
     split: [],
     isdeleted: false,
   });
-  const router = useRouter();
-  const { id, userId } = useLocalSearchParams();
-  const [includedMembers, setIncludedMembers] = useState<
-    SelectedMemberSplitAmount[]
-  >([]);
   const [activeMembers, setActiveMembers] = useState<Member[]>([]);
 
   const [isEven, setIsEven] = useState(true);
@@ -63,10 +50,8 @@ const EditTransaction: React.FC<Props> = ({
   const { width, height } = useWindowDimensions();
 
   const [transactionName, setTransactionName] = useState("");
-  const [isAmountError, setIsAmountError] = useState(false);
-  const [isTransactionNameError, setIsTransactionNameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [sheetHeight, setSheetHeight] = useState(60);
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
     const user = activeMembers.find((member) => member.userid === userId);
@@ -101,20 +86,6 @@ const EditTransaction: React.FC<Props> = ({
     }));
   };
 
-  const initiateIncludedMembers = () => {
-    const newSelectedSplits: SelectedMemberSplitAmount[] = activeMembers.map(
-      (member) => ({
-        isIncluded: true,
-        memberId: member.userid,
-        amount: 0,
-        displayName: member.displayName,
-        avatarUrl: member.avatar_url,
-      })
-    );
-
-    setIncludedMembers(newSelectedSplits);
-  };
-
   const handleOpenChange = () => {
     if (open) {
       setOpen(false);
@@ -130,13 +101,6 @@ const EditTransaction: React.FC<Props> = ({
     );
     setActiveMembers(_activeMembers);
   }, [members]);
-
-  //Gets members
-  useEffect(() => {
-    if (activeMembers.length > 0) {
-      initiateIncludedMembers();
-    }
-  }, [activeMembers]);
 
   //only initialize splits whe amount is edited
   useEffect(() => {
@@ -156,14 +120,15 @@ const EditTransaction: React.FC<Props> = ({
     setTransactionName(transaction.name);
   }, [open, transaction]);
 
-  //component is visible to user if user is the bill owner or transaction payer
   useEffect(() => {
-    if (userId === billOwnerId || userId === localTxn.payerid) {
-      setIsVisibleForUser(true);
+    if (localTxn.notes) {
+      if (localTxn.notes.length > 0) {
+        setSheetHeight(90);
+      }
     } else {
-      setIsVisibleForUser(false);
+      setSheetHeight(60);
     }
-  }, [localTxn, userId, billOwnerId]);
+  }, [localTxn]);
 
   return (
     <Sheet
@@ -171,7 +136,7 @@ const EditTransaction: React.FC<Props> = ({
       modal={true}
       open={open}
       onOpenChange={handleOpenChange}
-      snapPoints={[60]}
+      snapPoints={[sheetHeight]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       zIndex={sheetZIndex}
@@ -233,6 +198,13 @@ const EditTransaction: React.FC<Props> = ({
                 </XStack>
               </YStack>
             </XStack>
+            {localTxn.notes && (
+              <YStack>
+                <SizableText fontWeight={800}>Memo</SizableText>
+                <TextArea value={localTxn.notes || ""} disabled={true} />
+              </YStack>
+            )}
+
             <XStack
               justifyContent="space-around"
               paddingTop="$3"

@@ -153,9 +153,7 @@ const TransactionInfoCard: React.FC<Props> = ({
         open={openEditTxn}
         setOpen={setOpenEditTxn}
         transaction={currentTxnToEdit}
-        setCurrentTxnToEdit={setCurrentTxnToEdit}
         billOwnerId={billOwnerId}
-        setIsLoadingBillPage={setIsLoading}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
