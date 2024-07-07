@@ -344,6 +344,7 @@ const CreateTransaction = () => {
           open={openNotes}
           setOpen={setOpenNotes}
           setTransaction={setTransaction}
+          transactionNotes={transaction.notes}
         />
         {isLoading ? (
           <YStack justifyContent="center" flex={2}>
@@ -432,11 +433,22 @@ const CreateTransaction = () => {
             <XStack justifyContent="space-between" paddingTop="$4">
               <StyledButton
                 backgroundColor="$blue3"
-                active={true}
                 size="$3"
                 width="30%"
                 icon={<Pencil size="$1" />}
                 onPress={() => setOpenNotes(true)}
+                disabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
+                active={
+                  !!transactionName &&
+                  !isTransactionNameError &&
+                  !!amount &&
+                  !isAmountError
+                }
               >
                 Notes
               </StyledButton>

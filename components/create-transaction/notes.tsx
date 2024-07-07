@@ -8,9 +8,15 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   setTransaction: React.Dispatch<React.SetStateAction<any>>;
+  transactionNotes: string | null;
 }
 
-const Notes: React.FC<Props> = ({ open, setOpen, setTransaction }) => {
+const Notes: React.FC<Props> = ({
+  open,
+  setOpen,
+  setTransaction,
+  transactionNotes,
+}) => {
   const { width, height } = useWindowDimensions();
   const [localNotes, setLocalNotes] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
@@ -33,12 +39,16 @@ const Notes: React.FC<Props> = ({ open, setOpen, setTransaction }) => {
 
   /** UseEffect */
   useEffect(() => {
-    if (localNotes.length >= 201 || localNotes.length === 0) {
+    if (localNotes?.length >= 201 || localNotes?.length === 0) {
       setIsDisabled(true);
     } else {
       setIsDisabled(false);
     }
   }, [localNotes]);
+
+  useEffect(() => {
+    setLocalNotes(transactionNotes || "");
+  }, [transactionNotes]);
   return (
     <Sheet
       forceRemoveScrollEnabled={false}
@@ -76,26 +86,26 @@ const Notes: React.FC<Props> = ({ open, setOpen, setTransaction }) => {
         </XStack>
         <View
           backgroundColor={
-            localNotes.length === 200 ? "$red4Light" : "$blue4Light"
+            localNotes?.length === 200 ? "$red4Light" : "$blue4Light"
           }
           paddingHorizontal={"$2"}
           borderRadius={"$12"}
           width={width * 0.4}
         >
           <SizableText
-            color={localNotes.length === 200 ? "$red8Light" : "$blue8Light"}
+            color={localNotes?.length === 200 ? "$red8Light" : "$blue8Light"}
             fontSize={"$1"}
           >
-            Remaining characters: {200 - localNotes.length}
+            Remaining characters: {200 - localNotes?.length}
           </SizableText>
         </View>
         <XStack justifyContent="space-between">
           <StyledButton
             width={width * 0.25}
             size={"$3"}
-            active={localNotes.length !== 0}
+            active={localNotes?.length !== 0}
             onPress={handleClearNotes}
-            disabled={localNotes.length === 0}
+            disabled={localNotes?.length === 0}
           >
             Clear
           </StyledButton>

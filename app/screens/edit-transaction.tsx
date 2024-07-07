@@ -4,6 +4,7 @@ import { OuterContainer } from "@/components/containers/outer-container";
 import ConfirmDeleteTransaction from "@/components/create-transaction/confirm-delete-transaction";
 import CustomSplit from "@/components/create-transaction/custom-split";
 import MembersDropdown from "@/components/create-transaction/members-dropdown";
+import Notes from "@/components/create-transaction/notes";
 import SplitView from "@/components/create-transaction/split-view";
 import { StyledInput } from "@/components/input/input";
 import { supabase } from "@/lib/supabase";
@@ -54,6 +55,7 @@ const EditTransaction = () => {
   const [userId, setUserId] = useState("");
   const [billId, setBillId] = useState(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [openNotes, setOpenNotes] = useState(false);
   const [billOwnerId, setBillOwnerId] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [transaction, setTransaction] = useState<Transaction>({
@@ -342,6 +344,12 @@ const EditTransaction = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
+        <Notes
+          open={openNotes}
+          setOpen={setOpenNotes}
+          setTransaction={setLocalTxn}
+          transactionNotes={localTxn.notes}
+        />
         {isLoading ? (
           <YStack justifyContent="center" flex={2}>
             <Spinner color="forestgreen" size="large" />
@@ -434,13 +442,25 @@ const EditTransaction = () => {
             </XStack>
             <XStack justifyContent="space-between" paddingTop="$4">
               <StyledButton
-                backgroundColor="$blue1"
-                active={true}
+                backgroundColor="$blue3"
                 size="$3"
                 width="30%"
                 icon={<Pencil size="$1" />}
+                onPress={() => setOpenNotes(true)}
+                disabled={
+                  !transactionName ||
+                  isTransactionNameError ||
+                  !amount ||
+                  isAmountError
+                }
+                active={
+                  !!transactionName &&
+                  !isTransactionNameError &&
+                  !!amount &&
+                  !isAmountError
+                }
               >
-                Notes
+                Memo
               </StyledButton>
               <CustomSplit
                 memberSplits={localTxn.split}
