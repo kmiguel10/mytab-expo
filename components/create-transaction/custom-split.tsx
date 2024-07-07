@@ -200,7 +200,7 @@ const CustomSplit: React.FC<Props> = ({
           backgroundColor="$blue3"
           disabled={isDisabled}
           active={!isDisabled}
-          size="$3.5"
+          size="$3"
           width="30%"
           icon={<Axe size="$1.5" />}
         >
@@ -307,6 +307,7 @@ const CustomSplit: React.FC<Props> = ({
                         {selectedMembers.displayName}
                       </Label>
                       <Input
+                        autoFocus={true}
                         disabled={!selectedMembers.isIncluded}
                         flex={1}
                         id={`amount-${selectedMembers.memberId.slice(0, 5)}`}

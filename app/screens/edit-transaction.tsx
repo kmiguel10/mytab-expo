@@ -8,6 +8,7 @@ import SplitView from "@/components/create-transaction/split-view";
 import { StyledInput } from "@/components/input/input";
 import { supabase } from "@/lib/supabase";
 import { Member, SelectedMemberSplitAmount, Transaction } from "@/types/global";
+import { Pencil } from "@tamagui/lucide-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -361,7 +362,7 @@ const EditTransaction = () => {
               <Form.Trigger asChild>
                 <StyledButton
                   width={width * 0.25}
-                  size={"$3.5"}
+                  size={"$3"}
                   active={
                     !!transactionName &&
                     !isTransactionNameError &&
@@ -431,8 +432,16 @@ const EditTransaction = () => {
                 />
               </Fieldset>
             </XStack>
-
-            <XStack justifyContent="flex-end" paddingTop="$4">
+            <XStack justifyContent="space-between" paddingTop="$4">
+              <StyledButton
+                backgroundColor="$blue1"
+                active={true}
+                size="$3"
+                width="30%"
+                icon={<Pencil size="$1" />}
+              >
+                Notes
+              </StyledButton>
               <CustomSplit
                 memberSplits={localTxn.split}
                 amount={parseFloat(amount)}

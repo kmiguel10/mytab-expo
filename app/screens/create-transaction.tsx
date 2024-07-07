@@ -3,10 +3,12 @@ import { BodyContainer } from "@/components/containers/body-container";
 import { OuterContainer } from "@/components/containers/outer-container";
 import CustomSplit from "@/components/create-transaction/custom-split";
 import MembersDropdown from "@/components/create-transaction/members-dropdown";
+import Notes from "@/components/create-transaction/notes";
 import SplitView from "@/components/create-transaction/split-view";
 import { StyledInput } from "@/components/input/input";
 import { supabase } from "@/lib/supabase";
 import { Member, SelectedMemberSplitAmount, Transaction } from "@/types/global";
+import { Pencil } from "@tamagui/lucide-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -55,6 +57,7 @@ const CreateTransaction = () => {
 
   const [userId, setUserId] = useState("");
   const [billId, setBillId] = useState(null);
+  const [openNotes, setOpenNotes] = useState(false);
 
   const { createTxnObject } = useLocalSearchParams();
 
@@ -337,6 +340,11 @@ const CreateTransaction = () => {
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
+        <Notes
+          open={openNotes}
+          setOpen={setOpenNotes}
+          setTransaction={setTransaction}
+        />
         {isLoading ? (
           <YStack justifyContent="center" flex={2}>
             <Spinner color="forestgreen" size="large" />
@@ -353,7 +361,7 @@ const CreateTransaction = () => {
               <XStack justifyContent="flex-end">
                 <StyledButton
                   width={width * 0.25}
-                  size={"$3.5"}
+                  size={"$3"}
                   create={
                     !!transactionName &&
                     !isTransactionNameError &&
@@ -421,7 +429,17 @@ const CreateTransaction = () => {
                 />
               </Fieldset>
             </XStack>
-            <XStack justifyContent="flex-end" paddingTop="$4">
+            <XStack justifyContent="space-between" paddingTop="$4">
+              <StyledButton
+                backgroundColor="$blue3"
+                active={true}
+                size="$3"
+                width="30%"
+                icon={<Pencil size="$1" />}
+                onPress={() => setOpenNotes(true)}
+              >
+                Notes
+              </StyledButton>
               <CustomSplit
                 memberSplits={transaction.split}
                 amount={parseFloat(amount)}

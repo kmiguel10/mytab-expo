@@ -64,6 +64,7 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
         <StyledButton
           color={"$red10Light"}
           delete={true}
+          size="$3"
           icon={<Trash2 size={"$1"} color={"$red9"} />}
           width={width * 0.25}
         />

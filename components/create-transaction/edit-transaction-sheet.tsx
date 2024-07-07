@@ -171,7 +171,7 @@ const EditTransaction: React.FC<Props> = ({
       modal={true}
       open={open}
       onOpenChange={handleOpenChange}
-      snapPoints={[90]}
+      snapPoints={[60]}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       zIndex={sheetZIndex}
@@ -194,51 +194,44 @@ const EditTransaction: React.FC<Props> = ({
             <Spinner color="forestgreen" size="large" />
           </YStack>
         ) : (
-          <Form
-            onSubmit={() => console.log()}
+          <YStack
             rowGap="$3"
             borderRadius="$6"
             padding="$3"
             justifyContent="center"
           >
-            <Fieldset gap="$4" horizontal justifyContent="center">
-              <SizableText size={"$9"}>$</SizableText>
-              <StyledInput
-                placeholder="0"
-                keyboardType="decimal-pad"
-                value={amount}
-                inputMode="decimal"
-                size={"$11"}
-                backgroundColor={"$backgroundTransparent"}
-                borderWidth={0}
-                disabled={true}
-                maxLength={5}
-              />
-            </Fieldset>
-            <XStack justifyContent="space-between" gap={"$2"}>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+            <XStack padding="$8" justifyContent="center">
+              <SizableText size={"$10"}>${amount}</SizableText>
+            </XStack>
+            <XStack justifyContent="space-evenly" gap={"$2"}>
+              <YStack gap={"$1"} width={width * 0.43}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Transaction name (*)
+                  Transaction name
                 </Text>
-                <StyledInput
-                  placeholder="Enter name"
-                  defaultValue=""
-                  value={transactionName}
-                  error={isTransactionNameError}
-                  backgroundColor={"white"}
-                  disabled={true}
-                />
-              </Fieldset>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
+                <XStack>
+                  <Text
+                    justifyContent="center"
+                    paddingVertical="$2"
+                    paddingHorizontal="$1"
+                  >
+                    {transactionName}
+                  </Text>
+                </XStack>
+              </YStack>
+              <YStack gap={"$1"} width={width * 0.43}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
                   Paid by:
                 </Text>
                 <XStack>
-                  <Text justifyContent="center" padding="$3">
+                  <Text
+                    justifyContent="center"
+                    paddingVertical="$2"
+                    paddingHorizontal="$1"
+                  >
                     {getDisplayName(localTxn?.payerid?.toString() || "")}
                   </Text>
                 </XStack>
-              </Fieldset>
+              </YStack>
             </XStack>
             <XStack
               justifyContent="space-around"
@@ -251,7 +244,7 @@ const EditTransaction: React.FC<Props> = ({
               <Separator />
             </XStack>
             <SplitView memberSplits={localTxn.split} isEven={isEven} />
-          </Form>
+          </YStack>
         )}
       </Sheet.Frame>
     </Sheet>
