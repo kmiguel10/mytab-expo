@@ -98,7 +98,7 @@ const UserTransactions: React.FC<Props> = ({
             gap="$1"
           >
             {userTransactions.map((txn, index) => (
-              <YGroup.Item>
+              <YGroup.Item key={index}>
                 <ListItem
                   bordered
                   key={index}

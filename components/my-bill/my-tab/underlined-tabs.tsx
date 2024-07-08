@@ -4,18 +4,19 @@ import { LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
+import TransactionCardSkeleton from "@/components/skeletons/transaction-card-skeleton";
 import {
   AnimatePresence,
   SizableText,
+  styled,
   Tabs,
+  Text,
   View,
   YStack,
-  styled,
 } from "tamagui";
 import Summary from "../summary/summary";
 import TransactionInfoCard from "../transactions/transaction-info-card";
 import MyTab from "./MyTab";
-import TransactionCardSkeleton from "@/components/skeletons/transaction-card-skeleton";
 
 interface Props {
   transactions: Transaction[];
@@ -140,6 +141,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                 height="$0.5"
                 x={activeAt.x}
                 bottom={0}
+                backgroundColor={"$blue8Light"}
               />
             )}
           </AnimatePresence>
@@ -163,7 +165,7 @@ const UnderlinedTabs: React.FC<Props> = ({
               value="Transactions"
               onInteraction={handleOnInteraction}
             >
-              <SizableText>Transactions</SizableText>
+              <Text>Transactions</Text>
             </Tabs.Tab>
 
             <Tabs.Tab
