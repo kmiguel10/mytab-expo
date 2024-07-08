@@ -170,7 +170,7 @@ const EditTransaction: React.FC<Props> = ({
             </XStack>
             <XStack justifyContent="space-evenly" gap={"$2"}>
               <YStack gap={"$1"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                <Text paddingLeft="$1.5" fontSize={"$3"} fontWeight={800}>
                   Transaction name
                 </Text>
                 <XStack>
@@ -184,7 +184,7 @@ const EditTransaction: React.FC<Props> = ({
                 </XStack>
               </YStack>
               <YStack gap={"$1"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
+                <Text paddingLeft="$1.5" fontSize={"$3"} fontWeight={800}>
                   Paid by:
                 </Text>
                 <XStack>
@@ -199,8 +199,10 @@ const EditTransaction: React.FC<Props> = ({
               </YStack>
             </XStack>
             {localTxn.notes && (
-              <YStack>
-                <SizableText fontWeight={800}>Memo</SizableText>
+              <YStack gap={"$2"}>
+                <SizableText fontWeight={800} fontSize={"$3"}>
+                  Memo
+                </SizableText>
                 <TextArea value={localTxn.notes || ""} disabled={true} />
               </YStack>
             )}
