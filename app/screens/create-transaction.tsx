@@ -394,7 +394,7 @@ const CreateTransaction = () => {
                 size={"$11"}
                 backgroundColor={"$backgroundTransparent"}
                 borderWidth={0}
-                autoFocus={false}
+                autoFocus={true}
                 maxLength={5}
               />
             </Fieldset>

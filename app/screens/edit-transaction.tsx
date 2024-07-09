@@ -388,7 +388,6 @@ const EditTransaction = () => {
                 </StyledButton>
               </Form.Trigger>
             </XStack>
-
             <Fieldset gap="$4" horizontal justifyContent="center">
               <SizableText size={"$9"}>$</SizableText>
               <StyledInput
