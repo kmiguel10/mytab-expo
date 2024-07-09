@@ -44,8 +44,8 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
   const [titlePadding, setTitlePadding] = useState("$10");
   const { width, height } = useWindowDimensions();
   const errorMessage = "Something went wrong. Please try again.";
-  const successMessage =
-    "A link is sent to your email. Please close this app before clicking the link.";
+  const successMessage = `A link is sent to your email.`;
+  const successSubMessage = `\nNOTE : Please close this app before clicking the link.`;
 
   /** Functions and Handlers */
 
@@ -110,11 +110,20 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
                 width={width * 0.9}
               >
                 <Card.Header>
-                  <SizableText
-                    color={isSendError ? "$red10Light" : "$green10Light"}
-                  >
-                    {isSendError ? errorMessage : successMessage}
-                  </SizableText>
+                  {isSendError ? (
+                    <SizableText color={"$red10Light"}>
+                      {errorMessage}
+                    </SizableText>
+                  ) : (
+                    <>
+                      <SizableText color={"$green10Light"}>
+                        {successMessage}
+                      </SizableText>
+                      <SizableText color={"$green10Light"} fontWeight={800}>
+                        {successSubMessage}
+                      </SizableText>
+                    </>
+                  )}
                 </Card.Header>
               </Card>
             </XStack>
