@@ -71,7 +71,6 @@ const UserSettlementsSheet: React.FC<Props> = ({
 
   /** - - - - - - - - useEffects - - - - - - - - */
   useEffect(() => {
-    console.log(JSON.stringify(currentUserSettlements));
     if (currentUserSettlements) {
       _currentUserSettlementSum = getTransactionsSum(currentUserSettlements);
       setCurrentUserSettlementSum(_currentUserSettlementSum);
@@ -83,13 +82,6 @@ const UserSettlementsSheet: React.FC<Props> = ({
       );
       setSelectedMemberSettlementSum(_selectedUserSettlementSum);
     }
-    console.log("_currentUserSettlementSum: ", _currentUserSettlementSum);
-    console.log("_selectedUserSettlementSum: ", _selectedUserSettlementSum);
-
-    console.log(
-      "SETTLEMENT AMOUNT: ",
-      _currentUserSettlementSum - _selectedUserSettlementSum
-    );
 
     setSettlementAmount(_currentUserSettlementSum - _selectedUserSettlementSum);
   }, [selectedMemberSettlements, currentUserSettlements]);
@@ -129,29 +121,27 @@ const UserSettlementsSheet: React.FC<Props> = ({
         </XStack>
         <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
           <H4 paddingBottom="$4">Settlement with {selectedUserName}</H4>
-          <XStack justifyContent="space-between" paddingBottom="$4">
-            <XStack alignItems="center" width={"50%"}>
-              <SizableText textAlign="left">
+          <YStack justifyContent="space-between" paddingBottom="$4">
+            <XStack justifyContent="flex-end">
+              <SizableText textAlign="right">
                 <SizableText size={"$5"} fontWeight={"bold"}>
                   {userSettlement}
                 </SizableText>
               </SizableText>
             </XStack>
-            <YStack>
-              <SizableText fontWeight={"bold"}>Settlement Amount</SizableText>
-              <SizableText textAlign="right">
-                <SizableText
-                  fontWeight={"bold"}
-                  color={settlementAmount < 0 ? "$red10Light" : "$green10Light"}
-                  size="$6"
-                >
-                  {formatToDollarCurrency(
-                    truncateToTwoDecimalPlaces(Math.abs(settlementAmount))
-                  )}
-                </SizableText>
+            <XStack justifyContent="flex-end">
+              <SizableText
+                fontWeight={"bold"}
+                color={settlementAmount < 0 ? "$red10Light" : "$green10Light"}
+                size="$6"
+              >
+                {formatToDollarCurrency(
+                  truncateToTwoDecimalPlaces(Math.abs(settlementAmount))
+                )}
               </SizableText>
-            </YStack>
-          </XStack>
+            </XStack>
+          </YStack>
+
           <Separator />
           <XStack
             justifyContent="space-between"

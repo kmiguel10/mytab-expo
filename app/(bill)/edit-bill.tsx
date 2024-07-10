@@ -16,7 +16,7 @@ import {
   Card,
   Fieldset,
   Form,
-  H6,
+  SizableText,
   Text,
   useWindowDimensions,
   View,
@@ -100,10 +100,8 @@ export const EditBill = () => {
 
       if (data) {
         setIsLoading(false);
-        console.log("submitted bill: ", data);
       } else if (error) {
         setIsLoading(false);
-        console.log("ERROR", error);
       }
     }
   };
@@ -133,7 +131,6 @@ export const EditBill = () => {
    * Fetches Bill Info
    */
   useEffect(() => {
-    console.log("***** Bill Info Fetched");
     //Fetch bill info
     async function fetchBillInfo() {
       if (id) {
@@ -255,7 +252,7 @@ export const EditBill = () => {
                 >
                   <YStack paddingLeft="$2">
                     <XStack gap="$2" alignItems="center" paddingBottom="$2">
-                      <H6>Bill Name</H6>
+                      <SizableText fontSize={"$3"}>Bill Name</SizableText>
                     </XStack>
                     <XStack
                       justifyContent="space-between"
@@ -290,7 +287,7 @@ export const EditBill = () => {
                   </YStack>
                   <YStack paddingLeft="$2">
                     <XStack gap="$2" alignItems="center">
-                      <H6>Duration</H6>
+                      <SizableText fontSize={"$3"}>Duration</SizableText>
                       {isExpiringToday && (
                         <XStack
                           backgroundColor={"$yellow5Light"}
@@ -320,9 +317,23 @@ export const EditBill = () => {
                     </XStack>
 
                     <XStack justifyContent="space-between" alignItems="center">
-                      <Text alignItems="center" justifyContent="flex-start">
-                        {dateLocalTime} - {endDateLocalTime}
-                      </Text>
+                      <XStack
+                        backgroundColor={"$blue4Light"}
+                        paddingHorizontal={"$4"}
+                        paddingVertical={"$1.5"}
+                        alignItems="center"
+                        borderRadius={"$12"}
+                        gap="$2"
+                      >
+                        <SizableText
+                          alignItems="center"
+                          justifyContent="flex-start"
+                          fontSize={"$3"}
+                          color={"$blue10Light"}
+                        >
+                          {dateLocalTime} - {endDateLocalTime}
+                        </SizableText>
+                      </XStack>
 
                       {/* Free bills cannot be extended */}
                       {isOwner &&
@@ -342,12 +353,16 @@ export const EditBill = () => {
                         )}
                       {/* For testing */}
                       {/* <ConfirmExtension
-                    currentEndDateUTC={endDate.utc().toDate()}
-                    billId={parseInt(id.toString())}
-                    setBillInfo={setBillInfo}
-                    setOpenExtendDuration={setOpenExtendDuration}
-                    setErrorMessage={setExtendDurationErrorMsg}
-                  /> */}
+                        currentEndDateUTC={endDate.utc().toDate()}
+                        billId={parseInt(id?.toString() || "")}
+                        setBillInfo={setBillInfo}
+                        setOpenExtendDuration={setOpenExtendDuration}
+                        setErrorMessage={setExtendDurationErrorMsg}
+                        isBillExpired={isBillExpired}
+                        isBillExpiringToday={isExpiringToday}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
+                      /> */}
                     </XStack>
                   </YStack>
                 </Card>

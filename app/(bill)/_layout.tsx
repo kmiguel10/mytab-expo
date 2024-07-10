@@ -11,7 +11,6 @@ import { Text, View } from "tamagui";
 
 const Layout = () => {
   const router = useRouter();
-  const route = useRoute();
   const { id } = useLocalSearchParams();
 
   /** States */
@@ -19,6 +18,7 @@ const Layout = () => {
   const [sessionUserId, setSessionUserId] = useState("");
   const [isBillLocked, setIsBillLocked] = useState(false);
   const [billName, setBillName] = useState("");
+  const [localId, setLocalId] = useState(null);
   let [counter, setCounter] = useState(0);
 
   /** Functions */
@@ -35,14 +35,24 @@ const Layout = () => {
     }
   };
 
+  const handleBillSettingsClick = () => {
+    router.navigate({
+      pathname: "/(bill)/edit-bill",
+      params: {
+        id: id,
+        userId: sessionUserId,
+      },
+    });
+  };
+
   const handleReturnToMyBill = () => {
-    console.log("counter", counter);
     setCounter(counter++);
     router.replace({
       pathname: `/(bill)/[id]`,
       params: { id: id.toString(), userId: sessionUserId },
     });
     setCounter(counter++);
+    // router.back();
   };
 
   /** Use Effects */
@@ -100,20 +110,9 @@ const Layout = () => {
             </Pressable>
           ),
           headerRight: () => (
-            <Link
-              href={{
-                pathname: "/(bill)/edit-bill",
-                params: {
-                  id: id,
-                  userId: sessionUserId,
-                },
-              }}
-              asChild
-            >
-              <Pressable>
-                <Settings2 />
-              </Pressable>
-            </Link>
+            <Pressable onPress={handleBillSettingsClick}>
+              <Settings2 />
+            </Pressable>
           ),
         }}
       />

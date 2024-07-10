@@ -59,16 +59,24 @@ function RootLayoutNav() {
               name="index"
               options={{ title: "Welcome", headerBackVisible: false }}
             />
-            <Stack.Screen
-              name="screens/reset-password"
-              options={{ title: "Reset Password" }}
-            />
-            <Stack.Screen
-              name="screens/new-password"
-              options={{ title: "New Password" }}
-            />
             <Stack.Screen name="(homepage)" options={{ headerShown: false }} />
             <Stack.Screen name="(bill)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="screens/create-transaction"
+              options={{
+                headerShown: true,
+                title: "Add Transaction",
+                headerBackTitle: "Back",
+              }}
+            />
+            <Stack.Screen
+              name="screens/edit-transaction"
+              options={{
+                headerShown: true,
+                title: "Edit Transaction",
+                headerBackTitle: "Back",
+              }}
+            />
           </Stack>
         </ToastProvider>
       </ThemeProvider>

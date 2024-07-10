@@ -14,16 +14,12 @@ import { Transaction } from "@/types/global";
 
 interface Props {
   userId: string;
-  setOpen: (open: boolean) => void;
-  setSheetZIndex: (zIndex: number) => void;
   transaction: Transaction;
 }
 
 export const ConfirmDeleteTransaction: React.FC<Props> = ({
   userId,
   transaction,
-  setOpen,
-  setSheetZIndex,
 }) => {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
@@ -68,12 +64,9 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
         <StyledButton
           color={"$red10Light"}
           delete={true}
+          size="$3"
           icon={<Trash2 size={"$1"} color={"$red9"} />}
           width={width * 0.25}
-          onPress={() => {
-            setOpen(true);
-            setSheetZIndex(0);
-          }}
         />
       </AlertDialog.Trigger>
 
@@ -112,13 +105,7 @@ export const ConfirmDeleteTransaction: React.FC<Props> = ({
             </AlertDialog.Description>
             <XStack gap="$3" justifyContent="flex-end">
               <AlertDialog.Cancel asChild>
-                <StyledButton
-                  onPress={() => {
-                    setOpen(false);
-                  }}
-                >
-                  Cancel
-                </StyledButton>
+                <StyledButton>Cancel</StyledButton>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
                 <StyledButton decline={true} onPress={onDeleteTxn}>

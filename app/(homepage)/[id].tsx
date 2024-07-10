@@ -109,11 +109,6 @@ const Home = () => {
       setLoadingBills(false);
       setRefreshing(false);
 
-      // if (refreshing) {
-      //   console.log("REFRESHINGGG")
-      //   resetToasts()
-      // }
-
       if (newBillId || joinedBillCode) {
         let newBill: MemberData = {
           memberid: "",
@@ -271,7 +266,7 @@ const Home = () => {
         console.log("Purchase successful: ", receipt);
 
         // Verify receipt (front-end only)
-        Alert.alert("Purchase Success", "Your purchase was successful!");
+        //Alert.alert("Purchase Success", "Your purchase was successful!");
 
         // Grant access for the specified duration
         // This is where you'd implement your access logic

@@ -16,6 +16,7 @@ import {
   View,
   XStack,
   YGroup,
+  Text,
 } from "tamagui";
 import UserTransactions from "./user-transactions-sheet";
 
@@ -91,7 +92,7 @@ const MemberCards: React.FC<Props> = ({
                       key={index}
                       hoverTheme
                       icon={<Avatar url={member.avatar_url} size="$4.5" />}
-                      title={<SizableText>{member.displayName}</SizableText>}
+                      title={<Text>{member.displayName}</Text>}
                       subTitle={`Count: ${member.txnCount}`}
                       iconAfter={
                         <SizableText>

@@ -11,6 +11,7 @@ import {
   Tabs,
   View,
   YStack,
+  Text,
 } from "tamagui";
 import UserBills from "./user-bills";
 interface Props {
@@ -126,6 +127,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
               height="$0.5"
               x={activeAt.x}
               bottom={0}
+              backgroundColor={"$blue8Light"}
             />
           )}
         </AnimatePresence>
@@ -148,7 +150,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             value="active"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Active ({bills.length})</SizableText>
+            <Text>Active ({bills.length})</Text>
           </Tabs.Tab>
           <Tabs.Tab
             unstyled
@@ -157,7 +159,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
             value="inactive"
             onInteraction={handleOnInteraction}
           >
-            <SizableText>Expired ({inactiveBills.length})</SizableText>
+            <Text>Expired ({inactiveBills.length})</Text>
           </Tabs.Tab>
         </Tabs.List>
       </YStack>

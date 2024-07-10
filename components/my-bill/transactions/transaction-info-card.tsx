@@ -8,6 +8,7 @@ import {
   formatToDollarCurrency,
 } from "@/lib/helpers";
 import { Member, Transaction } from "@/types/global";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
 import {
@@ -57,6 +58,8 @@ const TransactionInfoCard: React.FC<Props> = ({
     isdeleted: false,
   });
 
+  const router = useRouter();
+
   const [refreshing, setRefreshing] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -76,22 +79,55 @@ const TransactionInfoCard: React.FC<Props> = ({
     }
   };
 
+  /**
+   * If the current user is not the owner of the transaction then open a modal (not editable) instead of the screen
+   */
   const onTransactionClick = (txnId: string) => {
     console.log("openEditTxn", openEditTxn);
     resetToasts();
-    setCurrentTxnToEdit(
-      transactions.find((txn) => `${txn.id}` === txnId) ?? {
-        billid: 0,
-        submittedbyid: "",
-        payerid: null,
-        amount: 0,
-        name: "",
-        notes: null,
-        split: [],
-        isdeleted: false,
-      }
-    );
-    setOpenEditTxn(true);
+    const _currentTxn = transactions.find((txn) => `${txn.id}` === txnId) ?? {
+      billid: 0,
+      submittedbyid: "",
+      payerid: null,
+      amount: 0,
+      name: "",
+      notes: null,
+      split: [],
+      isdeleted: false,
+    };
+    setCurrentTxnToEdit(_currentTxn);
+
+    //create object to send
+    const editTxnObject = {
+      members: members,
+      transaction: _currentTxn,
+      billOwnerId: billOwnerId,
+      currentUser: currentUser,
+      transactionId: txnId,
+      // setIsLoadingBillPage: setIsLoading
+    };
+    if (currentUser === _currentTxn.payerid) {
+      console.log(
+        "screen",
+        currentUser === currentTxnToEdit.payerid,
+        currentUser,
+        currentTxnToEdit.payerid
+      );
+      router.push({
+        pathname: "/screens/edit-transaction",
+        params: {
+          editTxnObject: encodeURIComponent(JSON.stringify(editTxnObject)),
+        },
+      });
+    } else {
+      console.log(
+        "modal",
+        currentUser === currentTxnToEdit.payerid,
+        currentUser,
+        currentTxnToEdit.payerid
+      );
+      setOpenEditTxn(true);
+    }
   };
 
   /** ---------- UseEffects  ---------- */
@@ -117,9 +153,7 @@ const TransactionInfoCard: React.FC<Props> = ({
         open={openEditTxn}
         setOpen={setOpenEditTxn}
         transaction={currentTxnToEdit}
-        setCurrentTxnToEdit={setCurrentTxnToEdit}
         billOwnerId={billOwnerId}
-        setIsLoadingBillPage={setIsLoading}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
