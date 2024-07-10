@@ -62,8 +62,8 @@ const SummaryChart: React.FC<Props> = ({
             backgroundGradientFrom: "#ffffff",
             backgroundGradientTo: "#ffffff",
             decimalPlaces: 0, // optional, defaults to 2dp
-            color: (opacity = 1) => `rgba(0, 0, 280, ${opacity})`, // Solid bar color (blue)
-            labelColor: (opacity = 1) => `rgba(0, 0, 260, ${opacity})`, // Label color (blue)
+            color: (opacity = 1) => `rgba(0, 122, 241, 1)`, // Solid bar color (blue)
+            labelColor: (opacity = 1) => `rgba(0, 122, 241, 1)`, // Label color (blue)
             style: {
               borderRadius: 16,
             },
