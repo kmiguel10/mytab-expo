@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Alert, View } from "react-native";
@@ -25,26 +26,27 @@ export default function Avatar({
 
   useEffect(() => {
     if (url) {
-      retrieveCachedAvatar(url);
+      retrieveAvatar(url);
+    } else {
+      setAvatarUrl(null);
     }
   }, [url]);
 
-  async function retrieveCachedAvatar(path: string) {
+  async function retrieveAvatar(path: string) {
     try {
       const cachedUrl = await AsyncStorage.getItem(`avatarCache:${path}`);
       if (cachedUrl) {
         setAvatarUrl(cachedUrl);
       } else {
-        downloadImage(path);
+        await downloadImage(path);
       }
     } catch (error: any) {
-      console.log("Error retrieving cached avatar:", error.message);
+      console.log("Error retrieving avatar:", error.message);
     }
   }
 
   async function downloadImage(path: string) {
     try {
-      console.log(`Downloading image from ${path}`);
       const { data, error } = await supabase.storage
         .from("avatars")
         .download(path);
@@ -59,7 +61,6 @@ export default function Avatar({
         const base64Url = fr.result as string;
         setAvatarUrl(base64Url);
         await AsyncStorage.setItem(`avatarCache:${path}`, base64Url);
-        console.log(`Image downloaded and cached for ${path}`);
       };
     } catch (error: any) {
       console.log("Error downloading image:", error.message);
@@ -89,78 +90,56 @@ export default function Avatar({
         throw new Error("No image uri!");
       }
 
-      const response = await fetch(image.uri);
-      const arraybuffer = await response.arrayBuffer();
-      const fileExt = image.uri.split(".").pop()?.toLowerCase() ?? "jpeg";
-      const path = `${Date.now()}.${fileExt}`;
-      console.log(`Uploading image to ${path}`);
+      // Read the file as base64
+      const base64 = await FileSystem.readAsStringAsync(image.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const fileExt = image.uri.split(".").pop()?.toLowerCase() ?? "jpg";
+      const fileName = `${Date.now()}.${fileExt}`;
+
       const { data, error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(path, arraybuffer, {
-          contentType: image.mimeType ?? "image/jpeg",
+        .upload(fileName, decode(base64), {
+          contentType: `image/${fileExt}`,
+          upsert: true,
         });
 
       if (uploadError) {
         throw uploadError;
       }
 
+      if (!data) {
+        throw new Error("Upload failed: No data returned");
+      }
+
+      const newAvatarUrl = `data:image/${fileExt};base64,${base64}`;
+
+      // Update the avatar URL state
+      setAvatarUrl(newAvatarUrl);
+
+      // Update the cache with the new avatar URL
+      await AsyncStorage.setItem(`avatarCache:${data.path}`, newAvatarUrl);
+
       if (onUpload) {
         onUpload(data.path);
-        const base64Data = await convertArrayBufferToBase64(arraybuffer);
-        setAvatarUrl(`data:${image.type};base64,${base64Data}`);
-        await AsyncStorage.setItem(
-          `avatarCache:${data.path}`,
-          `data:${image.type};base64,${base64Data}`
-        );
-        console.log(`Image uploaded and cached for ${data.path}`);
       }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      } else {
-        throw error;
-      }
+    } catch (error: any) {
+      console.error("Error uploading image:", error.message);
+      Alert.alert("Upload Error", error.message);
     } finally {
       setUploading?.(false);
     }
   }
 
-  async function convertArrayBufferToBase64(
-    arraybuffer: ArrayBuffer
-  ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const blob = new Blob([arraybuffer], {
-        type: "application/octet-stream",
-      });
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Failed to convert arraybuffer to base64."));
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  async function convertImageToBase64(uri: string): Promise<string> {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Failed to convert image to base64."));
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+  // Helper function to decode base64
+  function decode(base64: string): Uint8Array {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
   }
 
   return (
