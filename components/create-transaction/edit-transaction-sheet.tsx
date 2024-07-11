@@ -51,7 +51,7 @@ const EditTransaction: React.FC<Props> = ({
 
   const [transactionName, setTransactionName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sheetHeight, setSheetHeight] = useState(60);
+  const [sheetHeight, setSheetHeight] = useState(70);
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
     const user = activeMembers.find((member) => member.userid === userId);
@@ -126,7 +126,7 @@ const EditTransaction: React.FC<Props> = ({
         setSheetHeight(90);
       }
     } else {
-      setSheetHeight(60);
+      setSheetHeight(70);
     }
   }, [localTxn]);
 
