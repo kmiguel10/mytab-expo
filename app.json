@@ -53,10 +53,10 @@
       "eas": {
         "projectId": "440d96e9-1422-49a2-9c00-7b50e8f49952"
       },
-      "PROD_SUPABASE_URL":"test",
-      "PROD_SUPABASE_ANON_KEY":"test",
-      "STAGING_SUPABASE_URL":"test",
-      "STAGING_SUPABASE_ANON_KEY":"test",
+      "PROD_SUPABASE_URL":"https://rzhppjzfcgfdhcfuiqjw.supabase.co",
+      "PROD_SUPABASE_ANON_KEY":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6aHBwanpmY2dmZGhjZnVpcWp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA0MzgyNTUsImV4cCI6MjAyNjAxNDI1NX0.iiU8Pz1pqv0WGW9nbC6CNEw4nvvWKQd369slL02IzB4",
+      "STAGING_SUPABASE_URL":"https://duumipxyhguhfsxcpngm.supabase.co",
+      "STAGING_SUPABASE_ANON_KEY":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1dW1pcHh5aGd1aGZzeGNwbmdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA0MzgxMTgsImV4cCI6MjAyNjAxNDExOH0.-XIxVMf21RLzrisPvYtfzZKsQvVhMou1JIFFqnPH8Fc",
       "DEV_LOCAL_SUPABASE_URL": "http://127.0.0.1:54321",
       "DEV_LOCAL_SUPABASE_ANON_KEY":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
       "DEV_ONLINE_SUPABASE_URL": "https://xstshtvdjvmzebjctwmn.supabase.co",
