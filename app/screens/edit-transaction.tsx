@@ -288,15 +288,12 @@ const EditTransaction = () => {
   /*********** UseEffects ***********/
   //get params
   useEffect(() => {
-    console.log("editTxnObject", editTxnObject);
     if (editTxnObject) {
       const parsedObject = JSON.parse(
         decodeURIComponent(editTxnObject.toString())
       );
-      console.log("editTxnObject", parsedObject);
       const { members, transaction, billOwnerId, currentUser, transactionId } =
         parsedObject;
-      console.log("parsed", parsedObject);
       setBillOwnerId(billOwnerId);
       setMembers(members);
       setUserId(currentUser);
@@ -314,7 +311,6 @@ const EditTransaction = () => {
     const _activeMembers = members.filter(
       (member) => member.isMemberIncluded === true
     );
-    console.log("Get active members", JSON.stringify(_activeMembers));
     setActiveMembers(_activeMembers);
   }, [members]);
 

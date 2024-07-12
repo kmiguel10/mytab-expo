@@ -357,9 +357,7 @@ const Home = () => {
   useEffect(() => {
     const initIAP = async () => {
       try {
-        console.log("* * * Initializing IAP connection * * * ");
         await RNIap.initConnection();
-        console.log("* * * Initialization Completed IAP connection * * * ");
         //await fetchProducts();
       } catch (err) {
         console.warn(err);
@@ -401,7 +399,6 @@ const Home = () => {
     return () => {
       purchaseUpdate.remove();
       purchaseError.remove();
-      console.log("*** Ending IAP connection");
       RNIap.endConnection();
     };
   }, []);
