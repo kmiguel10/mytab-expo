@@ -1,7 +1,8 @@
 import { Auth as AppleAuth } from "@/components/auth/Auth.native";
+import { signInWithEmail, signUpWithEmail } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import React, { useEffect, useState } from "react";
-import { AppState, useWindowDimensions } from "react-native";
+import { Alert, AppState, useWindowDimensions } from "react-native";
 import {
   Card,
   Input,
@@ -36,8 +37,6 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
   /** States and Variables */
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [openSignInSheet, setOpenSignInSheet] = useState(false);
-  const [openSignUpSheet, setOpenSignUpSheet] = useState(false);
   const [isEmailError, setIsEmailError] = useState(false);
   const [isSendError, setIsSendError] = useState(false);
   const [isSendSuccess, setIsSendSuccess] = useState(false);
@@ -46,6 +45,9 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
   const errorMessage = "Something went wrong. Please try again.";
   const successMessage = `A link is sent to your email.`;
   const successSubMessage = `\nNOTE : Please close this app before clicking the link.`;
+
+  //Delete later
+  const [password, setPassword] = useState("");
 
   /** Functions and Handlers */
 
@@ -89,6 +91,35 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
       setTitlePadding("$6");
     }
   }, [isSendError, isSendSuccess]);
+
+  /** Only for testing delete these */
+  const handleSignIn = async () => {
+    setLoading(true);
+    const { error } = await signInWithEmail(email, password);
+
+    if (error) {
+      Alert.alert(error.message);
+      console.log("error sign in", error);
+      setEmail("");
+      setPassword("");
+    }
+    setLoading(false);
+  };
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    const { session, error } = await signUpWithEmail(email, password);
+
+    if (error) {
+      Alert.alert(error.message);
+      setEmail("");
+      setPassword("");
+    }
+    if (session) {
+      Alert.alert("Please check your inbox for email verification!");
+    }
+    setLoading(false);
+  };
 
   return (
     <YStack
@@ -185,6 +216,45 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
                 </XStack>
               </>
             )}
+            {/* This section is for testing and for signing up users quickly */}
+            {/* <YStack
+              backgroundColor={"white"}
+              height={"100%"}
+              gap="$4"
+              paddingHorizontal="$8"
+            >
+              <YStack gap={"$2"}>
+                <Input
+                  onChangeText={(text) => setEmail(text)}
+                  value={email}
+                  placeholder="email@address.com"
+                  autoCapitalize={"none"}
+                />
+                <Input
+                  onChangeText={(text) => setPassword(text)}
+                  value={password}
+                  secureTextEntry={true}
+                  placeholder="Password"
+                  autoCapitalize={"none"}
+                />
+              </YStack>
+              <YStack gap={"$2"}>
+                <StyledButton
+                  active={!loading && !!email && !!password}
+                  disabled={loading || !email || !password}
+                  onPress={handleSignIn}
+                >
+                  Sign in
+                </StyledButton>
+                <StyledButton
+                  active={!loading && !!email && !!password}
+                  disabled={loading || !email || !password}
+                  onPress={handleSignUp}
+                >
+                  Sign up
+                </StyledButton>
+              </YStack>
+            </YStack> */}
           </YStack>
         </>
       )}
