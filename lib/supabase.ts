@@ -3,19 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import Constants from "expo-constants";
 
-// import {
-//   DEV_LOCAL_SUPABASE_URL,
-//   DEV_LOCAL_SUPABASE_ANON_KEY,
-//   DEV_ONLINE_SUPABASE_URL,
-//   DEV_ONLINE_SUPABASE_ANON_KEY,
-//   PROD_SUPABASE_URL,
-//   PROD_SUPABASE_ANON_KEY,
-// } from "@env";
-/** Local  */
-// const supabaseUrl = "http://127.0.0.1:54321";
-// const supabaseAnonKey =
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
-
 interface Extra {
   PROD_SUPABASE_URL: string;
   PROD_SUPABASE_ANON_KEY: string;
@@ -30,23 +17,19 @@ interface Extra {
 const {
   PROD_SUPABASE_URL,
   PROD_SUPABASE_ANON_KEY,
+  STAGING_SUPABASE_URL,
+  STAGING_SUPABASE_ANON_KEY,
   DEV_LOCAL_SUPABASE_ANON_KEY,
   DEV_LOCAL_SUPABASE_URL,
   DEV_ONLINE_SUPABASE_ANON_KEY,
   DEV_ONLINE_SUPABASE_URL,
 } = Constants.expoConfig?.extra as Extra;
 
-// const supabaseUrl = DEV_ONLINE_SUPABASE_URL;
-// const supabaseAnonKey = DEV_ONLINE_SUPABASE_ANON_KEY;
-
-/** Online  */
-// const supabaseUrl = "https://xstshtvdjvmzebjctwmn.supabase.co";
-// const supabaseAnonKey =
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdHNodHZkanZtemViamN0d21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNzg3MjgsImV4cCI6MjAyMjg1NDcyOH0.TZ5cmTcEW_1NKson2Wk6ZTq8mQTkCcZazam7IyZL9HI";
-
 // // Toggle these flags to switch between environments
 const useProduction = false; // Set to true to use production variables
 const useLocalSupabase = false; // Set to false to use the online environment in development
+
+const useStaging = true;
 
 let supabaseUrl, supabaseAnonKey;
 
@@ -54,6 +37,9 @@ if (useProduction) {
   // Production environment
   supabaseUrl = PROD_SUPABASE_URL;
   supabaseAnonKey = PROD_SUPABASE_ANON_KEY;
+} else if (useStaging) {
+  supabaseUrl = STAGING_SUPABASE_URL;
+  supabaseAnonKey = STAGING_SUPABASE_ANON_KEY;
 } else {
   // Development environment
   if (useLocalSupabase) {
