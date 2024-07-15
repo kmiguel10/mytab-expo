@@ -421,15 +421,14 @@ const Home = () => {
           paddingVertical="$4"
           paddingHorizontal="$4"
         >
-          <Skeleton
+          {/* <Skeleton
             height={64}
             width={64}
             radius="round"
             show={!avatarUrl}
             colorMode="light"
-          >
-            <Avatar url={avatarUrl} size={"$6"} />
-          </Skeleton>
+          ></Skeleton> */}
+          <Avatar url={avatarUrl} size={"$6"} />
           <Skeleton
             height={24}
             width={windowWidth * 0.8}

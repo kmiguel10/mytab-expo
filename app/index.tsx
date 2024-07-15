@@ -21,6 +21,7 @@ const Page = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [areNamesSaved, setAreNamesSaved] = useState(false);
 
   /** Functions and handlers */
   const handleUniversalLink = async () => {
@@ -116,9 +117,12 @@ const Page = () => {
       ) : (
         <View>
           {session && session.user ? (
-            <Onboard userId={session.user.id.toString()} />
+            <Onboard
+              userId={session.user.id.toString()}
+              areNamesSaved={areNamesSaved}
+            />
           ) : (
-            <Auth emailError={emailError} />
+            <Auth emailError={emailError} setAreNamesSaved={setAreNamesSaved} />
           )}
         </View>
       )}

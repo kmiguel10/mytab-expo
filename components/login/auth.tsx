@@ -18,6 +18,7 @@ import { StyledButton } from "../button/button";
 
 interface Props {
   emailError: string;
+  setAreNamesSaved: (flag: boolean) => void;
 }
 
 /**
@@ -33,7 +34,7 @@ AppState.addEventListener("change", (state) => {
   }
 });
 
-export const Auth: React.FC<Props> = ({ emailError }) => {
+export const Auth: React.FC<Props> = ({ emailError, setAreNamesSaved }) => {
   /** States and Variables */
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -212,7 +213,12 @@ export const Auth: React.FC<Props> = ({ emailError }) => {
                   <Separator />
                 </XStack>
                 <XStack justifyContent="center">
-                  {<AppleAuth isLoading={setLoading} />}
+                  {
+                    <AppleAuth
+                      isLoading={setLoading}
+                      setAreNamesSaved={setAreNamesSaved}
+                    />
+                  }
                 </XStack>
               </>
             )}
