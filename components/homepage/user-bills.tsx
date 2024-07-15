@@ -12,6 +12,7 @@ interface Props {
   userId: string;
   refreshing: boolean;
   handleRefresh: () => void;
+  isIpad: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ const UserBills: React.FC<Props> = ({
   userId,
   refreshing,
   handleRefresh,
+  isIpad,
 }) => {
   /************ States and Variables *************/
   /************ Functions *************/
@@ -61,6 +63,7 @@ const UserBills: React.FC<Props> = ({
                     size="$3"
                     bill={item}
                     membership={item.ownerid === userId ? "Owner" : "Member"}
+                    isIpad={isIpad}
                   />
                 </Link>
               </XStack>

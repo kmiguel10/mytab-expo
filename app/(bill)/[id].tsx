@@ -19,6 +19,7 @@ import moment from "moment";
 import { Skeleton } from "moti/skeleton";
 import React, { useEffect, useState } from "react";
 import { Spinner, YStack, useWindowDimensions } from "tamagui";
+import DeviceInfo from "react-native-device-info";
 
 // Define the possible product types
 type ProductType = "free.plan" | "com.mytab.1week" | "com.mytab.2weeks";
@@ -70,6 +71,7 @@ const BillScreen = () => {
 
   //I am using this to set loading for when I am submitting changes for edit
   const [isLoading, setIsLoading] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
 
   const router = useRouter();
 
@@ -255,6 +257,28 @@ const BillScreen = () => {
     initialErrorDeleteMsg,
   ]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        // setButtonSize("$2.5");
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer>
       <ToastViewport
@@ -265,7 +289,7 @@ const BillScreen = () => {
         right={0}
       />
       <YStack padding="$2" gap="$2">
-        <HeaderContainer height={windowHeight * 0.15}>
+        <HeaderContainer>
           {!loadingSummaryInfo ? (
             <HeaderInfo
               summaryInfo={summaryInfo}
@@ -286,7 +310,7 @@ const BillScreen = () => {
             />
           )}
         </HeaderContainer>
-        <BodyContainer height={windowHeight * 0.62}>
+        <BodyContainer height={windowHeight * 0.6}>
           {isLoading ? (
             <YStack flex={1} justifyContent="center">
               <Spinner color={"forestgreen"} size="large" />
@@ -297,7 +321,7 @@ const BillScreen = () => {
               summaryInfo={summaryInfo}
               billId={Number(id)}
               userId={userId?.toString() || ""}
-              height={windowHeight * 0.62}
+              height={windowHeight * 0.6}
               width={windowWidth * 0.95}
               members={members}
               resetToastMessageStates={resetToastMessageStates}
@@ -306,6 +330,7 @@ const BillScreen = () => {
               billOwnerId={billInfo[0]?.ownerid}
               loadingTransactions={loadingTransactions}
               setIsLoading={setIsLoading}
+              isIpad={isIpad}
             />
           )}
         </BodyContainer>
@@ -327,7 +352,7 @@ const BillScreen = () => {
           <StyledButton
             disabled={billInfo[0]?.isLocked || isMaxTxnsReached}
             create={!billInfo[0]?.isLocked && !isMaxTxnsReached}
-            width={windowWidth * 0.38}
+            width={isIpad ? windowWidth * 0.4 : windowWidth * 0.38}
             size={"$3.5"}
             onPress={onCreateTransactionClick}
           >

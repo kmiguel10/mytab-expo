@@ -16,6 +16,7 @@ interface Props {
   tabSectionWidth: number;
   members: Member[];
   transactions: Transaction[];
+  isIpad: boolean;
 }
 
 const MyTab: React.FC<Props> = ({
@@ -25,6 +26,7 @@ const MyTab: React.FC<Props> = ({
   tabSectionWidth,
   members,
   transactions,
+  isIpad,
 }) => {
   /** - - - - - - - - - - State Variables - - - - - - - - */
   const [myTabInfo, setMyTabInfo] = useState<MyTabInfo[] | null>([]);
@@ -126,6 +128,7 @@ const MyTab: React.FC<Props> = ({
       <XStack
         height={cardsSectionHeight}
         backgroundColor={"$backgroundTransparent"}
+        paddingTop={isIpad ? "$4" : ""}
       >
         <SettleMemberCard
           members={settleMembersInfo}

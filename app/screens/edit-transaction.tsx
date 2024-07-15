@@ -23,6 +23,7 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+import DeviceInfo from "react-native-device-info";
 
 const EditTransaction = () => {
   /*********** States and Variables ***********/
@@ -69,6 +70,7 @@ const EditTransaction = () => {
     isdeleted: false,
   });
   const { editTxnObject } = useLocalSearchParams();
+  const [isIpad, setIsIpad] = useState(false);
 
   /*********** Helpers ***********/
   const getDisplayName = (userId: string) => {
@@ -328,6 +330,28 @@ const EditTransaction = () => {
     }
   }, [amount]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        // setButtonSize("$2.5");
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer
       padding="$2"
@@ -345,6 +369,7 @@ const EditTransaction = () => {
           setOpen={setOpenNotes}
           setTransaction={setLocalTxn}
           transactionNotes={localTxn.notes}
+          isIpad={isIpad}
         />
         {isLoading ? (
           <YStack justifyContent="center" flex={2}>
@@ -358,7 +383,10 @@ const EditTransaction = () => {
             padding="$3"
             justifyContent="center"
           >
-            <XStack justifyContent="space-between">
+            <XStack
+              justifyContent="space-between"
+              paddingTop={isIpad ? "$3" : "0"}
+            >
               <ConfirmDeleteTransaction
                 userId={userId?.toString() || ""}
                 transaction={localTxn}
@@ -435,7 +463,10 @@ const EditTransaction = () => {
                 />
               </Fieldset>
             </XStack>
-            <XStack justifyContent="space-between" paddingTop="$4">
+            <XStack
+              justifyContent="space-between"
+              paddingTop={isIpad ? "$2" : "$4"}
+            >
               <StyledButton
                 backgroundColor="$blue3"
                 size="$3"
@@ -469,6 +500,7 @@ const EditTransaction = () => {
                   !amount ||
                   isAmountError
                 }
+                isIpad={isIpad}
               />
             </XStack>
 

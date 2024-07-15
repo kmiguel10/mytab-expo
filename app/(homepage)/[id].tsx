@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, useWindowDimensions } from "react-native";
 import * as RNIap from "react-native-iap";
 import { Text, YStack } from "tamagui";
+import DeviceInfo from "react-native-device-info";
 
 const Home = () => {
   /********** States and Variables ***********/
@@ -54,6 +55,8 @@ const Home = () => {
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [purchase, setPurchase] = useState<RNIap.Purchase | null>(null);
   const [isFreeBillActive, setIsFreeBillActive] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
+  const [buttonSize, setButtonSize] = useState("$3.5");
 
   /********** Functions  ***********/
   const onOpenCreateBillSheet = () => {
@@ -403,6 +406,28 @@ const Home = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        setButtonSize("$2.5");
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer>
       <ToastViewport
@@ -416,9 +441,8 @@ const Home = () => {
         <HeaderContainer
           justifyContent="flex-start"
           gap="$3"
-          height={windowHeight * 0.15}
           backgroundColor={"$backgroundStrong"}
-          paddingVertical="$4"
+          paddingTop="$3"
           paddingHorizontal="$4"
         >
           {/* <Skeleton
@@ -454,6 +478,7 @@ const Home = () => {
             refreshing={refreshing}
             loadingBills={loadingBills}
             resetToasts={resetToasts}
+            isIpad={isIpad}
           />
         </BodyContainer>
       </YStack>
@@ -482,11 +507,11 @@ const Home = () => {
                 profileInfo?.displayName ? profileInfo.displayName : ""
               }
               buttonWidth={windowWidth * 0.25}
-              buttonSize={"$3.5"}
+              buttonSize={buttonSize}
             />
             <StyledButton
               create={true}
-              size={"$3.5"}
+              size={buttonSize}
               width={windowWidth * 0.25}
               onPress={onOpenCreateBillSheet}
             >

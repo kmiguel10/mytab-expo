@@ -23,6 +23,7 @@ interface Props {
   billId: number;
   isLocked: boolean;
   disabled: boolean;
+  isIpad: boolean;
 }
 
 interface LockTextProps {
@@ -35,6 +36,7 @@ export const LockSwitch: React.FC<Props> = ({
   userId,
   billId,
   disabled,
+  isIpad,
 }) => {
   const id = `switch-${size.toString().slice(1)}-${defaultChecked ?? ""}}`;
   const [lock, setlock] = useState(false);
@@ -56,29 +58,30 @@ export const LockSwitch: React.FC<Props> = ({
 
   return (
     <XStack alignItems="center" gap="$2" justifyContent="space-between">
-      {/* <ToastViewport
-        width={"100%"}
-        justifyContent="center"
-        flexDirection="column-reverse"
-        top={0}
-        right={0}
-      /> */}
       <LockText locked={lock} />
-      <Label minWidth={200} justifyContent="flex-end" size={size} htmlFor={id}>
-        {/* <LockText locked={lock} /> */}
-      </Label>
-      {lock ? <Lock size={"$1"} /> : <Unlock size={"$1"} />}
-      <Separator minHeight={20} vertical />
-      <ConfirmToggleLock
-        billId={billId}
-        userId={userId}
-        lock={lock}
-        setLock={setlock}
-        size={size.toString()}
-        setOpen={setOpen}
-        setToggleError={setToggleError}
-        disabled={disabled}
-      />
+      <XStack>
+        <Label
+          minWidth={200}
+          justifyContent="flex-end"
+          size={size}
+          htmlFor={id}
+        >
+          {/* <LockText locked={lock} /> */}
+        </Label>
+        {lock ? <Lock size={"$1"} /> : <Unlock size={"$1"} />}
+        <Separator minHeight={20} vertical />
+        <ConfirmToggleLock
+          billId={billId}
+          userId={userId}
+          lock={lock}
+          setLock={setlock}
+          size={size.toString()}
+          setOpen={setOpen}
+          setToggleError={setToggleError}
+          disabled={disabled}
+        />
+      </XStack>
+
       <LockToast
         setOpen={setOpen}
         open={open}

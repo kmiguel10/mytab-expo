@@ -1,5 +1,5 @@
 import { SummaryInfo, Transaction } from "@/types/global";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, YStack } from "tamagui";
 import MemberCards from "./member-cards";
 import SummaryChart from "./summary-chart";
@@ -9,6 +9,7 @@ interface Props {
   transactions: Transaction[];
   tabSectionHeight: number;
   tabSectionWidth: number;
+  isIpad: boolean;
 }
 
 const Summary: React.FC<Props> = ({
@@ -16,10 +17,20 @@ const Summary: React.FC<Props> = ({
   tabSectionHeight,
   tabSectionWidth,
   transactions,
+  isIpad,
 }) => {
-  let chartHeight = tabSectionHeight * 0.35;
   let chartWidth = tabSectionWidth * 0.96;
-  let memberCardsHeight = tabSectionHeight * 0.52;
+
+  const [chartHeight, setChartHeight] = useState(tabSectionHeight * 0.35);
+  const [memberCardsHeight, setMemberCardsHeight] = useState(
+    tabSectionHeight * 0.52
+  );
+  useEffect(() => {
+    if (isIpad) {
+      setChartHeight(tabSectionHeight * 0.5);
+      setMemberCardsHeight(tabSectionHeight * 0.3);
+    }
+  }, [isIpad]);
 
   return (
     <View>
