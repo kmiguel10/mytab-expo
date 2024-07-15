@@ -1,6 +1,7 @@
 // Onboard.tsx
 
-import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Alert, Keyboard } from "react-native";
 import {
   Button,
@@ -14,19 +15,19 @@ import {
   XStack,
   YStack,
 } from "tamagui";
-import { useRouter } from "expo-router";
 import { StyledButton } from "../button/button";
 import { BodyContainer } from "../containers/body-container";
 import { OuterContainer } from "../containers/outer-container";
 import { StyledInput } from "../input/input";
 import Avatar from "./avatar";
 
-import { ProfileInfo } from "@/types/global";
 import { getProfileInfoOnboard, updateProfile } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import { ProfileInfo } from "@/types/global";
 
 interface Props {
   userId: string;
+  areNamesSaved: boolean;
 }
 
 /**
@@ -36,7 +37,7 @@ interface Props {
  * 1. If there is a displayName then redirect to the homepage
  * 2. If no displayName then stay on onboard page
  */
-export const Onboard: React.FC<Props> = ({ userId }) => {
+export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
   /************ States and Variables ************/
   const { width, height } = useWindowDimensions();
   const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
@@ -45,10 +46,11 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   const [lastName, setLastName] = useState("");
   const [isDisplayNameError, setIsDisplayNameError] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [initialDisplayName, setInitialDisplayName] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.75);
+  const [isDisabled, setIsDisabled] = useState(false);
   const router = useRouter();
 
   /************ Functions ************/
@@ -56,8 +58,9 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
     try {
       setIsLoading(true);
       const profile = await getProfileInfoOnboard(userId);
+
+      console.log("Profile", profile);
       setProfileInfo(profile);
-      setInitialDisplayName(profile?.displayName || "");
       setDisplayName(profile?.displayName || "");
       setIsLoading(false);
 
@@ -146,7 +149,25 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
   /************ UseEffects ************/
   useEffect(() => {
     fetchProfileInfo();
-  }, [userId, router]);
+    console.log("areNamesSaved", areNamesSaved);
+  }, [userId, router, areNamesSaved]);
+
+  //If firstname and lastname exists initially that means that it is an apple sign in and that those cannot be changed and must be displayed
+  useEffect(() => {
+    if (profileInfo?.firstName && profileInfo?.lastName) {
+      setIsDisabled(true);
+      setFirstName(profileInfo.firstName);
+      setLastName(profileInfo.lastName);
+      setDisplayName(profileInfo.firstName);
+    }
+  }, [profileInfo]);
+
+  //Display the firstname as displayname if apple sign in
+  useEffect(() => {
+    if (profileInfo?.firstName && profileInfo?.lastName) {
+      setDisplayName(profileInfo.firstName);
+    }
+  }, [profileInfo?.displayName]);
 
   useEffect(() => {
     const handleKeyboardShow = () => setButtonAreaHeight(height * 0.39);
@@ -220,8 +241,11 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     placeholder="First Name"
                     value={firstName}
                     onChangeText={handleFirstNameChange}
-                    backgroundColor={"$backgroundTransparent"}
+                    backgroundColor={
+                      isDisabled ? "$gray" : "$backgroundTransparent"
+                    }
                     maxLength={10}
+                    disabled={isDisabled}
                   />
                 </Fieldset>
                 <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
@@ -233,8 +257,11 @@ export const Onboard: React.FC<Props> = ({ userId }) => {
                     placeholder="Last Name"
                     value={lastName}
                     onChangeText={handleLastNameChange}
-                    backgroundColor={"$backgroundTransparent"}
+                    backgroundColor={
+                      isDisabled ? "$gray" : "$backgroundTransparent"
+                    }
                     maxLength={10}
+                    disabled={isDisabled}
                   />
                 </Fieldset>
               </XStack>
