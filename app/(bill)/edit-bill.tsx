@@ -30,6 +30,7 @@ import BillSettingsSkeleton from "@/components/skeletons/bill-settings-skeleton"
 import { AlertCircle } from "@tamagui/lucide-icons";
 import moment from "moment";
 import "moment-timezone";
+import DeviceInfo from "react-native-device-info";
 
 /**
  * This component's features are only visible to the bill owner
@@ -81,6 +82,8 @@ export const EditBill = () => {
 
   // Calculate the maximum date (30 days from today)
   const today = moment().utc();
+  const [isIpad, setIsIpad] = useState(false);
+  const [buttonSize, setButtonSize] = useState("$");
 
   /** ---------- Functions ---------- */
 
@@ -212,6 +215,24 @@ export const EditBill = () => {
     setEndDateLocalTime(endDate.local().format("MMM D"));
   }, [date, endDate]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      setIsIpad(isIpadModel);
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer
       padding="$2"
@@ -220,7 +241,7 @@ export const EditBill = () => {
       height={height}
     >
       <BodyContainer
-        height={height * 0.86}
+        height={isIpad ? height * 0.89 : height * 0.86}
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >
@@ -246,7 +267,7 @@ export const EditBill = () => {
                   bordered
                   backgroundColor="white"
                   borderRadius={"$5"}
-                  height={windowHeight * 0.225}
+                  height={isIpad ? windowHeight * 0.28 : windowHeight * 0.225}
                   gap="$4.5"
                   padding="$2.5"
                 >
@@ -376,13 +397,14 @@ export const EditBill = () => {
                   billId={parseInt(id?.toString() || "")}
                   isLocked={isLocked}
                   disabled={!isOwner || isBillExpired}
+                  isIpad={isIpad}
                 />
               </XStack>
             )}
             <EditMembers
               billId={parseInt(id?.toString() || "")}
               ownerId={billInfo[0]?.ownerid}
-              height={height * 0.45}
+              height={isIpad ? height * 0.4 : height * 0.45}
               isOwner={isOwner}
               isFreeBill={isFreeBill}
               isBillExpired={isBillExpired}
@@ -393,6 +415,7 @@ export const EditBill = () => {
                 <ConfirmDeleteBill
                   billId={billInfo[0]?.billid}
                   userId={userId?.toString() || ""}
+                  isIpad={isIpad}
                 />
               </XStack>
             )}

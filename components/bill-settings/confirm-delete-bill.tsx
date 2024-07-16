@@ -20,9 +20,14 @@ import { StyledButton } from "../button/button";
 interface Props {
   billId: number;
   userId: string;
+  isIpad: boolean;
 }
 
-export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
+export const ConfirmDeleteBill: React.FC<Props> = ({
+  billId,
+  userId,
+  isIpad,
+}) => {
   /********** States and Variables ***********/
   const { width, height } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +89,7 @@ export const ConfirmDeleteBill: React.FC<Props> = ({ billId, userId }) => {
           delete={true}
           icon={<Trash size={"$1"} color={"$red10Light"} />}
           backgroundColor={"$red4Light"}
-          size={"$4"}
+          size={isIpad ? "$3" : "$4"}
           width={"25%"}
         />
       </AlertDialog.Trigger>

@@ -1,6 +1,6 @@
 import { formatToDollarCurrency } from "@/lib/helpers";
 import { MemberData } from "@/types/global";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 
 import {
   Card,
@@ -15,6 +15,7 @@ import Avatar from "../login/avatar";
 interface Props extends CardProps {
   bill: MemberData;
   membership: string;
+  isIpad: boolean;
 }
 
 /**
@@ -24,12 +25,20 @@ interface Props extends CardProps {
  * @returns
  */
 const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
-  { bill, membership, ...props },
+  { bill, membership, isIpad, ...props },
   ref
 ) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const cardWidth = windowWidth * 0.9;
-  const cardHeight = windowHeight * 0.13;
+
+  const [cardHeight, setCardHeight] = useState(windowHeight * 0.13);
+
+  useEffect(() => {
+    console.log("CARD ISIPAD", isIpad);
+    if (isIpad) {
+      setCardHeight(windowHeight * 0.15);
+    }
+  }, [isIpad]);
 
   return (
     <Card
@@ -49,9 +58,6 @@ const BillCard: React.ForwardRefRenderFunction<HTMLDivElement, Props> = (
     >
       <Card.Header>
         <XStack justifyContent="space-between">
-          {/* <H5 fontFamily={"$heading"} maxWidth={"50%"} overflow="hidden">
-            {bill.name}
-          </H5> */}
           <SizableText size={"$5"} textOverflow="ellipsis">
             {bill.name}
           </SizableText>

@@ -32,6 +32,7 @@ interface Props {
   billOwnerId: string;
   loadingTransactions: boolean;
   setIsLoading: (loading: boolean) => void;
+  isIpad: boolean;
 }
 
 const UnderlinedTabs: React.FC<Props> = ({
@@ -48,6 +49,7 @@ const UnderlinedTabs: React.FC<Props> = ({
   billOwnerId,
   loadingTransactions,
   setIsLoading,
+  isIpad,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -231,6 +233,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   tabSectionHeight={height}
                   tabSectionWidth={width}
                   transactions={transactions}
+                  isIpad={isIpad}
                 />
               )}
               {currentTab === "My Tab" && (
@@ -241,6 +244,7 @@ const UnderlinedTabs: React.FC<Props> = ({
                   tabSectionHeight={height}
                   tabSectionWidth={width}
                   transactions={transactions}
+                  isIpad={isIpad}
                 />
               )}
             </Tabs.Content>

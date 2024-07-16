@@ -31,6 +31,7 @@ interface Props {
   setIsEven: React.Dispatch<React.SetStateAction<boolean>>;
   includedMembers: SelectedMemberSplitAmount[];
   isDisabled: boolean;
+  isIpad: boolean;
 }
 
 const CustomSplit: React.FC<Props> = ({
@@ -40,6 +41,7 @@ const CustomSplit: React.FC<Props> = ({
   setIsEven,
   includedMembers,
   isDisabled,
+  isIpad,
 }) => {
   /** States */
   const [selectedMembers, setSelectedMembers] =
@@ -172,11 +174,11 @@ const CustomSplit: React.FC<Props> = ({
 
   /** ---------- Listeners ---------- */
   Keyboard.addListener("keyboardDidShow", () => {
-    setButtonAreaHeight(windowHeight * 0.28);
+    setButtonAreaHeight(isIpad ? windowHeight * 0.25 : windowHeight * 0.28);
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
-    setButtonAreaHeight(windowHeight * 0.61);
+    setButtonAreaHeight(isIpad ? windowHeight * 0.55 : windowHeight * 0.61);
   });
 
   /** ---------- Use Effects ---------- */

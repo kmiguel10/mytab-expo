@@ -23,6 +23,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyledInput } from "@/components/input/input";
 import { StyledButton } from "@/components/button/button";
+import DeviceInfo from "react-native-device-info";
 
 export default function Profile() {
   /************ States and Variables ************/
@@ -35,6 +36,7 @@ export default function Profile() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
 
   const router = useRouter();
 
@@ -168,6 +170,24 @@ export default function Profile() {
     }
   }, [profileInfo]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      setIsIpad(isIpadModel);
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer
       padding="$2"
@@ -176,7 +196,7 @@ export default function Profile() {
       height={height}
     >
       <BodyContainer
-        height={height * 0.86}
+        height={isIpad ? height * 0.88 : height * 0.86}
         borderBottomRightRadius={"$11"}
         borderBottomLeftRadius={"$11"}
       >

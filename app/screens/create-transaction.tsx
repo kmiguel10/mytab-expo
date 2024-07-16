@@ -22,6 +22,7 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+import DeviceInfo from "react-native-device-info";
 
 const CreateTransaction = () => {
   /********** States and variables ***********/
@@ -38,6 +39,7 @@ const CreateTransaction = () => {
     split: [],
     isdeleted: false,
   });
+  const [isIpad, setIsIpad] = useState(false);
   const router = useRouter();
   const [includedMembers, setIncludedMembers] = useState<
     SelectedMemberSplitAmount[]
@@ -328,6 +330,28 @@ const CreateTransaction = () => {
     console.log("**** Active members", JSON.stringify(_activeMembers));
   }, [members]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        // setButtonSize("$2.5");
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer
       padding="$2"
@@ -345,6 +369,7 @@ const CreateTransaction = () => {
           setOpen={setOpenNotes}
           setTransaction={setTransaction}
           transactionNotes={transaction.notes}
+          isIpad={isIpad}
         />
         {isLoading ? (
           <YStack justifyContent="center" flex={2}>
@@ -464,6 +489,7 @@ const CreateTransaction = () => {
                   !amount ||
                   isAmountError
                 }
+                isIpad={isIpad}
               />
             </XStack>
             <XStack

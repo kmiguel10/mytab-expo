@@ -1,19 +1,12 @@
 import { MemberData } from "@/types/global";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LayoutRectangle } from "react-native";
 
 import type { StackProps, TabLayout, TabsTabProps } from "tamagui";
 
-import {
-  AnimatePresence,
-  SizableText,
-  styled,
-  Tabs,
-  View,
-  YStack,
-  Text,
-} from "tamagui";
+import { AnimatePresence, styled, Tabs, Text, View, YStack } from "tamagui";
 import UserBills from "./user-bills";
+
 interface Props {
   bills: MemberData[];
   inactiveBills: MemberData[];
@@ -24,6 +17,7 @@ interface Props {
   setRefreshing: (toggle: boolean) => void;
   resetToasts: () => void;
   refreshing: boolean;
+  isIpad: boolean;
 }
 export const TabsAdvancedUnderline: React.FC<Props> = ({
   bills,
@@ -35,6 +29,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
   setRefreshing,
   refreshing,
   resetToasts,
+  isIpad,
 }) => {
   const [tabState, setTabState] = useState<{
     currentTab: string;
@@ -180,6 +175,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                   userId={userId}
                   refreshing={refreshing}
                   handleRefresh={handleRefresh}
+                  isIpad={isIpad}
                 />
               ) : (
                 <UserBills
@@ -188,6 +184,7 @@ export const TabsAdvancedUnderline: React.FC<Props> = ({
                   userId={userId}
                   refreshing={refreshing}
                   handleRefresh={handleRefresh}
+                  isIpad={isIpad}
                 />
               )}
             </View>

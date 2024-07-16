@@ -9,6 +9,7 @@ interface Props {
   setOpen: (open: boolean) => void;
   setTransaction: React.Dispatch<React.SetStateAction<any>>;
   transactionNotes: string | null;
+  isIpad: boolean;
 }
 
 const Notes: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const Notes: React.FC<Props> = ({
   setOpen,
   setTransaction,
   transactionNotes,
+  isIpad,
 }) => {
   const { width, height } = useWindowDimensions();
   const [localNotes, setLocalNotes] = useState("");
@@ -73,7 +75,11 @@ const Notes: React.FC<Props> = ({
           <H4>Memo...</H4>
           <XCircle onPress={() => setOpen(false)} />
         </XStack>
-        <XStack height={"40%"} maxWidth={width} minWidth={width}>
+        <XStack
+          height={isIpad ? "35%" : "40%"}
+          maxWidth={width}
+          minWidth={width}
+        >
           <TextArea
             borderWidth="$1"
             placeholder="Enter your memo..."
@@ -90,7 +96,7 @@ const Notes: React.FC<Props> = ({
           }
           paddingHorizontal={"$2"}
           borderRadius={"$12"}
-          width={width * 0.4}
+          width={isIpad ? width * 0.5 : width * 0.4}
         >
           <SizableText
             color={localNotes?.length === 200 ? "$red8Light" : "$blue8Light"}
