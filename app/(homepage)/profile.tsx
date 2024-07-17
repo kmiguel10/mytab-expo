@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { StyledInput } from "@/components/input/input";
 import { StyledButton } from "@/components/button/button";
 import DeviceInfo from "react-native-device-info";
+import ConfirmDeleteAccount from "@/components/profile/confirm-delete-account";
 
 export default function Profile() {
   /************ States and Variables ************/
@@ -245,36 +246,6 @@ export default function Profile() {
                 />
               </Fieldset>
             </XStack>
-            <XStack justifyContent="space-between">
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  First name
-                </Text>
-                <Input
-                  id="first-name"
-                  placeholder="First Name"
-                  defaultValue=""
-                  value={profileInfo?.firstName}
-                  onChangeText={handleFirstNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-                  maxLength={10}
-                />
-              </Fieldset>
-              <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                <Text paddingLeft="$1.5" fontSize={"$1"}>
-                  Last Name
-                </Text>
-                <Input
-                  id="last-name"
-                  placeholder="Last Name"
-                  defaultValue=""
-                  value={profileInfo?.lastName}
-                  onChangeText={handleLastNameChange}
-                  backgroundColor={"$backgroundTransparent"}
-                  maxLength={10}
-                />
-              </Fieldset>
-            </XStack>
             <XStack>
               <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
                 <Text paddingLeft="$1.5" fontSize={"$1"}>
@@ -291,7 +262,12 @@ export default function Profile() {
               </Fieldset>
             </XStack>
           </YStack>
-          <XStack justifyContent="flex-end">
+          <XStack justifyContent="space-between">
+            <ConfirmDeleteAccount
+              billId={0}
+              userId={userId.toString()}
+              isIpad={false}
+            />
             <Form.Trigger asChild>
               {!isKeyboardVisible && (
                 <StyledButton
