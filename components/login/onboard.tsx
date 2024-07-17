@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Keyboard } from "react-native";
 import {
-  Button,
   Fieldset,
   Form,
   Input,
@@ -24,6 +23,7 @@ import Avatar from "./avatar";
 import { getProfileInfoOnboard, updateProfile } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { ProfileInfo } from "@/types/global";
+import DeviceInfo from "react-native-device-info";
 
 interface Props {
   userId: string;
@@ -51,6 +51,8 @@ export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [buttonAreaHeight, setButtonAreaHeight] = useState(height * 0.75);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
+  const [containerHeight, setContainerHeight] = useState(height * 0.86);
   const router = useRouter();
 
   /************ Functions ************/
@@ -188,6 +190,28 @@ export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
     };
   }, [height]);
 
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        setContainerHeight(height * 0.88);
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <OuterContainer
       padding="$2"
@@ -201,7 +225,7 @@ export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
         </YStack>
       ) : (
         <BodyContainer
-          height={height * 0.86}
+          height={containerHeight}
           borderBottomRightRadius={"$11"}
           borderBottomLeftRadius={"$11"}
         >
@@ -231,40 +255,6 @@ export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
                   />
                 </Fieldset>
               </XStack>
-              <XStack justifyContent="space-between">
-                <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                  <Text paddingLeft="$1.5" fontSize={"$1"}>
-                    First name
-                  </Text>
-                  <Input
-                    id="first-name"
-                    placeholder="First Name"
-                    value={firstName}
-                    onChangeText={handleFirstNameChange}
-                    backgroundColor={
-                      isDisabled ? "$gray" : "$backgroundTransparent"
-                    }
-                    maxLength={10}
-                    disabled={isDisabled}
-                  />
-                </Fieldset>
-                <Fieldset horizontal={false} gap={"$2"} width={width * 0.43}>
-                  <Text paddingLeft="$1.5" fontSize={"$1"}>
-                    Last Name
-                  </Text>
-                  <Input
-                    id="last-name"
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChangeText={handleLastNameChange}
-                    backgroundColor={
-                      isDisabled ? "$gray" : "$backgroundTransparent"
-                    }
-                    maxLength={10}
-                    disabled={isDisabled}
-                  />
-                </Fieldset>
-              </XStack>
               <XStack>
                 <Fieldset horizontal={false} gap={"$2"} width={width * 0.9}>
                   <Text paddingLeft="$1.5" fontSize={"$1"}>
@@ -281,7 +271,7 @@ export const Onboard: React.FC<Props> = ({ userId, areNamesSaved }) => {
               </XStack>
             </YStack>
             <XStack justifyContent="space-between">
-              <Button onPress={signOutUser}>Sign out</Button>
+              <StyledButton onPress={signOutUser}>Sign out</StyledButton>
               <Form.Trigger asChild>
                 <StyledButton
                   create={!!displayName && !isDisplayNameError && !uploading}
