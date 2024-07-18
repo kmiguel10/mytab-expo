@@ -1,8 +1,9 @@
 import { SummaryInfo, Transaction } from "@/types/global";
 import React, { useEffect, useState } from "react";
-import { View, YStack } from "tamagui";
+import { SizableText, View, YStack } from "tamagui";
 import MemberCards from "./member-cards";
 import SummaryChart from "./summary-chart";
+import MySvg from "@/assets/svgs/credit-card.svg";
 
 interface Props {
   summaryInfo: SummaryInfo[];
@@ -34,23 +35,36 @@ const Summary: React.FC<Props> = ({
 
   return (
     <View>
-      <YStack justifyContent="center" alignItems="center">
-        <View padding="$2">
-          <SummaryChart
-            members={summaryInfo}
-            scaledHeight={chartHeight}
-            scaledWidth={chartWidth}
-          />
-        </View>
-        <View height={memberCardsHeight} justifyContent="center" padding="$2">
-          <MemberCards
-            members={summaryInfo}
-            transactions={transactions}
-            scaledHeight={chartHeight}
-            scaledWidth={chartWidth}
-          />
-        </View>
-      </YStack>
+      {summaryInfo[0].txnCount > 0 ? (
+        <YStack justifyContent="center" alignItems="center">
+          <View padding="$2">
+            <SummaryChart
+              members={summaryInfo}
+              scaledHeight={chartHeight}
+              scaledWidth={chartWidth}
+            />
+          </View>
+          <View height={memberCardsHeight} justifyContent="center" padding="$2">
+            <MemberCards
+              members={summaryInfo}
+              transactions={transactions}
+              scaledHeight={chartHeight}
+              scaledWidth={chartWidth}
+            />
+          </View>
+        </YStack>
+      ) : (
+        <YStack
+          gap="$1"
+          backgroundColor={"transparent"}
+          justifyContent="center"
+          padding="$10"
+          alignItems="center"
+        >
+          <SizableText color={"gray"}>Monitor how much you spend</SizableText>
+          <MySvg width={"95%"} height={"90%"} />
+        </YStack>
+      )}
     </View>
   );
 };

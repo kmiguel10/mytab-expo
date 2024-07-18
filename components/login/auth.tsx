@@ -2,7 +2,7 @@ import { Auth as AppleAuth } from "@/components/auth/Auth.native";
 import { signInWithEmail, signUpWithEmail } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import React, { useEffect, useState } from "react";
-import { Alert, AppState, useWindowDimensions } from "react-native";
+import { Alert, AppState, useWindowDimensions, Keyboard } from "react-native";
 import {
   Card,
   Input,
@@ -10,11 +10,14 @@ import {
   SizableText,
   Spinner,
   Text,
+  View,
   XStack,
   YStack,
 } from "tamagui";
 import validator from "validator";
 import { StyledButton } from "../button/button";
+import DeviceInfo from "react-native-device-info";
+import MySvg from "@/assets/svgs/credit-card.svg";
 
 interface Props {
   emailError: string;
@@ -24,15 +27,6 @@ interface Props {
 /**
  * Tells Supabase Auth to continuously refresh the session automatically if the app is in the foreground. When this is added, you will continue to receive `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event if the user's session is terminated. This should only be registered once.
  */
-
-// Auto refresh state listener
-AppState.addEventListener("change", (state) => {
-  if (state === "active") {
-    supabase.auth.startAutoRefresh();
-  } else {
-    supabase.auth.stopAutoRefresh();
-  }
-});
 
 export const Auth: React.FC<Props> = ({ emailError, setAreNamesSaved }) => {
   /** States and Variables */
@@ -46,7 +40,8 @@ export const Auth: React.FC<Props> = ({ emailError, setAreNamesSaved }) => {
   const errorMessage = "Something went wrong. Please try again.";
   const successMessage = `A link is sent to your email.`;
   const successSubMessage = `\nNOTE : Please close this app before clicking the link.`;
-
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
   //Delete later
   const [password, setPassword] = useState("");
 
@@ -122,6 +117,48 @@ export const Auth: React.FC<Props> = ({ emailError, setAreNamesSaved }) => {
     setLoading(false);
   };
 
+  /** ---------- Listeners ---------- */
+  // Listen for keyboard show/hide events
+  Keyboard.addListener("keyboardDidShow", () => {
+    setIsKeyboardVisible(true);
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    setIsKeyboardVisible(false);
+  });
+
+  // Auto refresh state listener
+  AppState.addEventListener("change", (state) => {
+    if (state === "active") {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+
+  /** UseEffects */
+  useEffect(() => {
+    const checkIfTablet = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      const model = await DeviceInfo.getModel();
+      const deviceType = await DeviceInfo.getDeviceType();
+
+      console.log("Is Tablet:", isTablet);
+      console.log("Model:", model);
+      console.log("Device Type:", deviceType);
+
+      const isIpadModel = model.toLowerCase().includes("ipad");
+      if (isIpadModel) {
+        // setButtonSize("$2.5");
+      }
+      setIsIpad(isIpadModel);
+
+      console.log("Is iPad Model:", isIpadModel);
+    };
+
+    checkIfTablet();
+  }, []);
+
   return (
     <YStack
       backgroundColor={"white"}
@@ -171,11 +208,23 @@ export const Auth: React.FC<Props> = ({ emailError, setAreNamesSaved }) => {
               </Card>
             </XStack>
           )}
-          <XStack justifyContent="center" paddingVertical={titlePadding}>
-            <SizableText size="$9" color={"$green10Light"}>
+          <YStack
+            justifyContent="center"
+            alignItems="center"
+            paddingVertical={titlePadding}
+          >
+            <SizableText size="$9" color="$green10Light" textAlign="center">
               Owemee
             </SizableText>
-          </XStack>
+            {!isKeyboardVisible && (
+              <View alignItems="center">
+                <MySvg
+                  width={isIpad ? width * 0.5 : width * 0.6}
+                  height={isIpad ? height * 0.3 : height * 0.35}
+                />
+              </View>
+            )}
+          </YStack>
 
           <YStack
             backgroundColor={"$backgroundTransparent"}

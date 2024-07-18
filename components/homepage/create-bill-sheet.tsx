@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { BillData } from "@/types/global";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Keyboard } from "react-native";
 import * as RNIap from "react-native-iap";
 import {
@@ -37,6 +37,7 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   isFreeBillActive: boolean;
+  isIpad: boolean;
 }
 
 /**
@@ -46,6 +47,7 @@ const CreateBillSheet: React.FC<Props> = ({
   open,
   setOpen,
   isFreeBillActive,
+  isIpad,
 }) => {
   /** ---------- States and Variables ---------- */
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -79,6 +81,14 @@ const CreateBillSheet: React.FC<Props> = ({
     productId: "free.plan",
     price: "  Free  ",
   };
+
+  const snapPoints = useMemo(() => {
+    if (isPlanSelected) {
+      return isIpad ? [96] : [90];
+    } else {
+      return isIpad ? [56] : [50];
+    }
+  }, [isPlanSelected, isIpad]);
 
   /** ---------- Functions ---------- */
 
@@ -374,7 +384,7 @@ const CreateBillSheet: React.FC<Props> = ({
       modal={true}
       open={open}
       onOpenChange={() => onOpenChange()}
-      snapPoints={isPlanSelected ? [90] : [50]}
+      snapPoints={snapPoints}
       snapPointsMode={"percent"}
       dismissOnSnapToBottom
       position={position}
@@ -492,8 +502,9 @@ const CreateBillSheet: React.FC<Props> = ({
                       bordered
                       backgroundColor="white"
                       borderRadius={"$5"}
-                      height={windowHeight * 0.2}
+                      // height={isIpad ? windowHeight * 0.2 : windowHeight * 0.2}
                       elevation={2}
+                      paddingBottom="$3"
                     >
                       <YStack gap="$1" margin="$3.5">
                         <SizableText>Bill Name</SizableText>

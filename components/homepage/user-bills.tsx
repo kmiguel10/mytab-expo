@@ -1,10 +1,12 @@
-import { ScrollView, RefreshControl } from "react-native";
-import React from "react";
+import { ScrollView, RefreshControl, useWindowDimensions } from "react-native";
+import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { XStack, H5, View, Text } from "tamagui";
+import { XStack, H5, View, Text, SizableText } from "tamagui";
 import BillCardSkeleton from "../skeletons/bill-card-skeleton";
 import BillCard from "./bill-card";
 import { MemberData } from "@/types/global";
+import DeviceInfo from "react-native-device-info";
+import MySvg from "@/assets/svgs/street-food.svg";
 
 interface Props {
   bills: MemberData[];
@@ -28,6 +30,7 @@ const UserBills: React.FC<Props> = ({
   isIpad,
 }) => {
   /************ States and Variables *************/
+  const { width, height } = useWindowDimensions();
   /************ Functions *************/
   /************ UseEffects *************/
 
@@ -75,7 +78,15 @@ const UserBills: React.FC<Props> = ({
               justifyContent="center"
               padding="$10"
             >
-              <H5>Empty</H5>
+              <View alignItems="center">
+                <SizableText color={"grey"}>
+                  Create a bill and share the code with your friends!
+                </SizableText>
+                <MySvg
+                  width={isIpad ? width * 0.5 : width * 0.6}
+                  height={isIpad ? height * 0.3 : height * 0.3}
+                />
+              </View>
             </XStack>
           )}
         </>

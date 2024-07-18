@@ -11,6 +11,7 @@ import { Member, Transaction } from "@/types/global";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable, RefreshControl } from "react-native";
+import MySvg from "@/assets/svgs/having-fun.svg";
 import {
   ListItem,
   ScrollView,
@@ -19,6 +20,7 @@ import {
   View,
   XStack,
   YGroup,
+  YStack,
   useWindowDimensions,
 } from "tamagui";
 
@@ -232,14 +234,18 @@ const TransactionInfoCard: React.FC<Props> = ({
             ))}
           </XStack>
         ) : (
-          <XStack
+          <YStack
             gap="$1"
             backgroundColor={"transparent"}
             justifyContent="center"
             padding="$10"
+            alignItems="center"
           >
-            <Text>Empty</Text>
-          </XStack>
+            <SizableText color={"gray"}>
+              Split the tab evenly or mix it up!
+            </SizableText>
+            <MySvg width={windowWidth * 0.5} height={windowHeight * 0.3} />
+          </YStack>
         )}
       </ScrollView>
     </View>

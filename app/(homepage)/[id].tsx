@@ -524,6 +524,7 @@ const Home = () => {
           open={isCreateBillOpen}
           setOpen={setIsCreateBillOpen}
           isFreeBillActive={isFreeBillActive}
+          isIpad={isIpad}
         />
       </FooterContainer>
       {newBillId && (
