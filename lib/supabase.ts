@@ -26,10 +26,10 @@ const {
 } = Constants.expoConfig?.extra as Extra;
 
 // // Toggle these flags to switch between environments
-const useProduction = false; // Set to true to use production variables
+const useProduction = true; // Set to true to use production variables
 const useLocalSupabase = false; // Set to false to use the online environment in development
 
-const useStaging = true;
+const useStaging = false;
 
 let supabaseUrl, supabaseAnonKey;
 
